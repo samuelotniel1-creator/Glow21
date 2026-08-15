@@ -316,6 +316,7 @@
     transition: border-color 0.3s ease;
   }
   .registro-field input:focus { outline: none; border-color: var(--slate); }
+  .registro-hint { font-size: 12.5px; color: var(--slate-55); line-height: 1.6; margin-top: -6px; }
   .registro-error {
     font-size: 13.5px; color: #8A4530; background: rgba(244,220,214,0.55);
     border: 1px solid rgba(138,69,48,0.25); border-radius: 6px; padding: 12px 14px;
@@ -674,7 +675,7 @@
       </div>
 
       <div class="live-cta reveal reveal-2">
-        <button class="btn btn-primary" id="btnCompraInline" onclick="irAPago()" style="display: none;">
+        <button class="btn btn-primary" id="btnCompraInline" onclick="abrirPremium()" style="display: none;">
           Acceso Premium 3 meses
         </button>
         <button class="btn btn-outline" onclick="mostrarModal()">Terminé la clase, ¿qué sigue?</button>
@@ -817,7 +818,7 @@
     <h2 id="modalTitle">La transformación comienza aquí</h2>
     <p>¿Lista para los 21 días?</p>
 
-    <button class="btn btn-primary modal-btn" id="btnCompra" onclick="irAPago()" style="display: none;">
+    <button class="btn btn-primary modal-btn" id="btnCompra" onclick="abrirPremium()" style="display: none;">
       Acceso Premium 3 meses
     </button>
 
@@ -857,16 +858,56 @@
         <label for="regTelefono">Teléfono</label>
         <input type="tel" id="regTelefono" autocomplete="tel" required>
       </div>
-      <div class="registro-field">
-        <label for="regDireccion">Dirección</label>
-        <input type="text" id="regDireccion" autocomplete="street-address" required>
-      </div>
+
+      <p class="registro-hint">Tu nombre se usa para identificarte en la transmisión. Tu correo y teléfono nos sirven para mantenerte al tanto de Glow21.</p>
 
       <p class="registro-error" id="registroError" hidden></p>
 
       <button type="submit" class="btn btn-primary registro-submit" id="registroSubmit">
         <span class="registro-spinner" aria-hidden="true"></span>
         <span id="registroSubmitText">Unirme a la sesión en vivo</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- PREMIUM MODAL (incluye producto físico: pide dirección de envío) -->
+<div class="cta-modal" id="premiumModal" role="dialog" aria-modal="true" aria-labelledby="premiumTitle">
+  <div class="cta-content registro-content">
+    <button class="modal-close" onclick="cerrarPremium()" aria-label="Cerrar">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+    </button>
+
+    <div class="modal-mark">
+      <img src="assets/logos/logo-icono-transparente.png" alt="">
+    </div>
+
+    <h2 id="premiumTitle">Acceso Premium 3 meses</h2>
+    <p>Tu Acceso Premium incluye un producto físico — necesitamos tus datos para enviártelo.</p>
+
+    <form id="premiumForm" novalidate>
+      <div class="registro-field">
+        <label for="premNombre">Nombre</label>
+        <input type="text" id="premNombre" autocomplete="name" required>
+      </div>
+      <div class="registro-field">
+        <label for="premCorreo">Correo</label>
+        <input type="email" id="premCorreo" autocomplete="email" required>
+      </div>
+      <div class="registro-field">
+        <label for="premTelefono">Teléfono</label>
+        <input type="tel" id="premTelefono" autocomplete="tel" required>
+      </div>
+      <div class="registro-field">
+        <label for="premDireccion">Dirección de envío</label>
+        <input type="text" id="premDireccion" autocomplete="street-address" required>
+      </div>
+
+      <p class="registro-error" id="premiumError" hidden></p>
+
+      <button type="submit" class="btn btn-primary registro-submit" id="premiumSubmit">
+        <span class="registro-spinner" aria-hidden="true"></span>
+        <span id="premiumSubmitText">Continuar al pago</span>
       </button>
     </form>
   </div>
@@ -1089,9 +1130,8 @@
     const nombre = document.getElementById('regNombre').value.trim();
     const correo = document.getElementById('regCorreo').value.trim();
     const telefono = document.getElementById('regTelefono').value.trim();
-    const direccion = document.getElementById('regDireccion').value.trim();
 
-    if (!nombre || !correo || !telefono || !direccion) {
+    if (!nombre || !correo || !telefono) {
       mostrarErrorRegistro('Completa todos los campos para continuar.');
       return;
     }
@@ -1108,7 +1148,7 @@
     registroSubmit.classList.add('is-loading');
     registroSubmitText.textContent = 'Guardando...';
 
-    const { error } = await sb.from('glow21_profiles').insert({ nombre, correo, telefono, direccion });
+    const { error } = await sb.from('glow21_profiles').insert({ nombre, correo, telefono });
 
     registroSubmit.disabled = false;
     registroSubmit.classList.remove('is-loading');
@@ -1120,10 +1160,99 @@
       return;
     }
 
-    localStorage.setItem(REGISTRO_KEY, JSON.stringify({ nombre, correo, telefono, direccion }));
+    localStorage.setItem(REGISTRO_KEY, JSON.stringify({ nombre, correo, telefono }));
     cerrarRegistro();
     registroForm.reset();
     mostrarZoomInline(nombre);
+  });
+
+  // ---------- PREMIUM (datos de envío, formulario aparte del de la masterclass) ----------
+  const PREMIUM_KEY = 'glow21_premium_registro';
+  const premiumModal = document.getElementById('premiumModal');
+  const premiumForm = document.getElementById('premiumForm');
+  const premiumSubmit = document.getElementById('premiumSubmit');
+  const premiumSubmitText = document.getElementById('premiumSubmitText');
+  let premiumLastFocused = null;
+
+  function obtenerPremiumRegistro() {
+    try { return JSON.parse(localStorage.getItem(PREMIUM_KEY) || 'null'); }
+    catch { return null; }
+  }
+
+  function mostrarErrorPremium(msg) {
+    const el = document.getElementById('premiumError');
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  function limpiarErrorPremium() {
+    const el = document.getElementById('premiumError');
+    el.hidden = true;
+    el.textContent = '';
+  }
+
+  function abrirPremium() {
+    if (obtenerPremiumRegistro()) {
+      irAPago();
+      return;
+    }
+    premiumLastFocused = document.activeElement;
+    limpiarErrorPremium();
+    premiumModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('premNombre').focus();
+  }
+
+  function cerrarPremium() {
+    premiumModal.classList.remove('active');
+    document.body.style.overflow = '';
+    if (premiumLastFocused) premiumLastFocused.focus();
+  }
+
+  premiumModal.addEventListener('click', (e) => { if (e.target === premiumModal) cerrarPremium(); });
+
+  premiumForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    limpiarErrorPremium();
+
+    const nombre = document.getElementById('premNombre').value.trim();
+    const correo = document.getElementById('premCorreo').value.trim();
+    const telefono = document.getElementById('premTelefono').value.trim();
+    const direccion = document.getElementById('premDireccion').value.trim();
+
+    if (!nombre || !correo || !telefono || !direccion) {
+      mostrarErrorPremium('Completa todos los campos para continuar.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+      mostrarErrorPremium('Ingresa un correo válido.');
+      return;
+    }
+    if (!sb) {
+      mostrarErrorPremium('No hay conexión disponible en este momento. Intenta de nuevo en unos minutos.');
+      return;
+    }
+
+    premiumSubmit.disabled = true;
+    premiumSubmit.classList.add('is-loading');
+    premiumSubmitText.textContent = 'Guardando...';
+
+    const { error } = await sb.from('glow21_premium_leads').insert({ nombre, correo, telefono, direccion });
+
+    premiumSubmit.disabled = false;
+    premiumSubmit.classList.remove('is-loading');
+    premiumSubmitText.textContent = 'Continuar al pago';
+
+    if (error) {
+      console.warn('Glow21: error guardando el registro premium', error);
+      mostrarErrorPremium('No pudimos guardar tus datos. Verifica tu conexión e intenta de nuevo.');
+      return;
+    }
+
+    localStorage.setItem(PREMIUM_KEY, JSON.stringify({ nombre, correo, telefono, direccion }));
+    cerrarPremium();
+    premiumForm.reset();
+    irAPago();
   });
 
   // ---------- ZOOM (embebido en la sección, con botón de pantalla completa) ----------
@@ -1154,15 +1283,17 @@
     }
   }
 
-  // ---------- TECLADO: overlays activos (modal, registro) ----------
+  // ---------- TECLADO: overlays activos (modal, registro, premium) ----------
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (premiumModal.classList.contains('active')) { cerrarPremium(); return; }
       if (registroModal.classList.contains('active')) { cerrarRegistro(); return; }
       if (modal.classList.contains('active')) { cerrarModal(); return; }
     }
     if (e.key === 'Tab') {
       const activo = modal.classList.contains('active') ? modal
         : registroModal.classList.contains('active') ? registroModal
+        : premiumModal.classList.contains('active') ? premiumModal
         : null;
       if (!activo) return;
       const focusable = activo.querySelectorAll('button, a[href], input');

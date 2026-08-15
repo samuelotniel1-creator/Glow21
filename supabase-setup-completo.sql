@@ -49,9 +49,13 @@ create table if not exists public.glow21_profiles (
   nombre text not null,
   correo text not null,
   telefono text not null,
-  direccion text not null,
   created_at timestamptz not null default now()
 );
+
+-- El registro ya no pide dirección (solo nombre, correo, teléfono). Si tu
+-- tabla se creó con una corrida anterior de este SQL, esto la quita.
+alter table public.glow21_profiles
+  drop column if exists direccion;
 
 alter table public.glow21_profiles enable row level security;
 
@@ -79,3 +83,24 @@ alter table public.glow21_settings
 -- admin ni la landing. Se deja tal cual por si quieres conservarla; puedes
 -- borrarla tú mismo más adelante con:
 --   alter table public.glow21_settings drop column session_date;
+
+-- ---------- Datos de envío para el Acceso Premium (producto físico) ----------
+-- Formulario aparte del registro de la masterclass (glow21_profiles): este
+-- se llena solo al dar clic en "Acceso Premium 3 meses", porque esa oferta
+-- incluye un producto físico y necesita dirección de envío.
+create table if not exists public.glow21_premium_leads (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null,
+  correo text not null,
+  telefono text not null,
+  direccion text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.glow21_premium_leads enable row level security;
+
+drop policy if exists "glow21_premium_leads_public_insert" on public.glow21_premium_leads;
+create policy "glow21_premium_leads_public_insert"
+  on public.glow21_premium_leads
+  for insert
+  with check (true);
