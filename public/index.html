@@ -218,6 +218,19 @@
   .session-badge .icon { width: 16px; height: 16px; color: var(--slate); }
   .session-badge[hidden] { display: none; }
 
+  .countdown { margin-bottom: 40px; text-align: center; }
+  .countdown-label { font-size: 13px; font-weight: 500; color: var(--slate-70); margin-bottom: 18px; }
+  .countdown-units { display: flex; align-items: baseline; justify-content: center; gap: 26px; }
+  .countdown-unit { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 48px; }
+  .countdown-unit span {
+    font-family: var(--serif); font-weight: 600; font-size: clamp(28px, 3vw, 38px);
+    color: var(--slate); font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .countdown-unit small {
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--slate-55);
+  }
+
   .scroll-cue {
     position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
     display: flex; flex-direction: column; align-items: center; gap: 6px;
@@ -517,6 +530,8 @@
     .container { padding: 0 22px; }
     .hero { padding: 150px 0 110px; }
     .hero-actions .btn-primary { min-width: 0; width: 100%; }
+    .countdown-units { gap: 16px; }
+    .countdown-unit { min-width: 40px; }
     .origin, .live, .pillars, .method, .manifesto, .final-cta { padding: 96px 0; }
     .promise { padding: 110px 0; }
     .pillar-row { grid-template-columns: 36px 1fr; row-gap: 10px; }
@@ -571,10 +586,15 @@
       <p class="tagline reveal reveal-3">La piel más hermosa no es la más perfecta; es la que refleja una vida vivida con conocimiento, bienestar y amor propio.</p>
 
       <div class="hero-actions reveal reveal-4">
-        <span class="session-badge" id="heroSessionBadge" hidden>
-          <span class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
-          <span id="heroSessionText"></span>
-        </span>
+        <div class="countdown" id="countdown" hidden>
+          <p class="countdown-label" id="countdownLabel"></p>
+          <div class="countdown-units" id="countdownUnits">
+            <div class="countdown-unit"><span id="cdDays">00</span><small>Días</small></div>
+            <div class="countdown-unit"><span id="cdHours">00</span><small>Horas</small></div>
+            <div class="countdown-unit"><span id="cdMinutes">00</span><small>Min</small></div>
+            <div class="countdown-unit"><span id="cdSeconds">00</span><small>Seg</small></div>
+          </div>
+        </div>
         <a href="#sesion-en-vivo" class="btn btn-primary" onclick="abrirRegistro()">Unirme a la sesión en vivo</a>
         <a href="#metodo" class="text-link">
           Conocer el método
@@ -870,7 +890,7 @@
   const state = {
     zoomId: localStorage.getItem('glow21_zoom_id') || '',
     zoomPassword: localStorage.getItem('glow21_zoom_password') || '',
-    sessionDate: localStorage.getItem('glow21_session_date') || '',
+    sessionDatetime: localStorage.getItem('glow21_session_datetime') || '',
     showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true',
     sessionLive: localStorage.getItem('glow21_session_live') === 'true'
   };
@@ -884,12 +904,13 @@
     }
     state.zoomId = data.zoom_id || '';
     state.zoomPassword = data.zoom_password || '';
-    state.sessionDate = data.session_date || '';
+    state.sessionDatetime = data.session_datetime || '';
     state.showPremiumButton = !!data.show_premium_button;
     state.sessionLive = !!data.session_live;
     localStorage.setItem('glow21_zoom_id', state.zoomId);
     localStorage.setItem('glow21_zoom_password', state.zoomPassword);
-    localStorage.setItem('glow21_session_date', state.sessionDate);
+    if (state.sessionDatetime) localStorage.setItem('glow21_session_datetime', state.sessionDatetime);
+    else localStorage.removeItem('glow21_session_datetime');
     localStorage.setItem('glow21_boton_compra', state.showPremiumButton);
     localStorage.setItem('glow21_session_live', state.sessionLive);
   }
@@ -904,15 +925,52 @@
     }
   }
 
-  function cargarSessionBadges() {
-    if (!state.sessionDate) return;
-    [
-      ['heroSessionBadge', 'heroSessionText'],
-      ['liveSessionBadge', 'liveSessionText']
-    ].forEach(([badgeId, textId]) => {
-      document.getElementById(textId).textContent = state.sessionDate;
-      document.getElementById(badgeId).hidden = false;
-    });
+  // ---------- FECHA DE SESIÓN + TEMPORIZADOR ----------
+  function formatearFechaSesion(date) {
+    const texto = new Intl.DateTimeFormat('es-MX', {
+      weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit'
+    }).format(date);
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
+  let countdownInterval = null;
+
+  function actualizarCountdown() {
+    const countdownEl = document.getElementById('countdown');
+    const unitsEl = document.getElementById('countdownUnits');
+    const target = state.sessionDatetime ? new Date(state.sessionDatetime) : null;
+
+    if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+
+    if (!target || isNaN(target)) {
+      countdownEl.hidden = true;
+      document.getElementById('liveSessionBadge').hidden = true;
+      return;
+    }
+
+    document.getElementById('countdownLabel').textContent = `Próxima sesión: ${formatearFechaSesion(target)}`;
+    document.getElementById('liveSessionText').textContent = formatearFechaSesion(target);
+    document.getElementById('liveSessionBadge').hidden = false;
+    countdownEl.hidden = false;
+
+    function tick() {
+      const diff = target.getTime() - Date.now();
+      if (diff <= 0) {
+        unitsEl.hidden = true;
+        if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+        return;
+      }
+      unitsEl.hidden = false;
+      const totalSeconds = Math.floor(diff / 1000);
+      const pad = (n) => String(n).padStart(2, '0');
+      document.getElementById('cdDays').textContent = pad(Math.floor(totalSeconds / 86400));
+      document.getElementById('cdHours').textContent = pad(Math.floor((totalSeconds % 86400) / 3600));
+      document.getElementById('cdMinutes').textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+      document.getElementById('cdSeconds').textContent = pad(totalSeconds % 60);
+    }
+
+    tick();
+    countdownInterval = setInterval(tick, 1000);
   }
 
   // ---------- ESTADO EN VIVO (polling cada 10s, plan Free sin Realtime) ----------
@@ -924,7 +982,8 @@
 
   async function revisarEstadoEnVivo() {
     if (!sb) return;
-    const { data, error } = await sb.from('glow21_settings').select('show_premium_button, session_live').eq('id', 1).single();
+    const { data, error } = await sb.from('glow21_settings')
+      .select('show_premium_button, session_live, session_datetime').eq('id', 1).single();
     if (error || !data) return;
 
     const nextPremium = !!data.show_premium_button;
@@ -942,6 +1001,14 @@
       state.sessionLive = nextLive;
       localStorage.setItem('glow21_session_live', nextLive);
       actualizarGateEnVivo();
+    }
+
+    const nextDatetime = data.session_datetime || '';
+    if (nextDatetime !== state.sessionDatetime) {
+      state.sessionDatetime = nextDatetime;
+      if (nextDatetime) localStorage.setItem('glow21_session_datetime', nextDatetime);
+      else localStorage.removeItem('glow21_session_datetime');
+      actualizarCountdown();
     }
   }
 
@@ -1135,7 +1202,7 @@
     if (registroPrevio && state.zoomId) {
       mostrarZoomInline(registroPrevio.nombre, { scroll: false });
     }
-    cargarSessionBadges();
+    actualizarCountdown();
     aplicarVisibilidadBotonPremium();
     if (sb) setInterval(revisarEstadoEnVivo, 10000);
   })();
