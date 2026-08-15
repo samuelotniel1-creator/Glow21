@@ -278,7 +278,10 @@
   .zoom-error .icon { width: 34px; height: 34px; color: var(--slate); margin: 0 auto 18px; }
   .zoom-error strong { display: block; font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--slate); margin-bottom: 8px; font-weight: 500; }
 
-  .live-cta { text-align: center; margin-top: 44px; }
+  .live-cta {
+    text-align: center; margin-top: 44px;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
 
   /* ================= PILLARS ================= */
   .pillars {
@@ -568,6 +571,9 @@
 
       <div class="live-cta reveal reveal-2">
         <button class="btn btn-outline" onclick="mostrarModal()">Terminé la clase, ¿qué sigue?</button>
+        <button class="btn btn-primary" id="btnCompraInline" onclick="irAPago()" style="display: none;">
+          Acceso Premium 3 meses
+        </button>
       </div>
     </div>
   </section>
@@ -785,7 +791,9 @@
 
   // ---------- BOTÓN PREMIUM (polling cada 10s, plan Free sin Realtime) ----------
   function aplicarVisibilidadBotonPremium() {
-    document.getElementById('btnCompra').style.display = state.showPremiumButton ? 'block' : 'none';
+    const display = state.showPremiumButton ? 'block' : 'none';
+    document.getElementById('btnCompra').style.display = display;
+    document.getElementById('btnCompraInline').style.display = display;
   }
 
   async function revisarBotonPremium() {
@@ -797,6 +805,9 @@
       state.showPremiumButton = next;
       localStorage.setItem('glow21_boton_compra', next);
       aplicarVisibilidadBotonPremium();
+      if (next) {
+        document.getElementById('btnCompraInline').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   }
 
