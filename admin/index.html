@@ -205,6 +205,23 @@
 
     <div class="field">
       <label>
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span>
+        Sesión en vivo ahora
+      </label>
+      <div class="toggle-row">
+        <span class="toggle-row-label">
+          Mostrar aviso "Estamos en vivo" en la landing
+          <small id="estadoEnVivo">Desactivado</small>
+        </span>
+        <div class="toggle" id="toggleEnVivo" role="switch" aria-checked="false" tabindex="0">
+          <div class="toggle-thumb"></div>
+        </div>
+      </div>
+      <p class="hint">Actívalo justo cuando empieces a transmitir. Las personas que ya estén en la landing lo ven aparecer solas, sin recargar.</p>
+    </div>
+
+    <div class="field">
+      <label>
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.47 5.18 5.53.63-4.1 3.86 1.1 5.5L12 15.8l-4.99 2.87 1.1-5.5-4.1-3.86 5.53-.63L12 3.5z"/></svg></span>
         Botón "Acceso Premium"
       </label>
@@ -250,6 +267,8 @@
   const sessionDateEl = document.getElementById('sessionDate');
   const toggleEl = document.getElementById('toggleCompra');
   const estadoEl = document.getElementById('estadoCompra');
+  const toggleEnVivoEl = document.getElementById('toggleEnVivo');
+  const estadoEnVivoEl = document.getElementById('estadoEnVivo');
 
   function setConnStatus(estado) {
     const el = document.getElementById('connStatus');
@@ -267,7 +286,8 @@
         zoomIdEl.value = data.zoom_id || '';
         zoomPasswordEl.value = data.zoom_password || '';
         sessionDateEl.value = data.session_date || '';
-        setToggle(!!data.show_premium_button);
+        setToggle(toggleEl, estadoEl, !!data.show_premium_button);
+        setToggle(toggleEnVivoEl, estadoEnVivoEl, !!data.session_live);
         setConnStatus('online');
         return;
       }
@@ -278,26 +298,32 @@
     zoomIdEl.value = localStorage.getItem('glow21_zoom_id') || '';
     zoomPasswordEl.value = localStorage.getItem('glow21_zoom_password') || '';
     sessionDateEl.value = localStorage.getItem('glow21_session_date') || '';
-    setToggle(localStorage.getItem('glow21_boton_compra') === 'true');
+    setToggle(toggleEl, estadoEl, localStorage.getItem('glow21_boton_compra') === 'true');
+    setToggle(toggleEnVivoEl, estadoEnVivoEl, localStorage.getItem('glow21_session_live') === 'true');
   }
 
-  function setToggle(activo) {
-    toggleEl.classList.toggle('active', activo);
-    toggleEl.setAttribute('aria-checked', String(activo));
-    estadoEl.textContent = activo ? 'Activado' : 'Desactivado';
+  function setToggle(toggle, estadoLabel, activo) {
+    toggle.classList.toggle('active', activo);
+    toggle.setAttribute('aria-checked', String(activo));
+    estadoLabel.textContent = activo ? 'Activado' : 'Desactivado';
   }
 
-  function toggleClick() { setToggle(!toggleEl.classList.contains('active')); }
-  toggleEl.addEventListener('click', toggleClick);
-  toggleEl.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleClick(); }
-  });
+  function registrarToggle(toggle, estadoLabel) {
+    const onClick = () => setToggle(toggle, estadoLabel, !toggle.classList.contains('active'));
+    toggle.addEventListener('click', onClick);
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); }
+    });
+  }
+  registrarToggle(toggleEl, estadoEl);
+  registrarToggle(toggleEnVivoEl, estadoEnVivoEl);
 
   async function guardar() {
     const zoomId = zoomIdEl.value.trim();
     const zoomPassword = zoomPasswordEl.value.trim();
     const sessionDate = sessionDateEl.value.trim();
     const botonActivo = toggleEl.classList.contains('active');
+    const enVivo = toggleEnVivoEl.classList.contains('active');
 
     if (!zoomId) {
       mostrarStatus('Ingresa el Zoom ID antes de guardar.', 'error');
@@ -311,6 +337,7 @@
         zoom_password: zoomPassword,
         session_date: sessionDate,
         show_premium_button: botonActivo,
+        session_live: enVivo,
         updated_at: new Date().toISOString()
       }).eq('id', 1);
 
@@ -325,6 +352,7 @@
     localStorage.setItem('glow21_zoom_password', zoomPassword);
     localStorage.setItem('glow21_session_date', sessionDate);
     localStorage.setItem('glow21_boton_compra', botonActivo);
+    localStorage.setItem('glow21_session_live', enVivo);
 
     mostrarStatus(
       sb ? 'Guardado. Las personas conectadas lo verán en unos segundos.' : 'Configuración guardada correctamente.',

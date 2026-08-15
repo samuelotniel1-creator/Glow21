@@ -271,6 +271,18 @@
   .live-gate-card p { color: var(--slate-70); font-size: 15px; margin-bottom: 26px; }
   #liveGateReady .btn { min-width: 260px; }
 
+  .live-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    color: #8A5A2B; background: rgba(229,196,163,0.35);
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 18px;
+  }
+  .live-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #C97A3D;
+    animation: live-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes live-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.4); } }
+
   .live-cta {
     text-align: center; margin-top: 44px;
     display: flex; flex-direction: column; align-items: center; gap: 20px;
@@ -611,10 +623,18 @@
       <div class="live-gate reveal reveal-1" id="liveGate">
         <div class="live-gate-card">
           <div id="liveGateReady">
-            <span class="icon live-gate-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5v-7z"/></svg></span>
-            <strong>Estás a un paso de entrar</strong>
-            <p>Completa tus datos una sola vez para acceder a la transmisión.</p>
-            <button class="btn btn-primary" onclick="abrirRegistro()">Unirme a la sesión en vivo</button>
+            <div id="liveGateBeforeLive">
+              <span class="icon live-gate-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5v-7z"/></svg></span>
+              <strong>Estás a un paso de entrar</strong>
+              <p>Completa tus datos una sola vez para acceder a la transmisión.</p>
+              <button class="btn btn-primary" onclick="abrirRegistro()">Unirme a la sesión en vivo</button>
+            </div>
+            <div id="liveGateNowLive" hidden>
+              <span class="live-badge"><span class="live-dot"></span>En vivo ahora</span>
+              <strong>¡Estamos en vivo!</strong>
+              <p>La masterclass ya comenzó.</p>
+              <button class="btn btn-primary" onclick="abrirRegistro()">Da clic aquí para entrar</button>
+            </div>
           </div>
           <div id="liveGateWaiting" hidden>
             <span class="icon live-gate-icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
@@ -851,7 +871,8 @@
     zoomId: localStorage.getItem('glow21_zoom_id') || '',
     zoomPassword: localStorage.getItem('glow21_zoom_password') || '',
     sessionDate: localStorage.getItem('glow21_session_date') || '',
-    showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true'
+    showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true',
+    sessionLive: localStorage.getItem('glow21_session_live') === 'true'
   };
 
   async function cargarConfigInicial() {
@@ -865,16 +886,22 @@
     state.zoomPassword = data.zoom_password || '';
     state.sessionDate = data.session_date || '';
     state.showPremiumButton = !!data.show_premium_button;
+    state.sessionLive = !!data.session_live;
     localStorage.setItem('glow21_zoom_id', state.zoomId);
     localStorage.setItem('glow21_zoom_password', state.zoomPassword);
     localStorage.setItem('glow21_session_date', state.sessionDate);
     localStorage.setItem('glow21_boton_compra', state.showPremiumButton);
+    localStorage.setItem('glow21_session_live', state.sessionLive);
   }
 
   function actualizarGateEnVivo() {
     const configurado = !!state.zoomId;
     document.getElementById('liveGateReady').hidden = !configurado;
     document.getElementById('liveGateWaiting').hidden = configurado;
+    if (configurado) {
+      document.getElementById('liveGateBeforeLive').hidden = state.sessionLive;
+      document.getElementById('liveGateNowLive').hidden = !state.sessionLive;
+    }
   }
 
   function cargarSessionBadges() {
@@ -888,25 +915,33 @@
     });
   }
 
-  // ---------- BOTÓN PREMIUM (polling cada 10s, plan Free sin Realtime) ----------
+  // ---------- ESTADO EN VIVO (polling cada 10s, plan Free sin Realtime) ----------
   function aplicarVisibilidadBotonPremium() {
     const display = state.showPremiumButton ? 'block' : 'none';
     document.getElementById('btnCompra').style.display = display;
     document.getElementById('btnCompraInline').style.display = display;
   }
 
-  async function revisarBotonPremium() {
+  async function revisarEstadoEnVivo() {
     if (!sb) return;
-    const { data, error } = await sb.from('glow21_settings').select('show_premium_button').eq('id', 1).single();
+    const { data, error } = await sb.from('glow21_settings').select('show_premium_button, session_live').eq('id', 1).single();
     if (error || !data) return;
-    const next = !!data.show_premium_button;
-    if (next !== state.showPremiumButton) {
-      state.showPremiumButton = next;
-      localStorage.setItem('glow21_boton_compra', next);
+
+    const nextPremium = !!data.show_premium_button;
+    if (nextPremium !== state.showPremiumButton) {
+      state.showPremiumButton = nextPremium;
+      localStorage.setItem('glow21_boton_compra', nextPremium);
       aplicarVisibilidadBotonPremium();
-      if (next) {
+      if (nextPremium) {
         document.getElementById('btnCompraInline').scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+    }
+
+    const nextLive = !!data.session_live;
+    if (nextLive !== state.sessionLive) {
+      state.sessionLive = nextLive;
+      localStorage.setItem('glow21_session_live', nextLive);
+      actualizarGateEnVivo();
     }
   }
 
@@ -1102,7 +1137,7 @@
     }
     cargarSessionBadges();
     aplicarVisibilidadBotonPremium();
-    if (sb) setInterval(revisarBotonPremium, 10000);
+    if (sb) setInterval(revisarEstadoEnVivo, 10000);
   })();
 </script>
 
