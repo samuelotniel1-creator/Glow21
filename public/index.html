@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow21 · Masterclass en Vivo</title>
+<meta name="description" content="Una Masterclass en vivo para aprender el método Glow21: 21 días de educación, ciencia y comunidad para transformar tu piel y tu relación con el espejo.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+
+  /* ---------- Foundations ---------- */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --pearl:      #FDFBF7;
+    --slate:      #2C3539;
+    --champagne:  #E5C4A3;
+    --quartz:     #F4DCD6;
+
+    --slate-70:   rgba(44, 53, 57, 0.72);
+    --slate-55:   rgba(44, 53, 57, 0.56);
+    --slate-12:   rgba(44, 53, 57, 0.12);
+    --slate-08:   rgba(44, 53, 57, 0.08);
+    --pearl-80:   rgba(253, 251, 247, 0.82);
+    --pearl-60:   rgba(253, 251, 247, 0.62);
+
+    --gradient-bruma: linear-gradient(135deg, #F4DCD6 0%, #E5C4A3 100%);
+
+    --serif: 'Playfair Display', Cambria, Georgia, serif;
+    --sans: 'Montserrat', Calibri, 'Segoe UI', sans-serif;
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --shadow-card: 0 24px 60px -24px rgba(44, 53, 57, 0.28);
+    --shadow-soft: 0 12px 32px -14px rgba(44, 53, 57, 0.22);
+
+    --radius: 3px;
+    --measure: 62ch;
+  }
+
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--pearl);
+    color: var(--slate);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  img { max-width: 100%; display: block; }
+
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; }
+
+  a { color: inherit; text-decoration: none; }
+
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  .skip-link {
+    position: absolute; left: 16px; top: -60px;
+    background: var(--slate); color: var(--pearl);
+    padding: 12px 20px; border-radius: var(--radius);
+    font-size: 14px; z-index: 2000; transition: top 0.25s var(--ease);
+  }
+  .skip-link:focus { top: 16px; }
+
+  :focus-visible { outline: 2px solid var(--slate); outline-offset: 3px; }
+
+  section { position: relative; }
+
+  /* ---------- Reveal-on-scroll ---------- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+  }
+  .reveal.is-visible { opacity: 1; transform: translateY(0); }
+  .reveal-1 { transition-delay: 0.06s; }
+  .reveal-2 { transition-delay: 0.14s; }
+  .reveal-3 { transition-delay: 0.22s; }
+  .reveal-4 { transition-delay: 0.30s; }
+  .reveal-5 { transition-delay: 0.38s; }
+
+  /* ---------- Icons ---------- */
+  .icon { display: inline-block; width: 30px; height: 30px; flex-shrink: 0; }
+  .icon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ---------- Buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 16px 34px;
+    border: none; border-radius: var(--radius);
+    font-family: var(--sans); font-size: 14px; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.45s var(--ease), box-shadow 0.45s var(--ease), background 0.45s var(--ease), opacity 0.3s ease;
+  }
+  .btn-primary {
+    background: var(--gradient-bruma); color: var(--slate);
+    box-shadow: var(--shadow-soft);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled, .btn-primary.disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
+  .btn-primary:disabled:hover, .btn-primary.disabled:hover { transform: none; }
+
+  .btn-ghost-dark {
+    background: transparent; color: var(--pearl);
+    border: 1px solid rgba(253, 251, 247, 0.4);
+  }
+  .btn-ghost-dark:hover { border-color: var(--champagne); background: rgba(253, 251, 247, 0.06); }
+
+  .btn-outline {
+    background: transparent; color: var(--slate);
+    border: 1px solid var(--slate-12);
+  }
+  .btn-outline:hover { border-color: var(--slate); }
+
+  .text-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600; color: var(--slate);
+    padding-bottom: 3px;
+    border-bottom: 1.5px solid var(--champagne);
+    transition: border-color 0.3s ease, opacity 0.3s ease;
+  }
+  .text-link:hover { border-color: var(--slate); }
+  .text-link .icon { width: 16px; height: 16px; }
+
+  /* ================= HEADER ================= */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    padding: 22px 0;
+    transition: background 0.4s var(--ease), box-shadow 0.4s var(--ease), border-color 0.4s var(--ease);
+    border-bottom: 1px solid transparent;
+  }
+  header.scrolled {
+    background: rgba(253, 251, 247, 0.92);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-color: var(--slate-08);
+  }
+  header .container { display: flex; align-items: center; justify-content: space-between; }
+  .brand-logo { height: 40px; width: auto; transform-origin: left center; transition: transform 0.4s var(--ease); }
+  header.scrolled .brand-logo { transform: scale(0.86); }
+  .brand-logo img { height: 100%; width: auto; }
+
+  header .btn { padding: 12px 24px; font-size: 12px; }
+
+  /* ================= HERO ================= */
+  .hero {
+    position: relative;
+    padding: 200px 0 140px;
+    overflow: hidden;
+    background:
+      radial-gradient(ellipse 900px 620px at 82% -6%, rgba(229,196,163,0.30), transparent 60%),
+      radial-gradient(ellipse 700px 520px at 6% 14%, rgba(244,220,214,0.35), transparent 60%),
+      var(--pearl);
+  }
+
+  .hero-ring {
+    position: absolute;
+    top: -14%; right: -16%;
+    width: min(70vw, 880px); height: min(70vw, 880px);
+    opacity: 0.55;
+    animation: ring-spin 140s linear infinite;
+    pointer-events: none;
+  }
+  @keyframes ring-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .hero-inner { position: relative; max-width: 760px; margin: 0 auto; text-align: center; }
+
+  .hero-mark { width: 148px; height: 148px; margin: 0 auto 36px; }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 4.6vw + 1rem, 4.6rem);
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    margin-bottom: 26px;
+  }
+
+  .hero .subtitle {
+    font-size: clamp(17px, 1.1vw + 12px, 19px);
+    color: var(--slate-70);
+    max-width: 58ch;
+    margin: 0 auto 34px;
+    line-height: 1.75;
+  }
+
+  .hero .tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(16px, 1vw + 12px, 18px);
+    color: var(--slate);
+    max-width: 46ch;
+    margin: 0 auto 48px;
+    line-height: 1.6;
+  }
+  .hero .tagline::before,
+  .hero .tagline::after { content: '"'; }
+
+  .hero-actions { display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .hero-actions .btn-primary { min-width: 300px; }
+
+  .session-badge {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 500; color: var(--slate-70);
+    padding: 10px 18px; border: 1px solid var(--slate-12); border-radius: 999px;
+    margin-bottom: 40px;
+  }
+  .session-badge .icon { width: 16px; height: 16px; color: var(--slate); }
+  .session-badge[hidden] { display: none; }
+
+  .scroll-cue {
+    position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    color: var(--slate-55); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+  }
+  .scroll-cue .icon { width: 18px; height: 18px; animation: cue-float 2.2s var(--ease) infinite; }
+  @keyframes cue-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+  /* ================= ORIGIN ================= */
+  .origin { padding: 150px 0; background: var(--pearl); }
+  .origin-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 80px; align-items: center; }
+  .origin-mark-wrap { position: relative; display: flex; justify-content: center; }
+  .origin-ring { width: 100%; max-width: 420px; opacity: 0.9; }
+
+  .origin-content blockquote {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: clamp(2rem, 2.6vw + 1rem, 3rem);
+    line-height: 1.22;
+    color: var(--slate);
+    margin-bottom: 32px;
+    letter-spacing: -0.01em;
+  }
+  .origin-content p {
+    max-width: var(--measure);
+    color: var(--slate-70);
+    font-size: 16.5px;
+    margin-bottom: 20px;
+  }
+  .origin-content .signature {
+    font-family: var(--serif); font-style: italic; color: var(--slate);
+    font-size: 17px; margin-top: 12px;
+  }
+
+  /* ================= LIVE SESSION ================= */
+  .live { padding: 40px 0 150px; background: var(--pearl); }
+  .live-head { text-align: center; max-width: 620px; margin: 0 auto 48px; }
+  .live-head h2 { font-size: clamp(2rem, 2.4vw + 1rem, 2.8rem); margin-bottom: 16px; }
+  .live-head p { color: var(--slate-70); font-size: 16.5px; }
+
+  .zoom-container {
+    background: #fff;
+    border: 1px solid var(--slate-08);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    max-width: 920px; margin: 0 auto;
+  }
+  .zoom-embed-wrapper {
+    position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
+    overflow: hidden; border-radius: 6px; background: var(--slate);
+  }
+  .zoom-embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+  .zoom-error {
+    display: none; text-align: center; padding: 60px 30px;
+    color: var(--slate-70);
+  }
+  .zoom-error .icon { width: 34px; height: 34px; color: var(--slate); margin: 0 auto 18px; }
+  .zoom-error strong { display: block; font-family: var(--serif); font-style: italic; font-size: 19px; color: var(--slate); margin-bottom: 8px; font-weight: 500; }
+
+  .live-cta { text-align: center; margin-top: 44px; }
+
+  /* ================= PILLARS ================= */
+  .pillars {
+    padding: 150px 0;
+    background: linear-gradient(180deg, var(--quartz) 0%, rgba(244,220,214,0.4) 100%);
+  }
+  .pillars-head { max-width: 620px; margin: 0 auto 64px; text-align: center; }
+  .pillars-head h2 { font-size: clamp(2rem, 2.4vw + 1rem, 2.8rem); margin-bottom: 16px; }
+  .pillars-head p { color: var(--slate-70); font-size: 16.5px; }
+
+  .pillars-list { max-width: 860px; margin: 0 auto; border-top: 1px solid rgba(44,53,57,0.16); }
+  .pillar-row {
+    display: grid; grid-template-columns: 44px 220px 1fr;
+    gap: 28px; align-items: start;
+    padding: 34px 0;
+    border-bottom: 1px solid rgba(44,53,57,0.16);
+    transition: transform 0.4s var(--ease);
+  }
+  .pillar-row:hover { transform: translateX(10px); }
+  .pillar-row .icon { color: var(--slate); margin-top: 4px; }
+  .pillar-row h3 {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.01em;
+    position: relative; display: inline-block; width: fit-content;
+  }
+  .pillar-row h3::after {
+    content: ''; position: absolute; left: 0; right: 0; bottom: -4px; height: 1.5px;
+    background: var(--slate); transform: scaleX(0); transform-origin: left;
+    transition: transform 0.45s var(--ease);
+  }
+  .pillar-row:hover h3::after { transform: scaleX(1); }
+  .pillar-row p { color: var(--slate-70); font-size: 15.5px; max-width: 46ch; }
+
+  /* ================= METHOD (dark) ================= */
+  .method { padding: 150px 0; background: var(--slate); color: var(--pearl); }
+  .method-head { max-width: 620px; margin: 0 auto 84px; text-align: center; }
+  .method-head h2 { color: var(--pearl); font-size: clamp(2rem, 2.4vw + 1rem, 2.8rem); margin-bottom: 16px; }
+  .method-head p { color: var(--pearl-80); font-size: 16.5px; }
+
+  .method-path { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; position: relative; }
+  .method-path::before {
+    content: ''; position: absolute; top: 22px; left: 12.5%; right: 12.5%; height: 1px;
+    background: linear-gradient(90deg, var(--quartz), var(--champagne));
+  }
+  .method-step { text-align: center; padding: 0 18px; position: relative; }
+  .method-node {
+    width: 46px; height: 46px; margin: 0 auto 26px; border-radius: 50%;
+    background: var(--slate); border: 1.5px solid var(--champagne);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--champagne);
+    position: relative; z-index: 2;
+  }
+  .method-step h3 { color: var(--pearl); font-size: 20px; margin-bottom: 10px; font-weight: 600; }
+  .method-step p { color: var(--pearl-80); font-size: 14.5px; max-width: 26ch; margin: 0 auto; }
+
+  /* ================= PROMISE (gradient) ================= */
+  .promise {
+    padding: 160px 0;
+    background: var(--gradient-bruma);
+    text-align: center;
+  }
+  .promise-inner { max-width: 800px; margin: 0 auto; }
+  .promise blockquote {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: clamp(1.7rem, 2.4vw + 1rem, 2.6rem);
+    line-height: 1.35; color: var(--slate); letter-spacing: -0.01em;
+    margin-bottom: 28px;
+  }
+  .promise cite { font-style: normal; font-weight: 600; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--slate); }
+
+  /* ================= MANIFESTO ================= */
+  .manifesto { padding: 150px 0; background: var(--pearl); }
+  .manifesto-inner { max-width: 720px; margin: 0 auto; }
+  .manifesto h2 { text-align: center; font-size: clamp(2rem, 2.4vw + 1rem, 2.8rem); margin-bottom: 56px; }
+  .manifesto ul { list-style: none; }
+  .manifesto li {
+    display: flex; gap: 20px; align-items: flex-start;
+    font-family: var(--serif); font-size: clamp(18px, 1.4vw + 12px, 22px);
+    color: var(--slate); line-height: 1.5;
+    padding: 22px 0; border-top: 1px solid var(--slate-08);
+  }
+  .manifesto li:last-child { border-bottom: 1px solid var(--slate-08); }
+  .manifesto li .icon { width: 20px; height: 20px; margin-top: 6px; color: var(--slate); flex-shrink: 0; }
+
+  /* ================= FINAL CTA ================= */
+  .final-cta {
+    padding: 140px 0; text-align: center; background: var(--pearl);
+    position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content: ''; position: absolute; bottom: -30%; left: 50%; transform: translateX(-50%);
+    width: 900px; height: 900px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(229,196,163,0.25), transparent 65%);
+    pointer-events: none;
+  }
+  .final-cta-inner { position: relative; max-width: 560px; margin: 0 auto; }
+  .final-cta h2 {
+    font-style: italic; font-weight: 500;
+    font-size: clamp(2rem, 2.8vw + 1rem, 3.1rem);
+    margin-bottom: 18px;
+  }
+  .final-cta p { color: var(--slate-70); font-size: 16.5px; margin-bottom: 40px; }
+
+  /* ================= FOOTER ================= */
+  footer { background: var(--slate); color: var(--pearl-80); padding: 76px 0 34px; }
+  .footer-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 40px; padding-bottom: 48px; border-bottom: 1px solid rgba(253,251,247,0.14);
+  }
+  .footer-brand { display: flex; align-items: center; gap: 14px; }
+  .footer-brand img { height: 34px; width: auto; }
+  .footer-brand span { font-family: var(--serif); font-size: 19px; color: var(--pearl); letter-spacing: 0.02em; }
+  .footer-tagline { font-family: var(--serif); font-style: italic; color: var(--pearl-80); font-size: 16px; max-width: 30ch; text-align: right; }
+
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+    padding-top: 28px; font-size: 12.5px; color: var(--pearl-60);
+  }
+  .footer-bottom a { color: var(--pearl-60); border-bottom: 1px solid transparent; transition: color 0.3s ease, border-color 0.3s ease; }
+  .footer-bottom a:hover { color: var(--pearl); border-color: var(--champagne); }
+
+  /* ================= MODAL ================= */
+  .cta-modal {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    align-items: center; justify-content: center; padding: 20px;
+    background: rgba(44, 53, 57, 0.55);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .cta-modal.active { display: flex; }
+
+  .cta-content {
+    position: relative;
+    background: var(--pearl); padding: 56px 48px 44px;
+    border-radius: 8px; max-width: 460px; width: 100%; text-align: center;
+    box-shadow: var(--shadow-card);
+    animation: modal-in 0.5s var(--ease);
+  }
+  @keyframes modal-in { from { opacity: 0; transform: translateY(18px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  .modal-close {
+    position: absolute; top: 18px; right: 18px;
+    width: 34px; height: 34px; border-radius: 50%; border: none;
+    background: transparent; color: var(--slate-55);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+  .modal-close:hover { background: var(--slate-08); color: var(--slate); }
+  .modal-close .icon { width: 18px; height: 18px; }
+
+  .cta-content .modal-mark { width: 52px; height: 52px; margin: 0 auto 22px; }
+  .cta-content h2 { font-size: 27px; font-weight: 500; font-style: italic; margin-bottom: 12px; }
+  .cta-content p { font-size: 15px; color: var(--slate-70); margin-bottom: 30px; }
+
+  .btn-primary.modal-btn { width: 100%; margin-bottom: 24px; }
+
+  .divider { border: none; height: 1px; background: var(--slate-12); margin: 0 0 26px; }
+
+  .free-section p { font-size: 13px; color: var(--slate-55); margin-bottom: 10px; }
+  .free-link { font-size: 14px; font-weight: 600; }
+
+  /* ================= RESPONSIVE ================= */
+  @media (max-width: 980px) {
+    .origin-grid { grid-template-columns: 1fr; gap: 56px; text-align: center; }
+    .origin-content { order: 2; }
+    .origin-content blockquote, .origin-content p { margin-left: auto; margin-right: auto; }
+    .origin-mark-wrap { order: 1; }
+    .origin-ring { max-width: 260px; }
+    .method-path { grid-template-columns: 1fr; gap: 46px; }
+    .method-path::before { display: none; }
+  }
+
+  @media (max-width: 720px) {
+    .container { padding: 0 22px; }
+    .hero { padding: 150px 0 110px; }
+    .hero-actions .btn-primary { min-width: 0; width: 100%; }
+    .origin, .live, .pillars, .method, .manifesto, .final-cta { padding: 96px 0; }
+    .promise { padding: 110px 0; }
+    .pillar-row { grid-template-columns: 36px 1fr; row-gap: 10px; }
+    .pillar-row h3 { grid-column: 2; }
+    .pillar-row p { grid-column: 1 / -1; }
+    .footer-top { flex-direction: column; }
+    .footer-tagline { text-align: left; }
+    .zoom-container { padding: 12px; }
+    .cta-content { padding: 44px 26px 34px; }
+  }
+</style>
+</head>
+<body>
+
+<a href="#contenido" class="skip-link">Saltar al contenido</a>
+
+<!-- HEADER -->
+<header id="siteHeader">
+  <div class="container">
+    <a href="#top" class="brand-logo" aria-label="Ir al inicio">
+      <img src="assets/logos/logo-principal-transparente.png" alt="Glow21">
+    </a>
+    <a href="#sesion-en-vivo" class="btn btn-outline">Unirme en vivo</a>
+  </div>
+</header>
+
+<main id="contenido">
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <svg class="hero-ring" viewBox="0 0 200 200" aria-hidden="true">
+      <defs>
+        <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#F4DCD6"/>
+          <stop offset="100%" stop-color="#E5C4A3"/>
+        </linearGradient>
+      </defs>
+      <circle cx="100" cy="100" r="92" fill="none" stroke="url(#ringGrad)" stroke-width="2"/>
+      <circle cx="100" cy="100" r="76" fill="none" stroke="url(#ringGrad)" stroke-width="1"/>
+    </svg>
+
+    <div class="container hero-inner">
+      <div class="hero-mark reveal" id="revealHeroMark">
+        <img src="assets/logos/logo-icono-transparente.png" alt="" aria-hidden="true">
+      </div>
+
+      <h1 class="reveal reveal-1">Una Masterclass en vivo, para volver a mirarte distinto.</h1>
+
+      <p class="subtitle reveal reveal-2">21 días de método, ciencia y comunidad para aprender a cuidar tu piel desde el conocimiento, no desde la publicidad.</p>
+
+      <p class="tagline reveal reveal-3">La piel más hermosa no es la más perfecta; es la que refleja una vida vivida con conocimiento, bienestar y amor propio.</p>
+
+      <div class="hero-actions reveal reveal-4">
+        <span class="session-badge" id="heroSessionBadge" hidden>
+          <span class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+          <span id="heroSessionText"></span>
+        </span>
+        <a href="#sesion-en-vivo" class="btn btn-primary">Unirme a la sesión en vivo</a>
+        <a href="#metodo" class="text-link">
+          Conocer el método
+          <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 10l6 6 6-6"/></svg></span>
+        </a>
+      </div>
+    </div>
+
+    <div class="scroll-cue" aria-hidden="true">
+      <span>Descubre más</span>
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 10l6 6 6-6"/></svg></span>
+    </div>
+  </section>
+
+  <!-- ORIGIN -->
+  <section class="origin">
+    <div class="container origin-grid">
+      <div class="origin-mark-wrap reveal">
+        <svg class="origin-ring" viewBox="0 0 300 300" aria-hidden="true">
+          <circle cx="150" cy="150" r="138" fill="none" stroke="#E5C4A3" stroke-width="1.5" opacity="0.55"/>
+          <circle cx="150" cy="150" r="112" fill="none" stroke="#F4DCD6" stroke-width="1.5" opacity="0.75"/>
+          <circle cx="150" cy="150" r="86" fill="none" stroke="#2C3539" stroke-width="1" opacity="0.18"/>
+        </svg>
+      </div>
+      <div class="origin-content">
+        <blockquote class="reveal reveal-1">Glow21 nació frente a un espejo.</blockquote>
+        <p class="reveal reveal-2">A los 11 años, Aranza Malagón desarrolló un acné severo que marcó su rostro y su autoestima durante años. Probó dermatólogos, peelings, láser y tratamientos hormonales, con mejoras temporales seguidas de recaídas más dolorosas. El problema nunca fue no encontrar la crema correcta: fue que nadie le había enseñado cómo funciona realmente la piel.</p>
+        <p class="reveal reveal-3">Eso la llevó a estudiar biología de la piel, nutricosmética, cosmética coreana y glicociencia por su cuenta. Hoy, a los 47 años, no tiene una piel perfecta. Pero la verdadera transformación no ocurrió en su piel: ocurrió en su forma de mirarse al espejo.</p>
+        <p class="signature reveal reveal-4">Todo lo que aprendió en el camino, ahora lo enseña en Glow21.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE SESSION -->
+  <section class="live" id="sesion-en-vivo">
+    <div class="container">
+      <div class="live-head reveal">
+        <h2>La sesión en vivo</h2>
+        <p>Entra a la masterclass y sigue la transmisión en tiempo real.</p>
+        <span class="session-badge" id="liveSessionBadge" hidden style="margin-top: 20px;">
+          <span class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+          <span id="liveSessionText"></span>
+        </span>
+      </div>
+
+      <div class="zoom-container reveal reveal-1">
+        <div class="zoom-error" id="zoomError">
+          <span class="icon"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></span>
+          <strong>Estamos preparando la sesión en vivo</strong>
+          Vuelve a intentarlo en unos minutos, o revisa la configuración en el panel.
+        </div>
+        <div class="zoom-embed-wrapper" id="zoomContainer">
+          <iframe id="zoomFrame" title="Transmisión en vivo Glow21" allow="camera; microphone; autoplay"></iframe>
+        </div>
+      </div>
+
+      <div class="live-cta reveal reveal-2">
+        <button class="btn btn-outline" onclick="mostrarModal()">Terminé la clase, ¿qué sigue?</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILLARS -->
+  <section class="pillars" id="pilares">
+    <div class="container">
+      <div class="pillars-head reveal">
+        <h2>Los 5 pilares del método</h2>
+        <p>Todo lo que enseñamos en Glow21 vive en uno de estos cinco pilares.</p>
+      </div>
+
+      <div class="pillars-list">
+        <div class="pillar-row reveal">
+          <span class="icon"><svg viewBox="0 0 32 32"><path d="M4 6c3-2 7-2 10 0v20c-3-2-7-2-10 0V6z"/><path d="M28 6c-3-2-7-2-10 0v20c3-2 7-2 10 0V6z"/></svg></span>
+          <h3>Educación</h3>
+          <p>Cómo funciona tu piel, qué la daña y cómo elegir con criterio. Te convertimos en experta de tu propia piel.</p>
+        </div>
+        <div class="pillar-row reveal">
+          <span class="icon"><svg viewBox="0 0 32 32"><path d="M16 4c5 7 9 11.5 9 16a9 9 0 1 1-18 0c0-4.5 4-9 9-16z"/><path d="M10.5 20.5h11M12 24.5h8"/></svg></span>
+          <h3>Rutina Inteligente</h3>
+          <p>La filosofía coreana en cuatro pasos: limpieza, equilibrio, nutrición y protección. No hay productos milagro, hay un sistema.</p>
+        </div>
+        <div class="pillar-row reveal">
+          <span class="icon"><svg viewBox="0 0 32 32"><path d="M6 26C6 14 14 6 26 6c0 12-8 20-20 20z"/><path d="M6 26c4-6 9-11 15-14"/></svg></span>
+          <h3>Nutricosmética</h3>
+          <p>Tu piel refleja lo que ocurre dentro de tu cuerpo: alimentación, hidratación, descanso y microbioma.</p>
+        </div>
+        <div class="pillar-row reveal">
+          <span class="icon"><svg viewBox="0 0 32 32"><circle cx="9" cy="10" r="3"/><circle cx="23" cy="10" r="3"/><circle cx="16" cy="24" r="3"/><path d="M11.5 12.3l3 8.7M20.5 12.3l-3 8.7M12 10h8"/></svg></span>
+          <h3>Ciencia Celular</h3>
+          <p>Comunicación celular y glicociencia, explicadas de forma simple: una pieza dentro de una visión integral.</p>
+        </div>
+        <div class="pillar-row reveal">
+          <span class="icon"><svg viewBox="0 0 32 32"><circle cx="12" cy="16" r="7.5"/><circle cx="20" cy="16" r="7.5"/></svg></span>
+          <h3>Comunidad</h3>
+          <p>La transformación ocurre más rápido cuando no caminamos solas.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- METHOD -->
+  <section class="method" id="metodo">
+    <div class="container">
+      <div class="method-head reveal">
+        <h2>El método, en cuatro etapas</h2>
+        <p>Un camino claro, pensado para sostenerse mucho después del día 21.</p>
+      </div>
+
+      <div class="method-path">
+        <div class="method-step reveal reveal-1">
+          <div class="method-node">1</div>
+          <h3>Entender</h3>
+          <p>Cómo funciona tu piel, por qué envejece, qué necesita.</p>
+        </div>
+        <div class="method-step reveal reveal-2">
+          <div class="method-node">2</div>
+          <h3>Cuidar</h3>
+          <p>La rutina coreana: limpiar, hidratar, nutrir, proteger.</p>
+        </div>
+        <div class="method-step reveal reveal-3">
+          <div class="method-node">3</div>
+          <h3>Nutrir</h3>
+          <p>Nutricosmética, glicociencia y hábitos saludables.</p>
+        </div>
+        <div class="method-step reveal reveal-4">
+          <div class="method-node">4</div>
+          <h3>Transformar</h3>
+          <p>21 días de rutina, seguimiento y comunidad.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMISE -->
+  <section class="promise">
+    <div class="container promise-inner">
+      <blockquote class="reveal">"No puedo prometerte una piel perfecta — sería deshonesto. Lo que sí puedo prometerte es compartir contigo todo lo que aprendí, para que entiendas tu piel antes de invertir en cualquier producto."</blockquote>
+      <cite class="reveal reveal-1">— Aranza Malagón</cite>
+    </div>
+  </section>
+
+  <!-- MANIFESTO -->
+  <section class="manifesto">
+    <div class="container manifesto-inner">
+      <h2 class="reveal">Creemos que</h2>
+      <ul>
+        <li class="reveal"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></span>La belleza comienza con el conocimiento.</li>
+        <li class="reveal"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></span>La prevención siempre será más poderosa que la corrección.</li>
+        <li class="reveal"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></span>La ciencia debe ser comprensible para cualquier mujer.</li>
+        <li class="reveal"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></span>Una rutina de cuidado también puede ser un ritual de gratitud.</li>
+        <li class="reveal"><span class="icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L19 7"/></svg></span>Cuando una mujer aprende a cuidarse, también inspira a las que la rodean.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="container final-cta-inner">
+      <h2 class="reveal">Nunca es tarde para cuidarte.</h2>
+      <p class="reveal reveal-1">Reserva tu lugar en la próxima sesión en vivo.</p>
+      <a href="#sesion-en-vivo" class="btn btn-primary reveal reveal-2">Unirme a la sesión en vivo</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="assets/logos/logo-icono-blanco.png" alt="">
+        <span>Glow21</span>
+      </div>
+      <p class="footer-tagline">"Nunca es tarde para cuidarte."</p>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Glow21. Brazo educativo de Aranza Malagón, Mentora de Reinvención Femenina.</span>
+      <a href="/admin">Panel</a>
+    </div>
+  </div>
+</footer>
+
+<!-- MODAL CTA -->
+<div class="cta-modal" id="ctaModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="cta-content">
+    <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">
+      <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
+    </button>
+
+    <div class="modal-mark">
+      <img src="assets/logos/logo-icono-transparente.png" alt="">
+    </div>
+
+    <h2 id="modalTitle">La transformación comienza aquí</h2>
+    <p>¿Lista para los 21 días?</p>
+
+    <button class="btn btn-primary modal-btn" id="btnCompra" onclick="irAPago()" style="display: none;">
+      Acceso Premium 3 meses
+    </button>
+
+    <hr class="divider">
+
+    <div class="free-section">
+      <p>¿Aún no?</p>
+      <a href="#" class="text-link free-link" onclick="irAFree(); return false;">Acceso Free a la comunidad</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // ---------- SUPABASE ----------
+  // Publishable key: segura para exponer en el navegador (la protección real
+  // vive en las políticas RLS de la tabla, ver supabase-setup.sql).
+  const SUPABASE_URL = 'https://yosammtxqqcwgvkaczyd.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_nfll20Vql75gY-trX9LU0g_pnxgK664';
+
+  const sb = window.supabase
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  // ---------- STATE ----------
+  // Arranca con lo último que este navegador vio (evita parpadeos) y se
+  // actualiza en cuanto responde Supabase.
+  const state = {
+    zoomId: localStorage.getItem('glow21_zoom_id') || '',
+    sessionDate: localStorage.getItem('glow21_session_date') || '',
+    showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true'
+  };
+
+  async function cargarConfigInicial() {
+    if (!sb) return;
+    const { data, error } = await sb.from('glow21_settings').select('*').eq('id', 1).single();
+    if (error || !data) {
+      console.warn('Glow21: no se pudo leer la configuración de Supabase', error);
+      return;
+    }
+    state.zoomId = data.zoom_id || '';
+    state.sessionDate = data.session_date || '';
+    state.showPremiumButton = !!data.show_premium_button;
+    localStorage.setItem('glow21_zoom_id', state.zoomId);
+    localStorage.setItem('glow21_session_date', state.sessionDate);
+    localStorage.setItem('glow21_boton_compra', state.showPremiumButton);
+  }
+
+  function cargarZoom() {
+    if (!state.zoomId) {
+      document.getElementById('zoomError').style.display = 'block';
+      document.getElementById('zoomContainer').style.display = 'none';
+      return;
+    }
+    document.getElementById('zoomError').style.display = 'none';
+    document.getElementById('zoomContainer').style.display = 'block';
+    const iframe = document.getElementById('zoomFrame');
+    iframe.src = `https://zoom.us/wc/join/${state.zoomId}`;
+    iframe.addEventListener('error', () => {
+      document.getElementById('zoomError').style.display = 'block';
+      document.getElementById('zoomContainer').style.display = 'none';
+    });
+  }
+
+  function cargarSessionBadges() {
+    if (!state.sessionDate) return;
+    [
+      ['heroSessionBadge', 'heroSessionText'],
+      ['liveSessionBadge', 'liveSessionText']
+    ].forEach(([badgeId, textId]) => {
+      document.getElementById(textId).textContent = state.sessionDate;
+      document.getElementById(badgeId).hidden = false;
+    });
+  }
+
+  // ---------- BOTÓN PREMIUM (polling cada 10s, plan Free sin Realtime) ----------
+  function aplicarVisibilidadBotonPremium() {
+    document.getElementById('btnCompra').style.display = state.showPremiumButton ? 'block' : 'none';
+  }
+
+  async function revisarBotonPremium() {
+    if (!sb) return;
+    const { data, error } = await sb.from('glow21_settings').select('show_premium_button').eq('id', 1).single();
+    if (error || !data) return;
+    const next = !!data.show_premium_button;
+    if (next !== state.showPremiumButton) {
+      state.showPremiumButton = next;
+      localStorage.setItem('glow21_boton_compra', next);
+      aplicarVisibilidadBotonPremium();
+    }
+  }
+
+  // ---------- MODAL ----------
+  const modal = document.getElementById('ctaModal');
+  let lastFocused = null;
+
+  function mostrarModal() {
+    lastFocused = document.activeElement;
+    modal.classList.add('active');
+    aplicarVisibilidadBotonPremium();
+    document.body.style.overflow = 'hidden';
+    modal.querySelector('.modal-close').focus();
+  }
+
+  function cerrarModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    if (lastFocused) lastFocused.focus();
+  }
+
+  modal.addEventListener('click', (e) => { if (e.target === modal) cerrarModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) cerrarModal();
+    if (e.key === 'Tab' && modal.classList.contains('active')) {
+      const focusable = modal.querySelectorAll('button, a[href]');
+      const first = focusable[0], last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  function irAPago() { window.location.href = '/pago'; }
+  function irAFree() { alert('Redirigiendo a acceso Free...'); }
+  window.testModal = mostrarModal;
+
+  // ---------- HEADER SCROLL ----------
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  // ---------- REVEAL ON SCROLL ----------
+  const revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    revealEls.forEach(el => io.observe(el));
+  } else {
+    revealEls.forEach(el => el.classList.add('is-visible'));
+  }
+
+  // ---------- INIT ----------
+  (async function init() {
+    await cargarConfigInicial();
+    cargarZoom();
+    cargarSessionBadges();
+    aplicarVisibilidadBotonPremium();
+    if (sb) setInterval(revisarBotonPremium, 10000);
+  })();
+</script>
+
+</body>
+</html>

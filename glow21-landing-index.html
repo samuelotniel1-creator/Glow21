@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glow21 Masterclass</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-pearl: #FDFBF7;
+      --color-slate: #2C3539;
+      --color-gold: #E5C4A3;
+      --color-rose: #F4DCD6;
+      --color-border: #E5C4A3;
+      --color-text-muted: #888780;
+      --color-text-light: #B4B2A9;
+    }
+
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--color-pearl);
+      color: var(--color-slate);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* HEADER */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 40px 0;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: 80px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .admin-link {
+      font-size: 11px;
+      color: var(--color-gold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .admin-link:hover {
+      color: var(--color-slate);
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      margin-bottom: 100px;
+    }
+
+    .hero h1 {
+      font-size: 72px;
+      font-weight: 300;
+      line-height: 1.2;
+      margin-bottom: 30px;
+      font-family: Georgia, serif;
+      letter-spacing: -1px;
+    }
+
+    .hero .subtitle {
+      font-size: 18px;
+      color: var(--color-text-muted);
+      line-height: 1.8;
+      max-width: 700px;
+      margin: 0 auto 20px;
+    }
+
+    .hero .tagline {
+      font-size: 13px;
+      color: var(--color-text-light);
+      font-style: italic;
+      letter-spacing: 0.5px;
+    }
+
+    /* ZOOM SECTION */
+    .zoom-wrapper {
+      margin-bottom: 100px;
+    }
+
+    .zoom-container {
+      background: white;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 30px;
+      overflow: hidden;
+    }
+
+    .zoom-embed-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #f5f5f5;
+    }
+
+    .zoom-embed-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    .zoom-error {
+      display: none;
+      background: #FAECE7;
+      color: #993C1D;
+      padding: 20px;
+      border-radius: 6px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    /* INFO SECTIONS */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 100px;
+    }
+
+    .info-card {
+      padding: 40px;
+      border-radius: 8px;
+    }
+
+    .info-card.pillars {
+      background: var(--color-rose);
+    }
+
+    .info-card.method {
+      background: rgba(229, 196, 163, 0.2);
+    }
+
+    .info-card h3 {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 20px;
+      font-family: Georgia, serif;
+      letter-spacing: 0.5px;
+    }
+
+    .info-card ul, .info-card ol {
+      list-style-position: inside;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--color-slate);
+    }
+
+    @media (max-width: 768px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 48px;
+      }
+    }
+
+    /* MODAL CTA */
+    .cta-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .cta-modal.active {
+      display: flex;
+    }
+
+    .cta-content {
+      background: white;
+      padding: 50px;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .cta-content h2 {
+      font-size: 32px;
+      font-weight: 300;
+      margin-bottom: 15px;
+      font-family: Georgia, serif;
+      letter-spacing: -0.5px;
+    }
+
+    .cta-content p {
+      font-size: 16px;
+      color: var(--color-text-muted);
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-rose) 0%, var(--color-gold) 100%);
+      color: var(--color-slate);
+      width: 100%;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.95;
+    }
+
+    .btn-primary.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .divider {
+      border: none;
+      height: 1px;
+      background: var(--color-border);
+      margin: 30px 0;
+    }
+
+    .free-section p {
+      font-size: 13px;
+      color: var(--color-text-muted);
+      margin-bottom: 12px;
+    }
+
+    .free-link {
+      color: var(--color-gold);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 14px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .free-link:hover {
+      color: var(--color-slate);
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 60px 0;
+      border-top: 1px solid var(--color-border);
+      color: var(--color-text-light);
+      font-size: 12px;
+    }
+
+    footer p {
+      margin: 8px 0;
+      letter-spacing: 0.5px;
+    }
+
+    /* UTILITIES */
+    .text-center {
+      text-align: center;
+    }
+
+    .mt-100 {
+      margin-top: 100px;
+    }
+
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .hero h1 {
+        font-size: 36px;
+      }
+
+      .cta-content {
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  
+  <!-- HEADER -->
+  <header>
+    <div class="logo">✨ Glow21</div>
+    <a href="/admin" class="admin-link">⚙️ Admin</a>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Masterclass Glow21 en Vivo</h1>
+    <p class="subtitle">Descubre el método de transformación de 21 días. Educación, ciencia y hábitos para una piel hermosa y autoestima renovada.</p>
+    <p class="tagline">La piel más hermosa no es la más perfecta; es la que refleja una vida vivida con conocimiento, bienestar y amor propio.</p>
+  </div>
+
+  <!-- ZOOM SECTION -->
+  <div class="zoom-wrapper">
+    <div class="zoom-container">
+      <div class="zoom-error" id="zoomError">
+        ⚠️ No se pudo cargar Zoom. Verifica la configuración en Admin.
+      </div>
+      <div class="zoom-embed-wrapper" id="zoomContainer">
+        <iframe id="zoomFrame" allow="camera; microphone; autoplay"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO SECTIONS -->
+  <div class="info-grid">
+    <div class="info-card pillars">
+      <h3>Los 5 Pilares</h3>
+      <ul>
+        <li>Educación</li>
+        <li>Rutina Inteligente</li>
+        <li>Nutricosmética</li>
+        <li>Ciencia Celular</li>
+        <li>Comunidad</li>
+      </ul>
+    </div>
+    <div class="info-card method">
+      <h3>El Método</h3>
+      <ol>
+        <li>Entender</li>
+        <li>Cuidar</li>
+        <li>Nutrir</li>
+        <li>Transformar</li>
+      </ol>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL CTA -->
+<div class="cta-modal" id="ctaModal">
+  <div class="cta-content">
+    <h2>La transformación comienza aquí 🌸</h2>
+    <p>¿Listo para los 21 días?</p>
+    
+    <button class="btn btn-primary" id="btnCompra" onclick="irAPago()" style="display: none;">
+      Acceso Premium 3 meses
+    </button>
+    
+    <hr class="divider">
+    
+    <div class="free-section">
+      <p>¿Aún no?</p>
+      <a href="#" class="free-link" onclick="irAFree(); return false;">Acceso Free a la comunidad →</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© Glow21 • Programa Educativo de Transformación de 21 Días</p>
+  <p>Nunca es tarde para cuidarte.</p>
+</footer>
+
+<script>
+  // CONFIG DESDE LOCALSTORAGE
+  const config = {
+    zoomId: localStorage.getItem('glow21_zoom_id') || '',
+    botonCompraActivo: localStorage.getItem('glow21_boton_compra') === 'true' || false,
+  };
+
+  const ZOOM_URL = `https://zoom.us/wc/join/${config.zoomId}`;
+
+  // CARGAR ZOOM
+  function cargarZoom() {
+    if (!config.zoomId) {
+      document.getElementById('zoomError').style.display = 'block';
+      document.getElementById('zoomContainer').style.display = 'none';
+      return;
+    }
+
+    const iframe = document.getElementById('zoomFrame');
+    iframe.src = ZOOM_URL;
+
+    iframe.addEventListener('load', () => {
+      document.getElementById('zoomError').style.display = 'none';
+    });
+
+    iframe.addEventListener('error', () => {
+      document.getElementById('zoomError').style.display = 'block';
+    });
+  }
+
+  // MOSTRAR MODAL
+  function mostrarModal() {
+    document.getElementById('ctaModal').classList.add('active');
+    
+    if (config.botonCompraActivo) {
+      document.getElementById('btnCompra').style.display = 'block';
+    }
+  }
+
+  // FUNCIONES CTA
+  function irAPago() {
+    window.location.href = '/pago';
+  }
+
+  function irAFree() {
+    // Aquí irá a landing de Free o popup de email
+    alert('Redirigiendo a acceso Free...');
+    // window.location.href = '/free';
+  }
+
+  // TESTING (descomentar para probar modal)
+  window.testModal = mostrarModal;
+
+  // INICIAR
+  cargarZoom();
+
+  // Descomentar para que modal aparezca después de X segundos
+  // setTimeout(() => mostrarModal(), 5000);
+</script>
+
+</body>
+</html>
