@@ -18,7 +18,9 @@
   "author": "Tutifruti",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.18.2"
+    "@supabase/supabase-js": "^2.112.3",
+    "express": "^4.18.2",
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

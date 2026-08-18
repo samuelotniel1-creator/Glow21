@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glow21 — CRM</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400;1,500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --pearl: #FDFBF7;
+    --slate: #2C3539;
+    --slate-deep: #21282b;
+    --slate-panel: #262d30;
+    --champagne: #E5C4A3;
+    --quartz: #F4DCD6;
+    --pearl-70: rgba(253, 251, 247, 0.7);
+    --pearl-50: rgba(253, 251, 247, 0.5);
+    --gradient-bruma: linear-gradient(135deg, #F4DCD6 0%, #E5C4A3 100%);
+    --serif: 'Playfair Display', Cambria, Georgia, serif;
+    --sans: 'Montserrat', Calibri, 'Segoe UI', sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html, body {
+    font-family: var(--sans);
+    background: var(--slate);
+    color: var(--pearl);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 700px 500px at 12% -10%, rgba(229,196,163,0.08), transparent 60%),
+      radial-gradient(ellipse 600px 500px at 100% 110%, rgba(244,220,214,0.06), transparent 60%),
+      var(--slate);
+    padding: 40px 24px 80px;
+  }
+
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--champagne); outline-offset: 2px; }
+  button { font-family: var(--sans); }
+  [hidden] { display: none !important; }
+
+  /* ---------- Login (mismo patrón que /admin) ---------- */
+  .login-wrap { min-height: calc(100vh - 120px); display: flex; align-items: center; justify-content: center; }
+  .login-panel { width: 100%; max-width: 440px; }
+  .login-card {
+    background: var(--slate-deep);
+    border: 1px solid rgba(229, 196, 163, 0.28);
+    border-radius: 10px;
+    padding: 48px;
+  }
+  .login-card h1 {
+    font-family: var(--serif); font-style: italic; font-weight: 500;
+    font-size: 28px; color: var(--pearl); margin-bottom: 6px;
+  }
+  .login-card p.intro { color: var(--pearl-50); font-size: 13.5px; margin-bottom: 28px; }
+  .field { margin-bottom: 22px; }
+  .field:last-of-type { margin-bottom: 0; }
+  label {
+    display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--champagne); margin-bottom: 10px;
+  }
+  input[type="text"], input[type="email"], input[type="password"], input[type="search"] {
+    width: 100%; padding: 12px 14px;
+    border: 1px solid rgba(253, 251, 247, 0.18);
+    border-radius: 6px;
+    background: rgba(253, 251, 247, 0.04);
+    color: var(--pearl);
+    font-size: 14px; font-family: var(--sans);
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  input:focus { outline: none; border-color: var(--champagne); background: rgba(253, 251, 247, 0.07); }
+  input::placeholder { color: rgba(253, 251, 247, 0.32); }
+
+  .login-error {
+    font-size: 13px; color: var(--quartz); background: rgba(244, 220, 214, 0.1);
+    border: 1px solid rgba(244,220,214,0.3); border-radius: 6px;
+    padding: 12px 14px; margin-top: 22px;
+  }
+
+  .btn {
+    padding: 13px 22px; border: none; border-radius: 6px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase;
+    cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  }
+  .btn .icon { width: 15px; height: 15px; flex-shrink: 0; }
+  .btn-save { background: var(--gradient-bruma); color: var(--slate); width: 100%; margin-top: 28px; }
+  .btn-save:hover { transform: translateY(-1px); box-shadow: 0 14px 30px -12px rgba(0,0,0,0.55); }
+  .btn-outline { background: transparent; color: var(--pearl-70); border: 1px solid rgba(253, 251, 247, 0.18); }
+  .btn-outline:hover { border-color: var(--champagne); color: var(--pearl); }
+  .btn-link {
+    background: transparent; color: var(--pearl-50); border: none;
+    text-transform: none; letter-spacing: normal; font-weight: 500;
+    text-decoration: underline; padding: 4px;
+  }
+  .btn-link:hover { color: var(--pearl); }
+
+  /* ---------- App shell ---------- */
+  .app { max-width: 1180px; margin: 0 auto; }
+  .app-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    flex-wrap: wrap; margin-bottom: 36px;
+  }
+  .app-brand { display: flex; align-items: center; gap: 12px; }
+  .app-brand img { height: 30px; width: auto; }
+  .app-brand span { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--pearl-70); }
+  .app-header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 22px; }
+  .tab {
+    background: transparent; border: 1px solid rgba(253,251,247,0.14); color: var(--pearl-70);
+    padding: 12px 22px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: all 0.3s var(--ease);
+  }
+  .tab .count {
+    display: inline-block; margin-left: 8px; padding: 1px 8px; border-radius: 999px;
+    background: rgba(253,251,247,0.1); font-size: 11.5px;
+  }
+  .tab.active { background: var(--gradient-bruma); color: var(--slate); border-color: transparent; }
+  .tab.active .count { background: rgba(44,53,57,0.18); }
+
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 220px; max-width: 380px; }
+  .search-wrap .icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    width: 15px; height: 15px; color: var(--pearl-50); pointer-events: none;
+  }
+  .search-wrap input { padding-left: 38px; }
+
+  .panel-table {
+    background: var(--slate-deep);
+    border: 1px solid rgba(229, 196, 163, 0.28);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .table-scroll { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  thead th {
+    text-align: left; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--champagne); padding: 16px 18px; border-bottom: 1px solid rgba(253,251,247,0.12);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 14px 18px; font-size: 13.5px; color: var(--pearl);
+    border-bottom: 1px solid rgba(253,251,247,0.06); vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(253,251,247,0.02); }
+  .cell-muted { color: var(--pearl-50); font-size: 12.5px; }
+  .cell-nota input {
+    padding: 8px 10px; font-size: 12.5px; min-width: 160px;
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 5px 11px; border-radius: 999px;
+  }
+  .badge-paid { background: rgba(229,196,163,0.18); color: var(--champagne); }
+  .badge-pending { background: rgba(253,251,247,0.08); color: var(--pearl-50); }
+
+  .toggle-mini {
+    width: 38px; height: 22px; border-radius: 999px; cursor: pointer; position: relative;
+    background: rgba(253, 251, 247, 0.12); border: 1px solid rgba(253, 251, 247, 0.2);
+    flex-shrink: 0; transition: background 0.3s var(--ease), border-color 0.3s var(--ease);
+    display: inline-block;
+  }
+  .toggle-mini.active { background: var(--gradient-bruma); border-color: transparent; }
+  .toggle-mini-thumb {
+    position: absolute; top: 2px; left: 2px; width: 16px; height: 16px;
+    background: var(--pearl); border-radius: 50%; transition: left 0.3s var(--ease);
+  }
+  .toggle-mini.active .toggle-mini-thumb { left: 18px; }
+
+  .empty-state {
+    text-align: center; padding: 70px 20px; color: var(--pearl-50);
+  }
+  .empty-state strong { display: block; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--pearl); margin-bottom: 8px; font-weight: 500; }
+
+  .app-status {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--slate-deep); border: 1px solid rgba(229,196,163,0.3); color: var(--champagne);
+    padding: 12px 20px; border-radius: 8px; font-size: 13px;
+    opacity: 0; pointer-events: none; transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 50;
+  }
+  .app-status.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 640px) {
+    .login-card { padding: 32px 24px; }
+    .app-header { align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-panel">
+    <div class="app-brand" style="margin-bottom: 28px;">
+      <img src="assets/logos/logo-icono-blanco.png" alt="Glow21">
+      <span>CRM</span>
+    </div>
+    <div class="login-card">
+      <h1>Inicia sesión</h1>
+      <p class="intro">Acceso solo para el equipo de Glow21.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="loginEmail">Correo</label>
+          <input type="text" id="loginEmail" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Contraseña</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required>
+        </div>
+        <p class="login-error" id="loginError" hidden></p>
+        <button type="submit" class="btn btn-save" id="loginSubmit">Entrar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" hidden>
+  <div class="app-header">
+    <div class="app-brand">
+      <img src="assets/logos/logo-icono-blanco.png" alt="Glow21">
+      <span>CRM</span>
+    </div>
+    <div class="app-header-actions">
+      <button class="btn btn-outline" id="exportBtn">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13M7 11l5 5 5-5M4 20h16"/></svg></span>
+        Exportar CSV
+      </button>
+      <a href="/admin" class="btn btn-outline">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span>
+        Panel
+      </a>
+      <button type="button" class="btn btn-link" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabInteresados" onclick="cambiarTab('interesados')">
+      Interesados <span class="count" id="countInteresados">0</span>
+    </button>
+    <button class="tab" id="tabPremium" onclick="cambiarTab('premium')">
+      Premium / Pago <span class="count" id="countPremium">0</span>
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
+      <input type="search" id="searchInput" placeholder="Buscar por nombre o correo...">
+    </div>
+  </div>
+
+  <div class="panel-table">
+    <div class="table-scroll">
+      <table id="tablaInteresados">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Registrado</th>
+            <th>Contactado</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody id="bodyInteresados"></tbody>
+      </table>
+      <table id="tablaPremium" hidden>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Dirección</th>
+            <th>Pago</th>
+            <th>Registrado</th>
+            <th>Contactado</th>
+            <th>Nota</th>
+          </tr>
+        </thead>
+        <tbody id="bodyPremium"></tbody>
+      </table>
+    </div>
+    <div class="empty-state" id="emptyState" hidden>
+      <strong>Nada por aquí todavía</strong>
+      <span id="emptyStateText">Cuando alguien se registre, va a aparecer en esta lista.</span>
+    </div>
+  </div>
+</div>
+
+<div class="app-status" id="appStatus"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Publishable key: segura para exponer en el navegador. Estas tablas solo
+  // se pueden leer/actualizar con una sesión autenticada (ver políticas RLS
+  // en supabase-setup-7-crm-stripe.sql) — sin login, esto no muestra nada.
+  const SUPABASE_URL = 'https://yosammtxqqcwgvkaczyd.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_nfll20Vql75gY-trX9LU0g_pnxgK664';
+
+  const sb = window.supabase
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
+  // ---------- LOGIN ----------
+  const loginWrap = document.getElementById('loginWrap');
+  const appEl = document.getElementById('app');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const loginSubmit = document.getElementById('loginSubmit');
+
+  function mostrarLogin() {
+    loginWrap.hidden = false;
+    appEl.hidden = true;
+  }
+
+  async function mostrarApp() {
+    loginWrap.hidden = true;
+    appEl.hidden = false;
+    await cargarTodo();
+  }
+
+  async function cerrarSesion() {
+    if (sb) await sb.auth.signOut();
+    mostrarLogin();
+  }
+
+  loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    loginError.hidden = true;
+
+    if (!sb) {
+      loginError.textContent = 'No hay conexión con Supabase en este momento.';
+      loginError.hidden = false;
+      return;
+    }
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = 'Entrando...';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+
+    loginSubmit.disabled = false;
+    loginSubmit.textContent = 'Entrar';
+
+    if (error) {
+      loginError.textContent = 'Correo o contraseña incorrectos.';
+      loginError.hidden = false;
+      return;
+    }
+
+    await mostrarApp();
+  });
+
+  // ---------- DATA ----------
+  let interesados = [];
+  let premium = [];
+  let tabActiva = 'interesados';
+
+  function mostrarStatus(msg) {
+    const el = document.getElementById('appStatus');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  function formatearFecha(iso) {
+    if (!iso) return '';
+    return new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
+  }
+
+  async function cargarTodo() {
+    if (!sb) return;
+
+    const [resInteresados, resPremium] = await Promise.all([
+      sb.from('glow21_profiles').select('*').order('created_at', { ascending: false }),
+      sb.from('glow21_premium_leads').select('*').order('created_at', { ascending: false })
+    ]);
+
+    if (resInteresados.error || resPremium.error) {
+      console.warn('Glow21 CRM: error cargando datos', resInteresados.error, resPremium.error);
+      mostrarStatus('No se pudieron cargar los datos. Revisa la consola.');
+      return;
+    }
+
+    interesados = resInteresados.data || [];
+    premium = resPremium.data || [];
+
+    document.getElementById('countInteresados').textContent = interesados.length;
+    document.getElementById('countPremium').textContent = premium.length;
+
+    renderTablas();
+  }
+
+  function cambiarTab(tab) {
+    tabActiva = tab;
+    document.getElementById('tabInteresados').classList.toggle('active', tab === 'interesados');
+    document.getElementById('tabPremium').classList.toggle('active', tab === 'premium');
+    document.getElementById('tablaInteresados').hidden = tab !== 'interesados';
+    document.getElementById('tablaPremium').hidden = tab !== 'premium';
+    document.getElementById('searchInput').value = '';
+    renderTablas();
+  }
+
+  function coincide(row, q) {
+    if (!q) return true;
+    q = q.toLowerCase();
+    return (row.nombre || '').toLowerCase().includes(q) || (row.correo || '').toLowerCase().includes(q);
+  }
+
+  function crearToggle(activo, onToggle) {
+    const btn = document.createElement('div');
+    btn.className = 'toggle-mini' + (activo ? ' active' : '');
+    btn.setAttribute('role', 'switch');
+    btn.setAttribute('aria-checked', String(activo));
+    btn.tabIndex = 0;
+    btn.innerHTML = '<div class="toggle-mini-thumb"></div>';
+    const toggle = () => {
+      const next = !btn.classList.contains('active');
+      btn.classList.toggle('active', next);
+      btn.setAttribute('aria-checked', String(next));
+      onToggle(next);
+    };
+    btn.addEventListener('click', toggle);
+    btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+    return btn;
+  }
+
+  function crearNotaInput(valor, onSave) {
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = valor || '';
+    input.placeholder = 'Agregar nota...';
+    let ultimoValor = valor || '';
+    input.addEventListener('blur', () => {
+      if (input.value !== ultimoValor) {
+        ultimoValor = input.value;
+        onSave(input.value);
+      }
+    });
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
+    return input;
+  }
+
+  async function actualizarLead(tabla, id, cambios) {
+    const { error } = await sb.from(tabla).update(cambios).eq('id', id);
+    if (error) {
+      console.warn('Glow21 CRM: error actualizando', tabla, error);
+      mostrarStatus('No se pudo guardar el cambio.');
+      return false;
+    }
+    mostrarStatus('Guardado.');
+    return true;
+  }
+
+  function renderTablas() {
+    const q = document.getElementById('searchInput').value.trim();
+    const emptyEl = document.getElementById('emptyState');
+
+    if (tabActiva === 'interesados') {
+      const filas = interesados.filter((r) => coincide(r, q));
+      const tbody = document.getElementById('bodyInteresados');
+      tbody.innerHTML = '';
+
+      filas.forEach((row) => {
+        const tr = document.createElement('tr');
+
+        const tdNombre = document.createElement('td'); tdNombre.textContent = row.nombre;
+        const tdCorreo = document.createElement('td'); tdCorreo.textContent = row.correo;
+        const tdTel = document.createElement('td'); tdTel.textContent = row.telefono;
+        const tdFecha = document.createElement('td'); tdFecha.className = 'cell-muted'; tdFecha.textContent = formatearFecha(row.created_at);
+
+        const tdContactado = document.createElement('td');
+        tdContactado.appendChild(crearToggle(!!row.contactado, async (next) => {
+          const ok = await actualizarLead('glow21_profiles', row.id, { contactado: next });
+          if (ok) row.contactado = next;
+        }));
+
+        const tdNota = document.createElement('td'); tdNota.className = 'cell-nota';
+        tdNota.appendChild(crearNotaInput(row.nota, async (valor) => {
+          const ok = await actualizarLead('glow21_profiles', row.id, { nota: valor });
+          if (ok) row.nota = valor;
+        }));
+
+        tr.append(tdNombre, tdCorreo, tdTel, tdFecha, tdContactado, tdNota);
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('tablaInteresados').hidden = false;
+      emptyEl.hidden = filas.length > 0;
+      document.getElementById('emptyStateText').textContent = interesados.length === 0
+        ? 'Cuando alguien se registre para ver la masterclass, va a aparecer aquí.'
+        : 'Nadie coincide con esa búsqueda.';
+    } else {
+      const filas = premium.filter((r) => coincide(r, q));
+      const tbody = document.getElementById('bodyPremium');
+      tbody.innerHTML = '';
+
+      filas.forEach((row) => {
+        const tr = document.createElement('tr');
+
+        const tdNombre = document.createElement('td'); tdNombre.textContent = row.nombre;
+        const tdCorreo = document.createElement('td'); tdCorreo.textContent = row.correo;
+        const tdTel = document.createElement('td'); tdTel.textContent = row.telefono;
+        const tdDir = document.createElement('td'); tdDir.textContent = row.direccion;
+
+        const tdPago = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = 'badge ' + (row.pagado ? 'badge-paid' : 'badge-pending');
+        badge.textContent = row.pagado ? 'Pagado' : 'Pendiente';
+        tdPago.appendChild(badge);
+
+        const tdFecha = document.createElement('td'); tdFecha.className = 'cell-muted'; tdFecha.textContent = formatearFecha(row.created_at);
+
+        const tdContactado = document.createElement('td');
+        tdContactado.appendChild(crearToggle(!!row.contactado, async (next) => {
+          const ok = await actualizarLead('glow21_premium_leads', row.id, { contactado: next });
+          if (ok) row.contactado = next;
+        }));
+
+        const tdNota = document.createElement('td'); tdNota.className = 'cell-nota';
+        tdNota.appendChild(crearNotaInput(row.nota, async (valor) => {
+          const ok = await actualizarLead('glow21_premium_leads', row.id, { nota: valor });
+          if (ok) row.nota = valor;
+        }));
+
+        tr.append(tdNombre, tdCorreo, tdTel, tdDir, tdPago, tdFecha, tdContactado, tdNota);
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('tablaPremium').hidden = false;
+      emptyEl.hidden = filas.length > 0;
+      document.getElementById('emptyStateText').textContent = premium.length === 0
+        ? 'Cuando alguien dé clic en Acceso Premium, va a aparecer aquí.'
+        : 'Nadie coincide con esa búsqueda.';
+    }
+  }
+
+  document.getElementById('searchInput').addEventListener('input', renderTablas);
+
+  function csvEscape(valor) {
+    const texto = String(valor == null ? '' : valor);
+    if (/[",\n]/.test(texto)) return '"' + texto.replace(/"/g, '""') + '"';
+    return texto;
+  }
+
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const q = document.getElementById('searchInput').value.trim();
+    let filas, encabezados, datos;
+
+    if (tabActiva === 'interesados') {
+      filas = interesados.filter((r) => coincide(r, q));
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Registrado', 'Contactado', 'Nota'];
+      datos = filas.map((r) => [r.nombre, r.correo, r.telefono, formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || '']);
+    } else {
+      filas = premium.filter((r) => coincide(r, q));
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Dirección', 'Pagado', 'Registrado', 'Contactado', 'Nota'];
+      datos = filas.map((r) => [r.nombre, r.correo, r.telefono, r.direccion, r.pagado ? 'Sí' : 'No', formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || '']);
+    }
+
+    const csv = [encabezados, ...datos].map((fila) => fila.map(csvEscape).join(',')).join('\r\n');
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `glow21-${tabActiva}-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // ---------- INIT ----------
+  (async function initAuth() {
+    if (!sb) { mostrarLogin(); return; }
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await mostrarApp();
+    else mostrarLogin();
+  })();
+</script>
+
+</body>
+</html>

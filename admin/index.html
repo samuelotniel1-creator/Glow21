@@ -45,6 +45,7 @@
 
   a { color: inherit; }
   :focus-visible { outline: 2px solid var(--champagne); outline-offset: 2px; }
+  [hidden] { display: none !important; }
 
   .panel { width: 100%; max-width: 560px; }
 
@@ -86,7 +87,7 @@
   }
   label .icon { width: 15px; height: 15px; flex-shrink: 0; }
 
-  input[type="text"], input[type="datetime-local"] {
+  input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"] {
     width: 100%; padding: 13px 16px;
     border: 1px solid rgba(253, 251, 247, 0.18);
     border-radius: 6px;
@@ -96,11 +97,11 @@
     color-scheme: dark;
     transition: border-color 0.3s ease, background 0.3s ease;
   }
-  input[type="text"]:focus, input[type="datetime-local"]:focus {
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="datetime-local"]:focus {
     outline: none; border-color: var(--champagne);
     background: rgba(253, 251, 247, 0.07);
   }
-  input[type="text"]::placeholder { color: rgba(253, 251, 247, 0.32); }
+  input::placeholder { color: rgba(253, 251, 247, 0.32); }
 
   .hint {
     font-size: 12px; color: var(--pearl-50); margin-top: 10px; line-height: 1.6;
@@ -162,6 +163,18 @@
     .card { padding: 32px 24px; }
     h1 { font-size: 24px; }
   }
+
+  .login-error {
+    font-size: 13px; color: var(--quartz); background: rgba(244, 220, 214, 0.1);
+    border: 1px solid rgba(244,220,214,0.3); border-radius: 6px;
+    padding: 12px 14px; margin-top: 6px;
+  }
+  .btn-link {
+    background: transparent; color: var(--pearl-50); border: none;
+    text-transform: none; letter-spacing: normal; font-weight: 500;
+    text-decoration: underline; padding: 4px;
+  }
+  .btn-link:hover { color: var(--pearl); }
 </style>
 </head>
 <body>
@@ -172,7 +185,26 @@
     <span>Panel de Control</span>
   </div>
 
-  <div class="card">
+  <div class="card" id="loginCard">
+    <h1>Inicia sesión</h1>
+    <p class="intro">Acceso solo para el equipo de Glow21.</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="loginEmail">Correo</label>
+        <input type="text" id="loginEmail" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" required>
+      </div>
+      <p class="login-error" id="loginError" hidden></p>
+      <div class="actions">
+        <button type="submit" class="btn btn-save" id="loginSubmit">Entrar</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" id="appCard" hidden>
     <h1>Configura la sesión en vivo</h1>
     <p class="intro">Estos cambios se reflejan de inmediato en la landing pública.</p>
     <div class="conn-status" id="connStatus"><span class="conn-dot"></span><span id="connStatusText">Conectando con Supabase…</span></div>
@@ -242,10 +274,15 @@
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg></span>
         Guardar configuración
       </button>
+      <a href="/crm" class="btn btn-back">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2M13 4a4 4 0 1 1 0 8M23 20v-2a4 4 0 0 0-3-3.87"/></svg></span>
+        Ir al CRM
+      </a>
       <a href="/" class="btn btn-back">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></span>
         Volver a la landing
       </a>
+      <button type="button" class="btn btn-link" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
 
     <div id="status" class="status"></div>
@@ -262,6 +299,61 @@
   const sb = window.supabase
     ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
     : null;
+
+  // ---------- LOGIN (Supabase Auth) ----------
+  const loginCard = document.getElementById('loginCard');
+  const appCard = document.getElementById('appCard');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const loginSubmit = document.getElementById('loginSubmit');
+
+  function mostrarLogin() {
+    loginCard.hidden = false;
+    appCard.hidden = true;
+  }
+
+  async function mostrarApp() {
+    loginCard.hidden = true;
+    appCard.hidden = false;
+    await cargarConfig();
+  }
+
+  async function cerrarSesion() {
+    if (sb) await sb.auth.signOut();
+    mostrarLogin();
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      loginError.hidden = true;
+
+      if (!sb) {
+        loginError.textContent = 'No hay conexión con Supabase en este momento.';
+        loginError.hidden = false;
+        return;
+      }
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = 'Entrando...';
+
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+
+      loginSubmit.disabled = false;
+      loginSubmit.textContent = 'Entrar';
+
+      if (error) {
+        loginError.textContent = 'Correo o contraseña incorrectos.';
+        loginError.hidden = false;
+        return;
+      }
+
+      await mostrarApp();
+    });
+  }
 
   const zoomIdEl = document.getElementById('zoomId');
   const zoomPasswordEl = document.getElementById('zoomPassword');
@@ -390,10 +482,17 @@
   }
 
   document.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter' && document.activeElement !== toggleEl) guardar();
+    if (e.key !== 'Enter' || document.activeElement === toggleEl) return;
+    if (!appCard.hidden) guardar();
   });
 
-  cargarConfig();
+  // ---------- INIT ----------
+  (async function initAuth() {
+    if (!sb) { mostrarLogin(); return; }
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) await mostrarApp();
+    else mostrarLogin();
+  })();
 </script>
 
 </body>

@@ -3,9 +3,14 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// El webhook de Stripe necesita el cuerpo crudo (sin parsear) para
+// verificar la firma, así que se monta antes que express.json().
+app.post('/api/stripe-webhook', require('./api/stripe-webhook'));
+
 // Middleware
 app.use(express.static('public'));
 app.use('/admin', express.static('admin'));
+app.use('/crm', express.static('crm'));
 app.use(express.json());
 
 // Routes
@@ -15,6 +20,10 @@ app.get('/', (req, res) => {
 
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin', 'index.html'));
+});
+
+app.get('/crm', (req, res) => {
+  res.sendFile(path.join(__dirname, 'crm', 'index.html'));
 });
 
 // Health check

@@ -27,16 +27,15 @@ create policy "glow21_settings_public_read"
   for select
   using (true);
 
--- El panel admin usa la publishable key (no tiene login todavía), así que
--- necesita poder actualizar la fila. Si más adelante agregas autenticación
--- a /admin, cambia el "using (true)" de abajo por
--- "using (auth.uid() is not null)" para exigir sesión antes de escribir.
+-- El panel admin tiene login (Supabase Auth): solo una sesión autenticada
+-- puede actualizar la fila.
 drop policy if exists "glow21_settings_public_update" on public.glow21_settings;
-create policy "glow21_settings_public_update"
+drop policy if exists "glow21_settings_authenticated_update" on public.glow21_settings;
+create policy "glow21_settings_authenticated_update"
   on public.glow21_settings
   for update
-  using (true)
-  with check (true);
+  using (auth.uid() is not null)
+  with check (auth.uid() is not null);
 
 -- ---------- Registro de asistentes + password de Zoom ----------
 create extension if not exists pgcrypto;
@@ -104,3 +103,39 @@ create policy "glow21_premium_leads_public_insert"
   on public.glow21_premium_leads
   for insert
   with check (true);
+
+-- ---------- CRM (seguimiento) + estado de pago de Stripe ----------
+alter table public.glow21_profiles
+  add column if not exists contactado boolean not null default false,
+  add column if not exists nota text not null default '';
+
+alter table public.glow21_premium_leads
+  add column if not exists contactado boolean not null default false,
+  add column if not exists nota text not null default '',
+  add column if not exists pagado boolean not null default false,
+  add column if not exists paid_at timestamptz,
+  add column if not exists stripe_session_id text;
+
+-- Solo gente logueada (CRM) puede leer o actualizar los leads — nunca la
+-- publishable key anónima, para proteger los datos de contacto.
+drop policy if exists "glow21_profiles_authenticated_select" on public.glow21_profiles;
+create policy "glow21_profiles_authenticated_select"
+  on public.glow21_profiles for select using (auth.uid() is not null);
+
+drop policy if exists "glow21_profiles_authenticated_update" on public.glow21_profiles;
+create policy "glow21_profiles_authenticated_update"
+  on public.glow21_profiles for update
+  using (auth.uid() is not null) with check (auth.uid() is not null);
+
+drop policy if exists "glow21_premium_leads_authenticated_select" on public.glow21_premium_leads;
+create policy "glow21_premium_leads_authenticated_select"
+  on public.glow21_premium_leads for select using (auth.uid() is not null);
+
+drop policy if exists "glow21_premium_leads_authenticated_update" on public.glow21_premium_leads;
+create policy "glow21_premium_leads_authenticated_update"
+  on public.glow21_premium_leads for update
+  using (auth.uid() is not null) with check (auth.uid() is not null);
+
+-- Nota: el webhook de Stripe (api/stripe-webhook.js) no usa la publishable
+-- key ni pasa por estas políticas — usa la service_role key desde el
+-- servidor, que siempre puede escribir sin importar RLS.
