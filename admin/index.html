@@ -269,6 +269,15 @@
       </div>
     </div>
 
+    <div class="field">
+      <label for="paymentLinkUrl">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+        Link de pago (Stripe)
+      </label>
+      <input type="text" id="paymentLinkUrl" placeholder="https://buy.stripe.com/...">
+      <p class="hint">A dónde va quien completa el formulario de Acceso Premium. Pégalo en cuanto crees el Payment Link en Stripe (Dashboard → Payment Links). Vacío = se les avisa que el pago aún no está disponible.</p>
+    </div>
+
     <div class="actions">
       <button class="btn btn-save" onclick="guardar()">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg></span>
@@ -358,6 +367,7 @@
   const zoomIdEl = document.getElementById('zoomId');
   const zoomPasswordEl = document.getElementById('zoomPassword');
   const sessionDateTimeEl = document.getElementById('sessionDateTime');
+  const paymentLinkUrlEl = document.getElementById('paymentLinkUrl');
   const toggleEl = document.getElementById('toggleCompra');
   const estadoEl = document.getElementById('estadoCompra');
   const toggleEnVivoEl = document.getElementById('toggleEnVivo');
@@ -396,6 +406,7 @@
         zoomIdEl.value = data.zoom_id || '';
         zoomPasswordEl.value = data.zoom_password || '';
         sessionDateTimeEl.value = isoADatetimeLocal(data.session_datetime);
+        paymentLinkUrlEl.value = data.payment_link_url || '';
         setToggle(toggleEl, estadoEl, !!data.show_premium_button);
         setToggle(toggleEnVivoEl, estadoEnVivoEl, !!data.session_live);
         setConnStatus('online');
@@ -408,6 +419,7 @@
     zoomIdEl.value = localStorage.getItem('glow21_zoom_id') || '';
     zoomPasswordEl.value = localStorage.getItem('glow21_zoom_password') || '';
     sessionDateTimeEl.value = isoADatetimeLocal(localStorage.getItem('glow21_session_datetime'));
+    paymentLinkUrlEl.value = localStorage.getItem('glow21_payment_link_url') || '';
     setToggle(toggleEl, estadoEl, localStorage.getItem('glow21_boton_compra') === 'true');
     setToggle(toggleEnVivoEl, estadoEnVivoEl, localStorage.getItem('glow21_session_live') === 'true');
   }
@@ -432,6 +444,7 @@
     const zoomId = zoomIdEl.value.trim();
     const zoomPassword = zoomPasswordEl.value.trim();
     const sessionDatetime = datetimeLocalAIso(sessionDateTimeEl.value);
+    const paymentLinkUrl = paymentLinkUrlEl.value.trim();
     const botonActivo = toggleEl.classList.contains('active');
     const enVivo = toggleEnVivoEl.classList.contains('active');
 
@@ -446,6 +459,7 @@
         zoom_id: zoomId,
         zoom_password: zoomPassword,
         session_datetime: sessionDatetime,
+        payment_link_url: paymentLinkUrl,
         show_premium_button: botonActivo,
         session_live: enVivo,
         updated_at: new Date().toISOString()
@@ -462,6 +476,7 @@
     localStorage.setItem('glow21_zoom_password', zoomPassword);
     if (sessionDatetime) localStorage.setItem('glow21_session_datetime', sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
+    localStorage.setItem('glow21_payment_link_url', paymentLinkUrl);
     localStorage.setItem('glow21_boton_compra', botonActivo);
     localStorage.setItem('glow21_session_live', enVivo);
 

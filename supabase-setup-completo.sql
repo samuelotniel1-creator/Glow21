@@ -139,3 +139,9 @@ create policy "glow21_premium_leads_authenticated_update"
 -- Nota: el webhook de Stripe (api/stripe-webhook.js) no usa la publishable
 -- key ni pasa por estas políticas — usa la service_role key desde el
 -- servidor, que siempre puede escribir sin importar RLS.
+
+-- ---------- Link de pago (Stripe Payment Link) ----------
+-- El botón "Acceso Premium" ya no manda a una ruta fija /pago: usa este
+-- link, editable desde el admin en cuanto exista el Payment Link en Stripe.
+alter table public.glow21_settings
+  add column if not exists payment_link_url text not null default '';

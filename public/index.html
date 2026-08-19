@@ -245,6 +245,14 @@
   .origin-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 80px; align-items: center; }
   .origin-mark-wrap { position: relative; display: flex; justify-content: center; }
   .origin-ring { width: 100%; max-width: 420px; opacity: 0.9; }
+  .origin-photo {
+    position: absolute; top: 50%; left: 50%;
+    width: 57.3%; max-width: 240px; aspect-ratio: 1 / 1;
+    transform: translate(-50%, -50%);
+    object-fit: cover; border-radius: 50%;
+    -webkit-mask-image: radial-gradient(circle, #000 62%, transparent 92%);
+            mask-image: radial-gradient(circle, #000 62%, transparent 92%);
+  }
 
   .origin-content blockquote {
     font-family: var(--serif); font-style: italic; font-weight: 500;
@@ -620,6 +628,7 @@
           <circle cx="150" cy="150" r="112" fill="none" stroke="#F4DCD6" stroke-width="1.5" opacity="0.75"/>
           <circle cx="150" cy="150" r="86" fill="none" stroke="#2C3539" stroke-width="1" opacity="0.18"/>
         </svg>
+        <img class="origin-photo" src="assets/foto/aranza-circulo.png" alt="Aranza Malagón, fundadora de Glow21">
       </div>
       <div class="origin-content">
         <blockquote class="reveal reveal-1">Glow21 nació frente a un espejo.</blockquote>
@@ -933,6 +942,7 @@
     zoomId: localStorage.getItem('glow21_zoom_id') || '',
     zoomPassword: localStorage.getItem('glow21_zoom_password') || '',
     sessionDatetime: localStorage.getItem('glow21_session_datetime') || '',
+    paymentLinkUrl: localStorage.getItem('glow21_payment_link_url') || '',
     showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true',
     sessionLive: localStorage.getItem('glow21_session_live') === 'true'
   };
@@ -947,12 +957,14 @@
     state.zoomId = data.zoom_id || '';
     state.zoomPassword = data.zoom_password || '';
     state.sessionDatetime = data.session_datetime || '';
+    state.paymentLinkUrl = data.payment_link_url || '';
     state.showPremiumButton = !!data.show_premium_button;
     state.sessionLive = !!data.session_live;
     localStorage.setItem('glow21_zoom_id', state.zoomId);
     localStorage.setItem('glow21_zoom_password', state.zoomPassword);
     if (state.sessionDatetime) localStorage.setItem('glow21_session_datetime', state.sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
+    localStorage.setItem('glow21_payment_link_url', state.paymentLinkUrl);
     localStorage.setItem('glow21_boton_compra', state.showPremiumButton);
     localStorage.setItem('glow21_session_live', state.sessionLive);
   }
@@ -1074,7 +1086,13 @@
 
   modal.addEventListener('click', (e) => { if (e.target === modal) cerrarModal(); });
 
-  function irAPago() { window.location.href = '/pago'; }
+  function irAPago() {
+    if (state.paymentLinkUrl) {
+      window.location.href = state.paymentLinkUrl;
+      return;
+    }
+    alert('¡Gracias! Tus datos ya quedaron guardados. El pago aún no está disponible — te contactaremos por correo en cuanto lo esté.');
+  }
   function irAFree() { alert('Redirigiendo a acceso Free...'); }
   window.testModal = mostrarModal;
 
