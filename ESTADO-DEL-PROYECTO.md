@@ -36,14 +36,19 @@ Cada lead tiene un toggle "Contactado" y un campo de nota, editable en la tabla.
 
 Proyecto: `yosammtxqqcwgvkaczyd`. Tablas: `glow21_settings` (config, fila única), `glow21_profiles` (leads masterclass), `glow21_premium_leads` (leads premium + estado de pago). RLS: lectura/escritura de leads y config solo con sesión autenticada; el registro público (insertar un lead nuevo) sigue abierto para cualquier visitante, como debe ser.
 
-## Pendiente para que el pago funcione
+## Pago — estado
 
-1. **Crear el Payment Link en Stripe** — esperando que definan el precio del producto.
-2. **Variables de entorno en Vercel** (Project Settings → Environment Variables):
-   - `STRIPE_SECRET_KEY` — usar una **Restricted key** (no la Secret key completa), con todo en "None" salvo "Checkout Sessions: Read".
-   - `STRIPE_WEBHOOK_SECRET` — se obtiene al crear el webhook en Stripe (ver siguiente punto).
-   - `SUPABASE_URL` — `https://yosammtxqqcwgvkaczyd.supabase.co`
-   - `SUPABASE_SERVICE_ROLE_KEY` — Supabase → Project Settings → API → `service_role` (secreta, nunca en el código).
-3. **Crear el webhook en Stripe**: Developers → Webhooks → Add endpoint → `https://<dominio>.vercel.app/api/stripe-webhook` → evento `checkout.session.completed`.
-4. **Pegar el link de pago real** en el panel admin (campo "Link de pago (Stripe)"). El botón de Acceso Premium ya no depende de una ruta fija `/pago`: usa `glow21_settings.payment_link_url`, editable sin tocar código ni redeploy. Mientras esté vacío, a quien complete el formulario se le avisa que el pago todavía no está disponible (sus datos ya quedaron guardados).
-5. **Crear la cuenta de login** para `/admin` y `/crm`: Supabase → Authentication → Users → Add user (una sola cuenta sirve para ambos).
+Completo desde 2026-08-19. Ya está: migración de `payment_link_url` corrida
+en Supabase, Payment Link creado en Stripe y pegado en `/admin`, las 4
+variables de entorno cargadas en Vercel (`STRIPE_SECRET_KEY` como
+restricted key con solo "Checkout Sessions: Read", `STRIPE_WEBHOOK_SECRET`,
+`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`), webhook creado en Stripe
+apuntando a `/api/stripe-webhook` para `checkout.session.completed`, y
+cuenta de login creada para `/admin` y `/crm`. Verificado con un POST de
+prueba al webhook: responde `400` por firma faltante (no `500` de "no
+configurado"), lo que confirma que las 4 variables están presentes en el
+deploy.
+
+Pendiente real: hacer una compra de prueba end-to-end y confirmar que el
+lead correspondiente aparece como "pagado" en la pestaña Premium/Pago del
+CRM.
