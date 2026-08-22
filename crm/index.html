@@ -171,6 +171,14 @@
   .badge-paid { background: rgba(229,196,163,0.18); color: var(--champagne); }
   .badge-pending { background: rgba(253,251,247,0.08); color: var(--pearl-50); }
 
+  .pago-dot { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--pearl-50); }
+  .pago-dot::before {
+    content: ''; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(253,251,247,0.15);
+  }
+  .pago-dot.is-paid { color: #4ade80; font-weight: 600; }
+  .pago-dot.is-paid::before { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.7); }
+
   .toggle-mini {
     width: 38px; height: 22px; border-radius: 999px; cursor: pointer; position: relative;
     background: rgba(253, 251, 247, 0.12); border: 1px solid rgba(253, 251, 247, 0.2);
@@ -210,7 +218,7 @@
 <div class="login-wrap" id="loginWrap">
   <div class="login-panel">
     <div class="app-brand" style="margin-bottom: 28px;">
-      <img src="assets/logos/logo-icono-blanco.png" alt="Glow21">
+      <img src="/assets/logos/logo-icono-blanco.png" alt="Glow21">
       <span>CRM</span>
     </div>
     <div class="login-card">
@@ -236,7 +244,7 @@
 <div class="app" id="app" hidden>
   <div class="app-header">
     <div class="app-brand">
-      <img src="assets/logos/logo-icono-blanco.png" alt="Glow21">
+      <img src="/assets/logos/logo-icono-blanco.png" alt="Glow21">
       <span>CRM</span>
     </div>
     <div class="app-header-actions">
@@ -276,6 +284,7 @@
             <th>Nombre</th>
             <th>Correo</th>
             <th>Teléfono</th>
+            <th>Pagó</th>
             <th>Registrado</th>
             <th>Contactado</th>
             <th>Nota</th>
@@ -483,12 +492,24 @@
       const tbody = document.getElementById('bodyInteresados');
       tbody.innerHTML = '';
 
+      const correosPagados = new Set(
+        premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
+      );
+
       filas.forEach((row) => {
         const tr = document.createElement('tr');
 
         const tdNombre = document.createElement('td'); tdNombre.textContent = row.nombre;
         const tdCorreo = document.createElement('td'); tdCorreo.textContent = row.correo;
         const tdTel = document.createElement('td'); tdTel.textContent = row.telefono;
+
+        const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
+        const tdPago = document.createElement('td');
+        const pagoDot = document.createElement('span');
+        pagoDot.className = 'pago-dot' + (yaPago ? ' is-paid' : '');
+        pagoDot.textContent = yaPago ? 'Pagó' : '—';
+        tdPago.appendChild(pagoDot);
+
         const tdFecha = document.createElement('td'); tdFecha.className = 'cell-muted'; tdFecha.textContent = formatearFecha(row.created_at);
 
         const tdContactado = document.createElement('td');
@@ -503,7 +524,7 @@
           if (ok) row.nota = valor;
         }));
 
-        tr.append(tdNombre, tdCorreo, tdTel, tdFecha, tdContactado, tdNota);
+        tr.append(tdNombre, tdCorreo, tdTel, tdPago, tdFecha, tdContactado, tdNota);
         tbody.appendChild(tr);
       });
 
@@ -571,8 +592,15 @@
 
     if (tabActiva === 'interesados') {
       filas = interesados.filter((r) => coincide(r, q));
-      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Registrado', 'Contactado', 'Nota'];
-      datos = filas.map((r) => [r.nombre, r.correo, r.telefono, formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || '']);
+      const correosPagados = new Set(
+        premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
+      );
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Pagó', 'Registrado', 'Contactado', 'Nota'];
+      datos = filas.map((r) => [
+        r.nombre, r.correo, r.telefono,
+        correosPagados.has((r.correo || '').trim().toLowerCase()) ? 'Sí' : 'No',
+        formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || ''
+      ]);
     } else {
       filas = premium.filter((r) => coincide(r, q));
       encabezados = ['Nombre', 'Correo', 'Teléfono', 'Dirección', 'Pagado', 'Registrado', 'Contactado', 'Nota'];
