@@ -204,6 +204,91 @@
   }
   .empty-state strong { display: block; font-family: var(--serif); font-style: italic; font-size: 18px; color: var(--pearl); margin-bottom: 8px; font-weight: 500; }
 
+  /* ---------- Lead list (preview rows) ---------- */
+  .lead-list { display: flex; flex-direction: column; }
+  .lead-row {
+    display: flex; align-items: center; gap: 16px; width: 100%;
+    padding: 14px 20px; border: none; border-bottom: 1px solid rgba(253,251,247,0.06);
+    background: none; color: inherit; text-align: left; cursor: pointer;
+    font-family: var(--sans); transition: background 0.2s ease;
+  }
+  .lead-list > .lead-row:last-child { border-bottom: none; }
+  .lead-row:hover, .lead-row:focus-visible { background: rgba(253,251,247,0.03); }
+
+  .lead-avatar {
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    width: 38px; height: 38px; border-radius: 50%;
+    background: var(--gradient-bruma); color: var(--slate);
+    font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 16px;
+  }
+  .lead-avatar-lg { width: 52px; height: 52px; font-size: 21px; }
+
+  .lead-row-main { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+  .lead-row-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .lead-row-text .lead-name { font-size: 14px; font-weight: 600; color: var(--pearl); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lead-row-text .lead-email { font-size: 12.5px; color: var(--pearl-50); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .lead-row-meta { display: flex; align-items: center; gap: 18px; flex-shrink: 0; }
+  .lead-row-meta .cell-muted { min-width: 76px; text-align: right; }
+
+  .contactado-dot { display: inline-flex; width: 8px; height: 8px; border-radius: 50%; background: rgba(253,251,247,0.15); flex-shrink: 0; }
+  .contactado-dot.is-on { background: var(--champagne); box-shadow: 0 0 6px rgba(229,196,163,0.6); }
+
+  .lead-row-chevron { width: 16px; height: 16px; color: var(--pearl-50); flex-shrink: 0; }
+
+  /* ---------- Lead detail modal ---------- */
+  textarea {
+    border: 1px solid rgba(253, 251, 247, 0.18); border-radius: 6px;
+    background: rgba(253, 251, 247, 0.04); color: var(--pearl); font-family: var(--sans);
+    transition: border-color 0.3s ease, background 0.3s ease;
+  }
+  textarea:focus { outline: none; border-color: var(--champagne); background: rgba(253, 251, 247, 0.07); }
+  textarea::placeholder { color: rgba(253, 251, 247, 0.32); }
+
+  .lead-modal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .lead-modal-backdrop { position: absolute; inset: 0; background: rgba(15,18,20,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .lead-modal-card {
+    position: relative; width: 100%; max-width: 480px; max-height: min(88vh, 720px); overflow-y: auto;
+    background: var(--slate-deep); border: 1px solid rgba(229,196,163,0.28); border-radius: 12px;
+    padding: 32px; box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6);
+  }
+  .lead-modal-close {
+    position: absolute; top: 18px; right: 18px;
+    width: 32px; height: 32px; border-radius: 50%; border: none;
+    background: rgba(253,251,247,0.06); color: var(--pearl-70); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  .lead-modal-close:hover { background: rgba(253,251,247,0.12); color: var(--pearl); }
+  .lead-modal-close svg { width: 16px; height: 16px; }
+
+  .lead-modal-head { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; padding-right: 30px; }
+  .lead-modal-head h2 { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 21px; color: var(--pearl); margin-bottom: 4px; }
+
+  .lead-modal-fields { display: flex; flex-direction: column; gap: 16px; margin-bottom: 26px; }
+  .lead-field { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .lead-field-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--champagne); padding-top: 6px; flex-shrink: 0; }
+  .lead-field-value { font-size: 14px; color: var(--pearl); text-align: right; word-break: break-word; padding-top: 4px; min-width: 0; }
+  .lead-field-value.is-mono { font-family: 'SFMono-Regular', Consolas, monospace; font-size: 12px; color: var(--pearl-70); }
+  .lead-field-right { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+
+  .icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; border-radius: 8px; border: 1px solid rgba(253,251,247,0.14);
+    background: rgba(253,251,247,0.03); color: var(--pearl-70); cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    text-decoration: none; flex-shrink: 0;
+  }
+  .icon-btn svg { width: 15px; height: 15px; }
+  .icon-btn:hover { border-color: var(--champagne); color: var(--champagne); }
+  .icon-btn.whatsapp:hover { border-color: #4ade80; color: #4ade80; }
+
+  .lead-modal-footer { display: flex; flex-direction: column; gap: 18px; padding-top: 22px; border-top: 1px solid rgba(253,251,247,0.1); }
+  .lead-modal-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+  .lead-modal-row label { margin-bottom: 0; }
+  .lead-modal-row-nota { flex-direction: column; align-items: stretch; gap: 8px; }
+  #leadModalNota { width: 100%; padding: 10px 12px; font-size: 13px; }
+
   .app-status {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: var(--slate-deep); border: 1px solid rgba(229,196,163,0.3); color: var(--champagne);
@@ -216,6 +301,11 @@
   @media (max-width: 640px) {
     .login-card { padding: 32px 24px; }
     .app-header { align-items: flex-start; }
+    .lead-row { padding: 12px 16px; gap: 12px; }
+    .lead-row-meta { gap: 10px; }
+    .lead-row-meta .cell-muted { display: none; }
+    .lead-modal { padding: 0; align-items: flex-end; }
+    .lead-modal-card { max-width: none; max-height: 90vh; border-radius: 16px 16px 0 0; padding: 26px 20px; }
   }
 </style>
 </head>
@@ -284,41 +374,38 @@
   </div>
 
   <div class="panel-table">
-    <div class="table-scroll">
-      <table id="tablaInteresados">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Pagó</th>
-            <th>Registrado</th>
-            <th>Contactado</th>
-            <th>Nota</th>
-          </tr>
-        </thead>
-        <tbody id="bodyInteresados"></tbody>
-      </table>
-      <table id="tablaPremium" hidden>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Pago</th>
-            <th>ID de pago</th>
-            <th>Registrado</th>
-            <th>Contactado</th>
-            <th>Nota</th>
-          </tr>
-        </thead>
-        <tbody id="bodyPremium"></tbody>
-      </table>
-    </div>
+    <div class="lead-list" id="listInteresados"></div>
+    <div class="lead-list" id="listPremium" hidden></div>
     <div class="empty-state" id="emptyState" hidden>
       <strong>Nada por aquí todavía</strong>
       <span id="emptyStateText">Cuando alguien se registre, va a aparecer en esta lista.</span>
+    </div>
+  </div>
+</div>
+
+<div class="lead-modal" id="leadModal" hidden>
+  <div class="lead-modal-backdrop" id="leadModalBackdrop"></div>
+  <div class="lead-modal-card" role="dialog" aria-modal="true">
+    <button type="button" class="lead-modal-close" id="leadModalClose" aria-label="Cerrar" title="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <div class="lead-modal-head">
+      <span class="lead-avatar lead-avatar-lg" id="leadModalAvatar"></span>
+      <div>
+        <h2 id="leadModalNombre"></h2>
+        <span class="cell-muted" id="leadModalFecha"></span>
+      </div>
+    </div>
+    <div class="lead-modal-fields" id="leadModalFields"></div>
+    <div class="lead-modal-footer">
+      <div class="lead-modal-row">
+        <label>Contactado</label>
+        <div id="leadModalToggleWrap"></div>
+      </div>
+      <div class="lead-modal-row lead-modal-row-nota">
+        <label for="leadModalNota">Nota</label>
+        <textarea id="leadModalNota" rows="3" placeholder="Agregar nota..."></textarea>
+      </div>
     </div>
   </div>
 </div>
@@ -434,8 +521,6 @@
     tabActiva = tab;
     document.getElementById('tabInteresados').classList.toggle('active', tab === 'interesados');
     document.getElementById('tabPremium').classList.toggle('active', tab === 'premium');
-    document.getElementById('tablaInteresados').hidden = tab !== 'interesados';
-    document.getElementById('tablaPremium').hidden = tab !== 'premium';
     document.getElementById('searchInput').value = '';
     renderTablas();
   }
@@ -464,20 +549,182 @@
     return btn;
   }
 
-  function crearNotaInput(valor, onSave) {
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.value = valor || '';
-    input.placeholder = 'Agregar nota...';
-    let ultimoValor = valor || '';
-    input.addEventListener('blur', () => {
-      if (input.value !== ultimoValor) {
-        ultimoValor = input.value;
-        onSave(input.value);
+  function inicial(nombre) {
+    return ((nombre || '?').trim().charAt(0) || '?').toUpperCase();
+  }
+
+  async function copiarTexto(texto, mensaje) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      mostrarStatus(mensaje || 'Copiado.');
+    } catch {
+      mostrarStatus('No se pudo copiar. Selecciónalo manualmente.');
+    }
+  }
+
+  function crearBotonCopiar(texto, mensaje) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'icon-btn';
+    btn.title = 'Copiar';
+    btn.setAttribute('aria-label', 'Copiar ' + mensaje);
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V5a1 1 0 0 1 1-1h11"/></svg>';
+    btn.addEventListener('click', () => copiarTexto(texto, mensaje));
+    return btn;
+  }
+
+  function telefonoWhatsappUrl(telefono) {
+    const digitos = (telefono || '').replace(/\D/g, '');
+    if (!digitos) return null;
+    return 'https://wa.me/' + (digitos.length === 10 ? '52' + digitos : digitos);
+  }
+
+  function crearBotonWhatsapp(telefono) {
+    const url = telefonoWhatsappUrl(telefono);
+    if (!url) return null;
+    const a = document.createElement('a');
+    a.className = 'icon-btn whatsapp';
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.title = 'Abrir WhatsApp';
+    a.setAttribute('aria-label', 'Abrir WhatsApp');
+    a.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.29-1.39a9.9 9.9 0 0 0 4.75 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m0 1.8a8.1 8.1 0 0 1 5.76 2.39 8.07 8.07 0 0 1 2.38 5.72c0 4.48-3.65 8.12-8.15 8.12a8.16 8.16 0 0 1-4.14-1.13l-.3-.17-3.14.82.84-3.06-.19-.32a8.07 8.07 0 0 1-1.25-4.32c0-4.48 3.65-8.12 8.15-8.12M8.5 6.9c-.17 0-.45.06-.68.32-.23.26-.89.87-.89 2.12 0 1.25.91 2.46 1.04 2.63.13.17 1.78 2.87 4.42 3.91 2.19.86 2.63.69 3.11.65.48-.04 1.55-.63 1.77-1.24.22-.61.22-1.13.15-1.24-.06-.11-.24-.17-.5-.3-.26-.13-1.55-.77-1.79-.85-.24-.09-.41-.13-.59.13-.17.26-.67.85-.82 1.02-.15.17-.3.19-.56.06-.26-.13-1.09-.4-2.08-1.28-.77-.68-1.29-1.53-1.44-1.79-.15-.26-.02-.4.11-.53.12-.12.26-.3.39-.45.13-.15.17-.26.26-.43.09-.17.04-.32-.02-.45-.06-.13-.59-1.46-.82-1.99-.21-.5-.43-.44-.59-.45z"/></svg>';
+    return a;
+  }
+
+  function crearCampoDetalle(campo) {
+    const fila = document.createElement('div');
+    fila.className = 'lead-field';
+
+    const label = document.createElement('span');
+    label.className = 'lead-field-label';
+    label.textContent = campo.label;
+
+    const right = document.createElement('div');
+    right.className = 'lead-field-right';
+
+    if (campo.badge) {
+      const badge = document.createElement('span');
+      badge.className = 'badge ' + (campo.badge === 'paid' ? 'badge-paid' : 'badge-pending');
+      badge.textContent = campo.valor;
+      right.appendChild(badge);
+    } else {
+      const valor = document.createElement('span');
+      valor.className = 'lead-field-value' + (campo.mono ? ' is-mono' : '');
+      valor.textContent = campo.valor || '—';
+      right.appendChild(valor);
+    }
+
+    if (campo.copiable && campo.valor) right.appendChild(crearBotonCopiar(campo.valor, campo.label + ' copiado.'));
+    if (campo.whatsapp && campo.valor) {
+      const wa = crearBotonWhatsapp(campo.valor);
+      if (wa) right.appendChild(wa);
+    }
+
+    fila.append(label, right);
+    return fila;
+  }
+
+  let detalleActual = null;
+
+  function abrirDetalle(tablaKey, row) {
+    detalleActual = { tabla: tablaKey, row };
+
+    document.getElementById('leadModalAvatar').textContent = inicial(row.nombre);
+    document.getElementById('leadModalNombre').textContent = row.nombre;
+    document.getElementById('leadModalFecha').textContent = 'Registrado ' + formatearFecha(row.created_at);
+
+    const campos = [
+      { label: 'Correo', valor: row.correo, copiable: true },
+      { label: 'Teléfono', valor: row.telefono, copiable: true, whatsapp: true }
+    ];
+
+    if (tablaKey === 'glow21_premium_leads') {
+      campos.push({ label: 'Dirección', valor: row.direccion, copiable: true });
+      campos.push({ label: 'Pago', valor: row.pagado ? 'Pagado' : 'Pendiente', badge: row.pagado ? 'paid' : 'pending' });
+      if (row.stripe_session_id) {
+        campos.push({ label: 'ID de pago', valor: row.stripe_session_id, copiable: true, mono: true });
       }
-    });
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
-    return input;
+    } else {
+      const correosPagados = new Set(
+        premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
+      );
+      const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
+      campos.push({ label: 'Pagó premium', valor: yaPago ? 'Sí' : 'No', badge: yaPago ? 'paid' : 'pending' });
+    }
+
+    const fieldsEl = document.getElementById('leadModalFields');
+    fieldsEl.innerHTML = '';
+    campos.forEach((c) => fieldsEl.appendChild(crearCampoDetalle(c)));
+
+    const toggleWrap = document.getElementById('leadModalToggleWrap');
+    toggleWrap.innerHTML = '';
+    toggleWrap.appendChild(crearToggle(!!row.contactado, async (next) => {
+      const ok = await actualizarLead(tablaKey, row.id, { contactado: next });
+      if (ok) { row.contactado = next; renderTablas(); }
+    }));
+
+    const notaEl = document.getElementById('leadModalNota');
+    notaEl.value = row.nota || '';
+    let ultimaNota = row.nota || '';
+    notaEl.onblur = async () => {
+      if (notaEl.value !== ultimaNota) {
+        const ok = await actualizarLead(tablaKey, row.id, { nota: notaEl.value });
+        if (ok) { ultimaNota = notaEl.value; row.nota = notaEl.value; }
+      }
+    };
+
+    document.getElementById('leadModal').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function cerrarDetalle() {
+    document.getElementById('leadModal').hidden = true;
+    document.body.style.overflow = '';
+    detalleActual = null;
+  }
+
+  document.getElementById('leadModalClose').addEventListener('click', cerrarDetalle);
+  document.getElementById('leadModalBackdrop').addEventListener('click', cerrarDetalle);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !document.getElementById('leadModal').hidden) cerrarDetalle();
+  });
+
+  function crearFilaLead(tablaKey, row, indicador) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'lead-row';
+
+    const main = document.createElement('div');
+    main.className = 'lead-row-main';
+    const avatar = document.createElement('span');
+    avatar.className = 'lead-avatar';
+    avatar.textContent = inicial(row.nombre);
+    const text = document.createElement('div');
+    text.className = 'lead-row-text';
+    const nombreEl = document.createElement('span'); nombreEl.className = 'lead-name'; nombreEl.textContent = row.nombre;
+    const correoEl = document.createElement('span'); correoEl.className = 'lead-email'; correoEl.textContent = row.correo;
+    text.append(nombreEl, correoEl);
+    main.append(avatar, text);
+
+    const meta = document.createElement('div');
+    meta.className = 'lead-row-meta';
+    meta.appendChild(indicador);
+    const contactadoDot = document.createElement('span');
+    contactadoDot.className = 'contactado-dot' + (row.contactado ? ' is-on' : '');
+    contactadoDot.title = row.contactado ? 'Contactado' : 'Sin contactar';
+    meta.appendChild(contactadoDot);
+    const fecha = document.createElement('span'); fecha.className = 'cell-muted'; fecha.textContent = formatearFecha(row.created_at);
+    meta.appendChild(fecha);
+    const chevron = document.createElement('span');
+    chevron.className = 'lead-row-chevron';
+    chevron.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+    meta.appendChild(chevron);
+
+    btn.append(main, meta);
+    btn.addEventListener('click', () => abrirDetalle(tablaKey, row));
+    return btn;
   }
 
   async function actualizarLead(tabla, id, cambios) {
@@ -497,108 +744,41 @@
 
     if (tabActiva === 'interesados') {
       const filas = interesados.filter((r) => coincide(r, q));
-      const tbody = document.getElementById('bodyInteresados');
-      tbody.innerHTML = '';
+      const list = document.getElementById('listInteresados');
+      list.innerHTML = '';
 
       const correosPagados = new Set(
         premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
       );
 
       filas.forEach((row) => {
-        const tr = document.createElement('tr');
-
-        const tdNombre = document.createElement('td'); tdNombre.textContent = row.nombre;
-        const tdCorreo = document.createElement('td'); tdCorreo.textContent = row.correo;
-        const tdTel = document.createElement('td'); tdTel.textContent = row.telefono;
-
         const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
-        const tdPago = document.createElement('td');
         const pagoDot = document.createElement('span');
         pagoDot.className = 'pago-dot' + (yaPago ? ' is-paid' : '');
         pagoDot.textContent = yaPago ? 'Pagó' : '—';
-        tdPago.appendChild(pagoDot);
-
-        const tdFecha = document.createElement('td'); tdFecha.className = 'cell-muted'; tdFecha.textContent = formatearFecha(row.created_at);
-
-        const tdContactado = document.createElement('td');
-        tdContactado.appendChild(crearToggle(!!row.contactado, async (next) => {
-          const ok = await actualizarLead('glow21_profiles', row.id, { contactado: next });
-          if (ok) row.contactado = next;
-        }));
-
-        const tdNota = document.createElement('td'); tdNota.className = 'cell-nota';
-        tdNota.appendChild(crearNotaInput(row.nota, async (valor) => {
-          const ok = await actualizarLead('glow21_profiles', row.id, { nota: valor });
-          if (ok) row.nota = valor;
-        }));
-
-        tr.append(tdNombre, tdCorreo, tdTel, tdPago, tdFecha, tdContactado, tdNota);
-        tbody.appendChild(tr);
+        list.appendChild(crearFilaLead('glow21_profiles', row, pagoDot));
       });
 
-      document.getElementById('tablaInteresados').hidden = false;
+      document.getElementById('listInteresados').hidden = false;
+      document.getElementById('listPremium').hidden = true;
       emptyEl.hidden = filas.length > 0;
       document.getElementById('emptyStateText').textContent = interesados.length === 0
         ? 'Cuando alguien se registre para ver la masterclass, va a aparecer aquí.'
         : 'Nadie coincide con esa búsqueda.';
     } else {
       const filas = premium.filter((r) => coincide(r, q));
-      const tbody = document.getElementById('bodyPremium');
-      tbody.innerHTML = '';
+      const list = document.getElementById('listPremium');
+      list.innerHTML = '';
 
       filas.forEach((row) => {
-        const tr = document.createElement('tr');
-
-        const tdNombre = document.createElement('td'); tdNombre.textContent = row.nombre;
-        const tdCorreo = document.createElement('td'); tdCorreo.textContent = row.correo;
-        const tdTel = document.createElement('td'); tdTel.textContent = row.telefono;
-        const tdDir = document.createElement('td'); tdDir.textContent = row.direccion;
-
-        const tdPago = document.createElement('td');
         const badge = document.createElement('span');
         badge.className = 'badge ' + (row.pagado ? 'badge-paid' : 'badge-pending');
         badge.textContent = row.pagado ? 'Pagado' : 'Pendiente';
-        tdPago.appendChild(badge);
-
-        const tdPagoId = document.createElement('td'); tdPagoId.className = 'cell-muted';
-        if (row.stripe_session_id) {
-          const idBtn = document.createElement('button');
-          idBtn.type = 'button';
-          idBtn.className = 'id-copy';
-          idBtn.textContent = row.stripe_session_id;
-          idBtn.title = 'Clic para copiar';
-          idBtn.addEventListener('click', async () => {
-            try {
-              await navigator.clipboard.writeText(row.stripe_session_id);
-              mostrarStatus('ID de pago copiado.');
-            } catch {
-              mostrarStatus('No se pudo copiar. Selecciónalo manualmente.');
-            }
-          });
-          tdPagoId.appendChild(idBtn);
-        } else {
-          tdPagoId.textContent = '—';
-        }
-
-        const tdFecha = document.createElement('td'); tdFecha.className = 'cell-muted'; tdFecha.textContent = formatearFecha(row.created_at);
-
-        const tdContactado = document.createElement('td');
-        tdContactado.appendChild(crearToggle(!!row.contactado, async (next) => {
-          const ok = await actualizarLead('glow21_premium_leads', row.id, { contactado: next });
-          if (ok) row.contactado = next;
-        }));
-
-        const tdNota = document.createElement('td'); tdNota.className = 'cell-nota';
-        tdNota.appendChild(crearNotaInput(row.nota, async (valor) => {
-          const ok = await actualizarLead('glow21_premium_leads', row.id, { nota: valor });
-          if (ok) row.nota = valor;
-        }));
-
-        tr.append(tdNombre, tdCorreo, tdTel, tdDir, tdPago, tdPagoId, tdFecha, tdContactado, tdNota);
-        tbody.appendChild(tr);
+        list.appendChild(crearFilaLead('glow21_premium_leads', row, badge));
       });
 
-      document.getElementById('tablaPremium').hidden = false;
+      document.getElementById('listInteresados').hidden = true;
+      document.getElementById('listPremium').hidden = false;
       emptyEl.hidden = filas.length > 0;
       document.getElementById('emptyStateText').textContent = premium.length === 0
         ? 'Cuando alguien dé clic en Acceso Premium, va a aparecer aquí.'
