@@ -390,7 +390,7 @@
   .premium-image { width: 100%; height: auto; border-radius: 14px; display: block; box-shadow: var(--shadow-card); }
 
   .premium-form-col { min-width: 0; }
-  #registroForm { margin-top: 28px; display: flex; flex-direction: column; gap: 18px; }
+  #registroForm, #premiumForm { margin-top: 28px; display: flex; flex-direction: column; gap: 18px; }
   .registro-field label {
     display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
     color: var(--slate-70); margin-bottom: 8px;
@@ -401,6 +401,23 @@
     transition: border-color 0.3s ease;
   }
   .registro-field input:focus { outline: none; border-color: var(--slate); }
+
+  .registro-address-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--slate-70); margin-bottom: -6px;
+  }
+  .registro-field-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .registro-field-grid .registro-field label { margin-bottom: 8px; }
+  .span-calle { grid-column: span 4; }
+  .span-numero { grid-column: span 2; }
+  .span-colonia { grid-column: span 4; }
+  .span-cp { grid-column: span 2; }
+  .span-ciudad { grid-column: span 3; }
+  .span-estado { grid-column: span 3; }
   .registro-hint { font-size: 12.5px; color: var(--slate-55); line-height: 1.6; margin-top: -6px; }
   .registro-error {
     font-size: 13.5px; color: #8A4530; background: rgba(244,220,214,0.55);
@@ -562,8 +579,10 @@
     align-items: center; justify-content: center; padding: 20px;
     background: rgba(44, 53, 57, 0.55);
     -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+    overflow-y: auto;
   }
   .cta-modal.active { display: flex; }
+  .cta-modal .cta-content { margin: auto; }
 
   .cta-content {
     position: relative;
@@ -637,6 +656,7 @@
     }
     .premium-content.expanded .premium-image-col { transform: translateY(0); }
     .premium-image { max-width: 230px; margin: 0 auto; }
+    .registro-field-grid { gap: 12px; }
   }
 </style>
 </head>
@@ -776,7 +796,7 @@
 
       <div class="live-cta reveal reveal-2">
         <button class="btn btn-primary" id="btnCompraInline" onclick="abrirPremium()" style="display: none;">
-          Acceso Premium 3 meses
+          Obtén tu paquete Glow21 + Colágeno de regalo
         </button>
         <button class="btn btn-outline" onclick="mostrarModal()">Terminé la clase, ¿qué sigue?</button>
       </div>
@@ -920,7 +940,7 @@
     <p>¿Lista para los 21 días?</p>
 
     <button class="btn btn-primary modal-btn" id="btnCompra" onclick="abrirPremium()" style="display: none;">
-      Acceso Premium 3 meses
+      Obtén tu paquete Glow21 + Colágeno de regalo
     </button>
 
     <hr class="divider">
@@ -992,7 +1012,7 @@
           <img src="assets/logos/logo-icono-transparente.png" alt="">
         </div>
 
-        <h2 id="premiumTitle">Acceso Premium 3 meses</h2>
+        <h2 id="premiumTitle">Obtén tu paquete Glow21 + Colágeno de regalo</h2>
         <p>Tu Acceso Premium incluye un producto físico — necesitamos tus datos para enviártelo.</p>
 
         <form id="premiumForm" novalidate>
@@ -1008,9 +1028,32 @@
             <label for="premTelefono">Teléfono</label>
             <input type="tel" id="premTelefono" autocomplete="tel" required>
           </div>
-          <div class="registro-field">
-            <label for="premDireccion">Dirección de envío</label>
-            <input type="text" id="premDireccion" autocomplete="street-address" required>
+          <p class="registro-address-label">Dirección de envío</p>
+          <div class="registro-field-grid">
+            <div class="registro-field span-calle">
+              <label for="premCalle">Calle</label>
+              <input type="text" id="premCalle" autocomplete="address-line1" required>
+            </div>
+            <div class="registro-field span-numero">
+              <label for="premNumero">Número</label>
+              <input type="text" id="premNumero" autocomplete="off" inputmode="numeric" required>
+            </div>
+            <div class="registro-field span-colonia">
+              <label for="premColonia">Colonia</label>
+              <input type="text" id="premColonia" autocomplete="address-line2" required>
+            </div>
+            <div class="registro-field span-cp">
+              <label for="premCP">C.P.</label>
+              <input type="text" id="premCP" autocomplete="postal-code" inputmode="numeric" required>
+            </div>
+            <div class="registro-field span-ciudad">
+              <label for="premCiudad">Ciudad</label>
+              <input type="text" id="premCiudad" autocomplete="address-level2" required>
+            </div>
+            <div class="registro-field span-estado">
+              <label for="premEstado">Estado</label>
+              <input type="text" id="premEstado" autocomplete="address-level1" required>
+            </div>
           </div>
 
           <p class="registro-error" id="premiumError" hidden></p>
@@ -1349,12 +1392,18 @@
     const nombre = document.getElementById('premNombre').value.trim();
     const correo = document.getElementById('premCorreo').value.trim();
     const telefono = document.getElementById('premTelefono').value.trim();
-    const direccion = document.getElementById('premDireccion').value.trim();
+    const calle = document.getElementById('premCalle').value.trim();
+    const numero = document.getElementById('premNumero').value.trim();
+    const colonia = document.getElementById('premColonia').value.trim();
+    const cp = document.getElementById('premCP').value.trim();
+    const ciudad = document.getElementById('premCiudad').value.trim();
+    const estado = document.getElementById('premEstado').value.trim();
 
-    if (!nombre || !correo || !telefono || !direccion) {
+    if (!nombre || !correo || !telefono || !calle || !numero || !colonia || !cp || !ciudad || !estado) {
       mostrarErrorPremium('Completa todos los campos para continuar.');
       return;
     }
+    const direccion = `${calle} ${numero}, ${colonia}, CP ${cp}, ${ciudad}, ${estado}`;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       mostrarErrorPremium('Ingresa un correo válido.');
       return;
