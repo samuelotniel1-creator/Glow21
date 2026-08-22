@@ -179,6 +179,13 @@
   .pago-dot.is-paid { color: #4ade80; font-weight: 600; }
   .pago-dot.is-paid::before { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.7); }
 
+  .id-copy {
+    font-family: 'SFMono-Regular', Consolas, monospace; font-size: 11.5px;
+    background: none; border: none; color: var(--pearl-50); cursor: pointer;
+    padding: 2px 0; text-align: left; transition: color 0.2s ease;
+  }
+  .id-copy:hover { color: var(--champagne); text-decoration: underline; }
+
   .toggle-mini {
     width: 38px; height: 22px; border-radius: 999px; cursor: pointer; position: relative;
     background: rgba(253, 251, 247, 0.12); border: 1px solid rgba(253, 251, 247, 0.2);
@@ -300,6 +307,7 @@
             <th>Teléfono</th>
             <th>Dirección</th>
             <th>Pago</th>
+            <th>ID de pago</th>
             <th>Registrado</th>
             <th>Contactado</th>
             <th>Nota</th>
@@ -552,6 +560,26 @@
         badge.textContent = row.pagado ? 'Pagado' : 'Pendiente';
         tdPago.appendChild(badge);
 
+        const tdPagoId = document.createElement('td'); tdPagoId.className = 'cell-muted';
+        if (row.stripe_session_id) {
+          const idBtn = document.createElement('button');
+          idBtn.type = 'button';
+          idBtn.className = 'id-copy';
+          idBtn.textContent = row.stripe_session_id;
+          idBtn.title = 'Clic para copiar';
+          idBtn.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(row.stripe_session_id);
+              mostrarStatus('ID de pago copiado.');
+            } catch {
+              mostrarStatus('No se pudo copiar. Selecciónalo manualmente.');
+            }
+          });
+          tdPagoId.appendChild(idBtn);
+        } else {
+          tdPagoId.textContent = '—';
+        }
+
         const tdFecha = document.createElement('td'); tdFecha.className = 'cell-muted'; tdFecha.textContent = formatearFecha(row.created_at);
 
         const tdContactado = document.createElement('td');
@@ -566,7 +594,7 @@
           if (ok) row.nota = valor;
         }));
 
-        tr.append(tdNombre, tdCorreo, tdTel, tdDir, tdPago, tdFecha, tdContactado, tdNota);
+        tr.append(tdNombre, tdCorreo, tdTel, tdDir, tdPago, tdPagoId, tdFecha, tdContactado, tdNota);
         tbody.appendChild(tr);
       });
 
@@ -603,8 +631,8 @@
       ]);
     } else {
       filas = premium.filter((r) => coincide(r, q));
-      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Dirección', 'Pagado', 'Registrado', 'Contactado', 'Nota'];
-      datos = filas.map((r) => [r.nombre, r.correo, r.telefono, r.direccion, r.pagado ? 'Sí' : 'No', formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || '']);
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Dirección', 'Pagado', 'ID de pago', 'Registrado', 'Contactado', 'Nota'];
+      datos = filas.map((r) => [r.nombre, r.correo, r.telefono, r.direccion, r.pagado ? 'Sí' : 'No', r.stripe_session_id || '', formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || '']);
     }
 
     const csv = [encabezados, ...datos].map((fila) => fila.map(csvEscape).join(',')).join('\r\n');
