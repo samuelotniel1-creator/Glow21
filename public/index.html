@@ -442,6 +442,7 @@
     box-shadow: var(--shadow-card);
     max-width: 920px; margin: 0 auto;
   }
+  .zoom-frame-shell { position: relative; }
   .zoom-embed-wrapper {
     position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
     overflow: hidden; border-radius: 6px; background: var(--slate);
@@ -458,7 +459,8 @@
     cursor: pointer; transition: background 0.3s ease;
   }
   .zoom-fullscreen-toggle:hover { background: rgba(44, 53, 57, 0.8); }
-  .zoom-fullscreen-toggle .icon { width: 18px; height: 18px; }
+  .zoom-fullscreen-toggle .icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .zoom-fullscreen-label { display: none; }
 
   /* ================= PILLARS ================= */
   .pillars {
@@ -647,8 +649,16 @@
       height: min(75dvh, 620px);
     }
     .zoom-embed-wrapper:fullscreen, .zoom-embed-wrapper:-webkit-full-screen { height: 100%; }
-    .zoom-fullscreen-toggle { width: 46px; height: 46px; top: 10px; right: 10px; }
-    .zoom-fullscreen-toggle .icon { width: 22px; height: 22px; }
+    .zoom-frame-shell { display: flex; flex-direction: column; gap: 10px; }
+    .zoom-fullscreen-toggle {
+      position: static; align-self: flex-end;
+      width: auto; height: auto; border-radius: 8px;
+      padding: 10px 16px;
+      background: var(--slate); color: var(--pearl);
+    }
+    .zoom-fullscreen-toggle:hover { background: var(--slate); }
+    .zoom-fullscreen-toggle .icon { width: 18px; height: 18px; }
+    .zoom-fullscreen-label { display: inline; font-size: 13px; font-weight: 600; margin-left: 8px; }
 
     .premium-content.expanded { max-width: min(460px, 94vw); }
     .premium-grid {
@@ -794,10 +804,13 @@
       </div>
 
       <div class="zoom-container reveal reveal-1" id="zoomStage" hidden>
-        <div class="zoom-embed-wrapper" id="zoomEmbedWrapper">
-          <iframe id="zoomFrame" title="Transmisión en vivo Glow21" allow="camera; microphone; autoplay"></iframe>
+        <div class="zoom-frame-shell">
+          <div class="zoom-embed-wrapper" id="zoomEmbedWrapper">
+            <iframe id="zoomFrame" title="Transmisión en vivo Glow21" allow="camera; microphone; autoplay"></iframe>
+          </div>
           <button class="zoom-fullscreen-toggle" onclick="alternarPantallaCompleta()" aria-label="Pantalla completa" title="Pantalla completa">
             <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 1-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></span>
+            <span class="zoom-fullscreen-label">Pantalla completa</span>
           </button>
         </div>
       </div>
