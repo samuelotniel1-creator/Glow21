@@ -87,7 +87,7 @@
   }
   label .icon { width: 15px; height: 15px; flex-shrink: 0; }
 
-  input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"] {
+  input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], textarea {
     width: 100%; padding: 13px 16px;
     border: 1px solid rgba(253, 251, 247, 0.18);
     border-radius: 6px;
@@ -97,7 +97,8 @@
     color-scheme: dark;
     transition: border-color 0.3s ease, background 0.3s ease;
   }
-  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="datetime-local"]:focus {
+  textarea { resize: vertical; line-height: 1.5; }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="datetime-local"]:focus, textarea:focus {
     outline: none; border-color: var(--champagne);
     background: rgba(253, 251, 247, 0.07);
   }
@@ -210,21 +211,13 @@
     <div class="conn-status" id="connStatus"><span class="conn-dot"></span><span id="connStatusText">Conectando con Supabase…</span></div>
 
     <div class="field">
-      <label for="zoomId">
+      <label for="zoomInvite">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="14" height="12" rx="2"/><path d="M16.5 10.5l5-3v9l-5-3"/></svg></span>
-        Zoom Meeting ID
+        Invitación de Zoom
       </label>
-      <input type="text" id="zoomId" placeholder="Ej: 123 456 7890" inputmode="numeric">
-      <p class="hint">Se obtiene del enlace de tu reunión: <code>https://zoom.us/wc/join/123456789</code> → el ID es <code>123456789</code>.</p>
-    </div>
-
-    <div class="field">
-      <label for="zoomPassword">
-        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
-        Zoom Password
-      </label>
-      <input type="text" id="zoomPassword" placeholder="Ej: abc123">
-      <p class="hint">Déjalo vacío si tu reunión no pide contraseña.</p>
+      <textarea id="zoomInvite" rows="3" placeholder="En Zoom da clic en “Copiar invitación” y pega aquí todo el texto"></textarea>
+      <p class="hint">Pega el texto completo de “Copiar invitación” (o solo el link <code>zoom.us/j/123456789?pwd=AbCdEfGh</code>) — el ID y el código de acceso se detectan solos.</p>
+      <p class="hint" id="zoomParsedPreview" hidden></p>
     </div>
 
     <div class="field">
@@ -364,8 +357,8 @@
     });
   }
 
-  const zoomIdEl = document.getElementById('zoomId');
-  const zoomPasswordEl = document.getElementById('zoomPassword');
+  const zoomInviteEl = document.getElementById('zoomInvite');
+  const zoomParsedPreviewEl = document.getElementById('zoomParsedPreview');
   const sessionDateTimeEl = document.getElementById('sessionDateTime');
   const paymentLinkUrlEl = document.getElementById('paymentLinkUrl');
   const toggleEl = document.getElementById('toggleCompra');
@@ -390,6 +383,32 @@
     return isNaN(d) ? null : d.toISOString();
   }
 
+  function parseZoomInvite(text) {
+    if (!text) return { zoomId: '', zoomPassword: '' };
+    const idMatch = text.match(/zoom\.us\/(?:j|wc\/join)\/(\d+)/i)
+      || text.match(/(?:meeting id|id de reuni[oó]n)[:\s]*([\d\s]{9,})/i);
+    const pwdMatch = text.match(/[?&]pwd=([^&\s"'<]+)/i);
+    return {
+      zoomId: idMatch ? idMatch[1].replace(/\s+/g, '') : '',
+      zoomPassword: pwdMatch ? pwdMatch[1] : ''
+    };
+  }
+
+  function buildZoomInviteDisplay(zoomId, zoomPassword) {
+    if (!zoomId) return '';
+    return `https://zoom.us/j/${zoomId}${zoomPassword ? '?pwd=' + zoomPassword : ''}`;
+  }
+
+  function actualizarZoomPreview() {
+    const { zoomId, zoomPassword } = parseZoomInvite(zoomInviteEl.value.trim());
+    if (!zoomInviteEl.value.trim()) { zoomParsedPreviewEl.hidden = true; return; }
+    zoomParsedPreviewEl.hidden = false;
+    zoomParsedPreviewEl.textContent = zoomId
+      ? `Detectado — ID: ${zoomId}${zoomPassword ? ` · Código: ${zoomPassword}` : ' · sin código de acceso'}`
+      : 'No se detectó un ID de reunión en ese texto.';
+  }
+  zoomInviteEl.addEventListener('input', actualizarZoomPreview);
+
   function setConnStatus(estado) {
     const el = document.getElementById('connStatus');
     const text = document.getElementById('connStatusText');
@@ -403,25 +422,28 @@
     if (sb) {
       const { data, error } = await sb.from('glow21_settings').select('*').eq('id', 1).single();
       if (!error && data) {
-        zoomIdEl.value = data.zoom_id || '';
-        zoomPasswordEl.value = data.zoom_password || '';
+        zoomInviteEl.value = buildZoomInviteDisplay(data.zoom_id, data.zoom_password);
         sessionDateTimeEl.value = isoADatetimeLocal(data.session_datetime);
         paymentLinkUrlEl.value = data.payment_link_url || '';
         setToggle(toggleEl, estadoEl, !!data.show_premium_button);
         setToggle(toggleEnVivoEl, estadoEnVivoEl, !!data.session_live);
         setConnStatus('online');
+        actualizarZoomPreview();
         return;
       }
       mostrarStatus('No se pudo conectar con Supabase. Revisa la consola.', 'error');
       console.warn('Glow21 admin: error leyendo Supabase', error);
     }
     setConnStatus('offline');
-    zoomIdEl.value = localStorage.getItem('glow21_zoom_id') || '';
-    zoomPasswordEl.value = localStorage.getItem('glow21_zoom_password') || '';
+    zoomInviteEl.value = buildZoomInviteDisplay(
+      localStorage.getItem('glow21_zoom_id') || '',
+      localStorage.getItem('glow21_zoom_password') || ''
+    );
     sessionDateTimeEl.value = isoADatetimeLocal(localStorage.getItem('glow21_session_datetime'));
     paymentLinkUrlEl.value = localStorage.getItem('glow21_payment_link_url') || '';
     setToggle(toggleEl, estadoEl, localStorage.getItem('glow21_boton_compra') === 'true');
     setToggle(toggleEnVivoEl, estadoEnVivoEl, localStorage.getItem('glow21_session_live') === 'true');
+    actualizarZoomPreview();
   }
 
   function setToggle(toggle, estadoLabel, activo) {
@@ -441,16 +463,15 @@
   registrarToggle(toggleEnVivoEl, estadoEnVivoEl);
 
   async function guardar() {
-    const zoomId = zoomIdEl.value.trim();
-    const zoomPassword = zoomPasswordEl.value.trim();
+    const { zoomId, zoomPassword } = parseZoomInvite(zoomInviteEl.value.trim());
     const sessionDatetime = datetimeLocalAIso(sessionDateTimeEl.value);
     const paymentLinkUrl = paymentLinkUrlEl.value.trim();
     const botonActivo = toggleEl.classList.contains('active');
     const enVivo = toggleEnVivoEl.classList.contains('active');
 
     if (!zoomId) {
-      mostrarStatus('Ingresa el Zoom ID antes de guardar.', 'error');
-      zoomIdEl.focus();
+      mostrarStatus('No pudimos encontrar el ID de la reunión en ese texto. Pega el enlace o la invitación completa de Zoom.', 'error');
+      zoomInviteEl.focus();
       return;
     }
 
