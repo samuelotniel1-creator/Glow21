@@ -641,6 +641,14 @@
     .live-gate-card { padding: 40px 24px; }
     .cta-content { padding: 44px 26px 34px; }
     .zoom-container { padding: 12px; }
+    .zoom-embed-wrapper {
+      padding-bottom: 0;
+      height: min(75vh, 620px);
+      height: min(75dvh, 620px);
+    }
+    .zoom-embed-wrapper:fullscreen, .zoom-embed-wrapper:-webkit-full-screen { height: 100%; }
+    .zoom-fullscreen-toggle { width: 46px; height: 46px; top: 10px; right: 10px; }
+    .zoom-fullscreen-toggle .icon { width: 22px; height: 22px; }
 
     .premium-content.expanded { max-width: min(460px, 94vw); }
     .premium-grid {
