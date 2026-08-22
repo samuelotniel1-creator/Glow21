@@ -357,6 +357,39 @@
   .registro-content { max-width: 440px; text-align: left; }
   .registro-content h2, .registro-content > p { text-align: center; }
   .registro-content .modal-mark { margin-bottom: 18px; }
+
+  /* ---------- PREMIUM: el modal se ensancha y revela la imagen del producto ----------
+     max-width se anima a propósito aquí (reflow contenido a este único overlay
+     aislado, contain:layout limita su costo) para un solo momento autoral de
+     apertura — no es un patrón repetido ni continuo en la página. */
+  .premium-content {
+    max-width: 460px;
+    contain: layout style;
+    transition: max-width 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .premium-content.expanded { max-width: min(940px, 94vw); }
+
+  .premium-grid {
+    display: grid;
+    grid-template-columns: 0fr 1fr;
+    align-items: center;
+    overflow: hidden;
+    transition: grid-template-columns 0.65s cubic-bezier(0.16, 1, 0.3, 1), column-gap 0.65s ease;
+  }
+  .premium-content.expanded .premium-grid {
+    grid-template-columns: 1fr 1.15fr;
+    column-gap: 36px;
+  }
+
+  .premium-image-col {
+    min-width: 0; overflow: hidden;
+    opacity: 0; transform: translateX(-16px);
+    transition: opacity 0.5s ease 0.18s, transform 0.5s ease 0.18s;
+  }
+  .premium-content.expanded .premium-image-col { opacity: 1; transform: translateX(0); }
+  .premium-image { width: 100%; height: auto; border-radius: 14px; display: block; box-shadow: var(--shadow-card); }
+
+  .premium-form-col { min-width: 0; }
   #registroForm { margin-top: 28px; display: flex; flex-direction: column; gap: 18px; }
   .registro-field label {
     display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
@@ -589,6 +622,21 @@
     .live-gate-card { padding: 40px 24px; }
     .cta-content { padding: 44px 26px 34px; }
     .zoom-container { padding: 12px; }
+
+    .premium-content.expanded { max-width: min(460px, 94vw); }
+    .premium-grid {
+      grid-template-columns: 1fr;
+      grid-template-rows: 0px 1fr;
+      row-gap: 0;
+      transition: grid-template-rows 0.65s cubic-bezier(0.16, 1, 0.3, 1), row-gap 0.65s ease;
+    }
+    .premium-content.expanded .premium-grid { grid-template-columns: 1fr; grid-template-rows: 230px 1fr; row-gap: 20px; }
+    .premium-image-col {
+      display: flex; align-items: center; justify-content: center;
+      transform: translateY(-14px);
+    }
+    .premium-content.expanded .premium-image-col { transform: translateY(0); }
+    .premium-image { max-width: 230px; margin: 0 auto; }
   }
 </style>
 </head>
@@ -926,43 +974,54 @@
 
 <!-- PREMIUM MODAL (incluye producto físico: pide dirección de envío) -->
 <div class="cta-modal" id="premiumModal" role="dialog" aria-modal="true" aria-labelledby="premiumTitle">
-  <div class="cta-content registro-content">
+  <div class="cta-content premium-content" id="premiumContent">
     <button class="modal-close" onclick="cerrarPremium()" aria-label="Cerrar">
       <span class="icon"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></span>
     </button>
 
-    <div class="modal-mark">
-      <img src="assets/logos/logo-icono-transparente.png" alt="">
+    <div class="premium-grid" id="premiumGrid">
+      <div class="premium-image-col" aria-hidden="true">
+        <picture>
+          <source srcset="assets/premium/ganador-colageno.webp" type="image/webp">
+          <img class="premium-image" src="assets/premium/ganador-colageno.png" alt="">
+        </picture>
+      </div>
+
+      <div class="premium-form-col registro-content">
+        <div class="modal-mark">
+          <img src="assets/logos/logo-icono-transparente.png" alt="">
+        </div>
+
+        <h2 id="premiumTitle">Acceso Premium 3 meses</h2>
+        <p>Tu Acceso Premium incluye un producto físico — necesitamos tus datos para enviártelo.</p>
+
+        <form id="premiumForm" novalidate>
+          <div class="registro-field">
+            <label for="premNombre">Nombre</label>
+            <input type="text" id="premNombre" autocomplete="name" required>
+          </div>
+          <div class="registro-field">
+            <label for="premCorreo">Correo</label>
+            <input type="email" id="premCorreo" autocomplete="email" required>
+          </div>
+          <div class="registro-field">
+            <label for="premTelefono">Teléfono</label>
+            <input type="tel" id="premTelefono" autocomplete="tel" required>
+          </div>
+          <div class="registro-field">
+            <label for="premDireccion">Dirección de envío</label>
+            <input type="text" id="premDireccion" autocomplete="street-address" required>
+          </div>
+
+          <p class="registro-error" id="premiumError" hidden></p>
+
+          <button type="submit" class="btn btn-primary registro-submit" id="premiumSubmit">
+            <span class="registro-spinner" aria-hidden="true"></span>
+            <span id="premiumSubmitText">Continuar al pago</span>
+          </button>
+        </form>
+      </div>
     </div>
-
-    <h2 id="premiumTitle">Acceso Premium 3 meses</h2>
-    <p>Tu Acceso Premium incluye un producto físico — necesitamos tus datos para enviártelo.</p>
-
-    <form id="premiumForm" novalidate>
-      <div class="registro-field">
-        <label for="premNombre">Nombre</label>
-        <input type="text" id="premNombre" autocomplete="name" required>
-      </div>
-      <div class="registro-field">
-        <label for="premCorreo">Correo</label>
-        <input type="email" id="premCorreo" autocomplete="email" required>
-      </div>
-      <div class="registro-field">
-        <label for="premTelefono">Teléfono</label>
-        <input type="tel" id="premTelefono" autocomplete="tel" required>
-      </div>
-      <div class="registro-field">
-        <label for="premDireccion">Dirección de envío</label>
-        <input type="text" id="premDireccion" autocomplete="street-address" required>
-      </div>
-
-      <p class="registro-error" id="premiumError" hidden></p>
-
-      <button type="submit" class="btn btn-primary registro-submit" id="premiumSubmit">
-        <span class="registro-spinner" aria-hidden="true"></span>
-        <span id="premiumSubmitText">Continuar al pago</span>
-      </button>
-    </form>
   </div>
 </div>
 
@@ -1231,10 +1290,12 @@
   // ---------- PREMIUM (datos de envío, formulario aparte del de la masterclass) ----------
   const PREMIUM_KEY = 'glow21_premium_registro';
   const premiumModal = document.getElementById('premiumModal');
+  const premiumContent = document.getElementById('premiumContent');
   const premiumForm = document.getElementById('premiumForm');
   const premiumSubmit = document.getElementById('premiumSubmit');
   const premiumSubmitText = document.getElementById('premiumSubmitText');
   let premiumLastFocused = null;
+  let premiumExpandTimer = null;
 
   function obtenerPremiumRegistro() {
     try { return JSON.parse(localStorage.getItem(PREMIUM_KEY) || 'null'); }
@@ -1260,13 +1321,21 @@
     }
     premiumLastFocused = document.activeElement;
     limpiarErrorPremium();
+    premiumContent.classList.remove('expanded');
     premiumModal.classList.add('active');
     document.body.style.overflow = 'hidden';
     document.getElementById('premNombre').focus();
+
+    // Primero se abre el formulario solo (animación existente del modal);
+    // un instante después se ensancha y la imagen del producto se revela.
+    clearTimeout(premiumExpandTimer);
+    premiumExpandTimer = setTimeout(() => premiumContent.classList.add('expanded'), 550);
   }
 
   function cerrarPremium() {
+    clearTimeout(premiumExpandTimer);
     premiumModal.classList.remove('active');
+    premiumContent.classList.remove('expanded');
     document.body.style.overflow = '';
     if (premiumLastFocused) premiumLastFocused.focus();
   }
