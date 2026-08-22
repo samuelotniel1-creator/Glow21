@@ -171,6 +171,8 @@
   .badge-paid { background: rgba(229,196,163,0.18); color: var(--champagne); }
   .badge-pending { background: rgba(253,251,247,0.08); color: var(--pearl-50); }
 
+  .pago-meta { display: flex; align-items: center; gap: 8px; }
+
   .pago-dot { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--pearl-50); }
   .pago-dot::before {
     content: ''; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
@@ -494,6 +496,15 @@
     return new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(iso));
   }
 
+  function formatearMonto(centavos, moneda) {
+    if (centavos == null) return null;
+    try {
+      return new Intl.NumberFormat('es-MX', { style: 'currency', currency: (moneda || 'mxn').toUpperCase() }).format(centavos / 100);
+    } catch {
+      return (centavos / 100).toFixed(2) + ' ' + (moneda || '').toUpperCase();
+    }
+  }
+
   async function cargarTodo() {
     if (!sb) return;
 
@@ -643,6 +654,10 @@
     if (tablaKey === 'glow21_premium_leads') {
       campos.push({ label: 'Dirección', valor: row.direccion, copiable: true });
       campos.push({ label: 'Pago', valor: row.pagado ? 'Pagado' : 'Pendiente', badge: row.pagado ? 'paid' : 'pending' });
+      const montoDetalle = formatearMonto(row.monto_centavos, row.moneda);
+      if (row.pagado && montoDetalle) {
+        campos.push({ label: 'Monto pagado', valor: montoDetalle });
+      }
       if (row.stripe_session_id) {
         campos.push({ label: 'ID de pago', valor: row.stripe_session_id, copiable: true, mono: true });
       }
@@ -771,10 +786,20 @@
       list.innerHTML = '';
 
       filas.forEach((row) => {
+        const wrap = document.createElement('span');
+        wrap.className = 'pago-meta';
         const badge = document.createElement('span');
         badge.className = 'badge ' + (row.pagado ? 'badge-paid' : 'badge-pending');
         badge.textContent = row.pagado ? 'Pagado' : 'Pendiente';
-        list.appendChild(crearFilaLead('glow21_premium_leads', row, badge));
+        wrap.appendChild(badge);
+        const monto = formatearMonto(row.monto_centavos, row.moneda);
+        if (row.pagado && monto) {
+          const montoEl = document.createElement('span');
+          montoEl.className = 'cell-muted';
+          montoEl.textContent = monto;
+          wrap.appendChild(montoEl);
+        }
+        list.appendChild(crearFilaLead('glow21_premium_leads', row, wrap));
       });
 
       document.getElementById('listInteresados').hidden = true;
@@ -811,8 +836,12 @@
       ]);
     } else {
       filas = premium.filter((r) => coincide(r, q));
-      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Dirección', 'Pagado', 'ID de pago', 'Registrado', 'Contactado', 'Nota'];
-      datos = filas.map((r) => [r.nombre, r.correo, r.telefono, r.direccion, r.pagado ? 'Sí' : 'No', r.stripe_session_id || '', formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || '']);
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Dirección', 'Pagado', 'Monto', 'ID de pago', 'Registrado', 'Contactado', 'Nota'];
+      datos = filas.map((r) => [
+        r.nombre, r.correo, r.telefono, r.direccion, r.pagado ? 'Sí' : 'No',
+        formatearMonto(r.monto_centavos, r.moneda) || '',
+        r.stripe_session_id || '', formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || ''
+      ]);
     }
 
     const csv = [encabezados, ...datos].map((fila) => fila.map(csvEscape).join(',')).join('\r\n');

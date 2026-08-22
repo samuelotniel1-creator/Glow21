@@ -70,6 +70,8 @@ module.exports = async (req, res) => {
           pagado: true,
           paid_at: new Date().toISOString(),
           stripe_session_id: session.id,
+          monto_centavos: session.amount_total ?? null,
+          moneda: session.currency ?? null,
         })
         .ilike('correo', correo);
 
