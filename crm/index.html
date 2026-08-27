@@ -667,6 +667,7 @@
       );
       const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
       campos.push({ label: 'Pagó premium', valor: yaPago ? 'Sí' : 'No', badge: yaPago ? 'paid' : 'pending' });
+      campos.push({ label: 'Origen', valor: row.origen === 'preregistro' ? 'Preregistro (pauta)' : 'Masterclass' });
     }
 
     const fieldsEl = document.getElementById('leadModalFields');
@@ -767,11 +768,20 @@
       );
 
       filas.forEach((row) => {
+        const wrap = document.createElement('span');
+        wrap.className = 'pago-meta';
+        if (row.origen === 'preregistro') {
+          const origenBadge = document.createElement('span');
+          origenBadge.className = 'badge badge-pending';
+          origenBadge.textContent = 'Pauta';
+          wrap.appendChild(origenBadge);
+        }
         const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
         const pagoDot = document.createElement('span');
         pagoDot.className = 'pago-dot' + (yaPago ? ' is-paid' : '');
         pagoDot.textContent = yaPago ? 'Pagó' : '—';
-        list.appendChild(crearFilaLead('glow21_profiles', row, pagoDot));
+        wrap.appendChild(pagoDot);
+        list.appendChild(crearFilaLead('glow21_profiles', row, wrap));
       });
 
       document.getElementById('listInteresados').hidden = false;
@@ -828,9 +838,10 @@
       const correosPagados = new Set(
         premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
       );
-      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Pagó', 'Registrado', 'Contactado', 'Nota'];
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Origen', 'Pagó', 'Registrado', 'Contactado', 'Nota'];
       datos = filas.map((r) => [
         r.nombre, r.correo, r.telefono,
+        r.origen === 'preregistro' ? 'Preregistro' : 'Masterclass',
         correosPagados.has((r.correo || '').trim().toLowerCase()) ? 'Sí' : 'No',
         formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || ''
       ]);

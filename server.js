@@ -26,6 +26,10 @@ app.get('/crm', (req, res) => {
   res.sendFile(path.join(__dirname, 'crm', 'index.html'));
 });
 
+app.get('/preregistro', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'preregistro.html'));
+});
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });

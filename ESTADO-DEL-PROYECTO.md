@@ -10,7 +10,7 @@ retomar el proyecto en otra máquina o sesión.
 - `crm/` — CRM de leads (`/crm`), requiere login
 - `api/stripe-webhook.js` — función serverless de Vercel, recibe pagos de Stripe
 - `server.js` — servidor Express solo para desarrollo local (`npm start`)
-- `supabase-setup*.sql` — migraciones, en orden; `supabase-setup-completo.sql` las trae todas juntas y es seguro re-correrlo
+- `supabase-setup-completo.sql` — único archivo de setup de la base de datos; es seguro re-correrlo aunque ya lo hayas corrido antes
 
 ## Qué hace la landing (`public/`)
 
