@@ -609,6 +609,20 @@
   .cta-content h2 { font-size: 27px; font-weight: 500; font-style: italic; margin-bottom: 12px; }
   .cta-content p { font-size: 15px; color: var(--slate-70); margin-bottom: 30px; }
 
+  /* El formulario premium es más largo (nombre/correo/teléfono + 6 campos
+     de dirección): se comprime el espaciado vertical para que quepa sin
+     scroll en la mayoría de pantallas, en vez de solo confiar en el
+     overflow-y del overlay. */
+  .premium-content { padding: 32px 44px 28px; }
+  .premium-form-col .modal-mark { width: 40px; height: 40px; margin-bottom: 6px; }
+  .premium-form-col h2 { font-size: 20px; margin-bottom: 6px; }
+  .premium-form-col > p { font-size: 13.5px; margin-bottom: 12px; }
+  #premiumForm { margin-top: 12px; gap: 11px; }
+  #premiumForm .registro-field label { margin-bottom: 4px; }
+  #premiumForm .registro-field input { padding: 9px 14px; }
+  #premiumForm .registro-field-grid { gap: 11px; }
+  #premiumForm .registro-address-label { margin-bottom: -6px; }
+
   .btn-primary.modal-btn { width: 100%; margin-bottom: 24px; }
 
   .divider { border: none; height: 1px; background: var(--slate-12); margin: 0 0 26px; }
