@@ -104,7 +104,11 @@
     margin: 0 0 40px; line-height: 1.75;
   }
   .hero-photo { flex: 0 0 auto; width: 46vw; max-width: 760px; min-width: 340px; }
-  .hero-photo img { width: 100%; height: auto; display: block; }
+  .hero-photo img {
+    width: 100%; height: auto; display: block;
+    -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
+  }
   .hero-photo-caption {
     display: none;
     font-family: var(--serif); font-size: 26px; font-weight: 500;
@@ -198,11 +202,7 @@
     .countdown { text-align: center; }
     .countdown-units { justify-content: center; }
     .hero-photo { order: 1; position: relative; width: 100%; max-width: none; min-width: 0; }
-    .hero-photo img {
-      width: 100%; margin: 0;
-      -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
-      mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
-    }
+    .hero-photo img { width: 100%; margin: 0; }
     .hero-photo-caption {
       display: block; position: absolute; left: 24px; top: 50%;
       transform: translateY(-50%);
