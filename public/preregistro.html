@@ -196,10 +196,15 @@
     .countdown { text-align: center; }
     .countdown-units { justify-content: center; }
     .hero-photo { order: 1; position: relative; width: 100%; max-width: none; min-width: 0; }
-    .hero-photo img { width: 100%; margin: 0; }
+    .hero-photo img {
+      width: 100%; margin: 0;
+      -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
+      mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
+    }
     .hero-photo-caption {
-      display: block; position: absolute; left: 24px; top: 9%;
-      max-width: 48%; font-size: 21px; margin: 0;
+      display: block; position: absolute; left: 24px; top: 50%;
+      transform: translateY(-50%);
+      max-width: 48%; font-size: 30px; margin: 0;
     }
   }
 
@@ -223,8 +228,8 @@
           <img src="assets/logos/logo-icono-transparente.png" alt="" aria-hidden="true">
         </div>
 
-        <h1>Reserva tu lugar en la Masterclass Glow21.</h1>
-        <p class="subtitle">21 días de método, ciencia y comunidad para aprender a cuidar tu piel desde el conocimiento, no desde la publicidad. Cupo limitado.</p>
+        <h1>Tu piel habla antes que tú.</h1>
+        <p class="subtitle">Masterclass en vivo de Glow21 — 21 días de método, ciencia y comunidad para aprender a cuidar tu piel desde el conocimiento, no desde la publicidad. Cupo limitado.</p>
 
         <div class="countdown" id="countdown" hidden>
           <p class="countdown-label" id="countdownLabel"></p>
