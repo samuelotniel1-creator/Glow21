@@ -409,6 +409,12 @@
         <a class="btn btn-outline" id="calendarBtn" target="_blank" rel="noopener" hidden>Agendar en mi calendario</a>
         <p class="registro-hint">Ya guardamos tu lugar. Agrégalo a tu calendario para no olvidarlo.</p>
       </div>
+
+      <div class="registro-box" id="vencidoBox" hidden>
+        <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <h2>Esta sesión ya concluyó</h2>
+        <p>Muy pronto anunciamos la fecha de la próxima Masterclass — vuelve a checar esta página.</p>
+      </div>
     </div>
   </section>
 
@@ -482,6 +488,15 @@
     countdownInterval = setInterval(tick, 1000);
   }
 
+  let sesionVencida = false;
+
+  function mostrarSesionVencida() {
+    sesionVencida = true;
+    document.getElementById('countdown').hidden = true;
+    document.getElementById('registroBox').hidden = true;
+    document.getElementById('vencidoBox').hidden = false;
+  }
+
   async function cargarFechaSesion() {
     if (!sb) return;
     const { data, error } = await sb.from('glow21_settings').select('session_datetime').eq('id', 1).single();
@@ -490,6 +505,16 @@
       return;
     }
     sessionDatetime = data.session_datetime || '';
+
+    // La fecha la ajusta manualmente el admin — si nadie la actualizó
+    // después de que la sesión ya pasó, no dejamos que el formulario
+    // (ni el botón de calendario) sigan ofreciendo una fecha vencida.
+    const fecha = sessionDatetime ? new Date(sessionDatetime) : null;
+    if (fecha && !isNaN(fecha) && fecha.getTime() < Date.now()) {
+      mostrarSesionVencida();
+      return;
+    }
+
     actualizarCountdown();
   }
 
@@ -662,6 +687,7 @@
 
   (async function init() {
     await cargarFechaSesion();
+    if (sesionVencida) return;
     const registro = obtenerRegistro();
     if (registro) mostrarConfirmacion(registro.nombre);
   })();
