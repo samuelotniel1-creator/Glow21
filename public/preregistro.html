@@ -407,7 +407,7 @@
         <h2>¡Listo, <span id="confirmNombre"></span>!</h2>
         <p>Nos vemos <span id="confirmFecha">pronto</span></p>
         <a class="btn btn-outline" id="calendarBtn" target="_blank" rel="noopener" hidden>Agendar en mi calendario</a>
-        <p class="registro-hint">Te enviaremos un recordatorio antes de que empecemos. Mientras tanto, revisa tu correo.</p>
+        <p class="registro-hint">Ya guardamos tu lugar. Agrégalo a tu calendario para no olvidarlo.</p>
       </div>
     </div>
   </section>
@@ -516,7 +516,7 @@
       action: 'TEMPLATE',
       text: 'Masterclass en vivo: Tu piel habla antes que tú',
       dates: `${formatoUTC(inicio)}/${formatoUTC(fin)}`,
-      details: 'Tu lugar ya está reservado. Te esperamos en la Masterclass en vivo — revisa tu correo para el enlace de acceso.'
+      details: 'Tu lugar en la Masterclass en vivo ya está reservado.'
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
