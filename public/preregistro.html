@@ -191,6 +191,36 @@
 
   .registro-hint { font-size: 12.5px; color: var(--slate-55); line-height: 1.6; margin-top: 18px; }
 
+  /* ---------- Cuestionario de diagnóstico ---------- */
+  .quiz-box { max-width: 560px; }
+  #quizForm { text-align: left; display: flex; flex-direction: column; gap: 26px; }
+  .quiz-question { border: none; padding: 0; margin: 0; }
+  .quiz-question legend {
+    padding: 0; margin-bottom: 12px;
+    font-size: 14px; font-weight: 600; color: var(--slate); line-height: 1.4;
+  }
+  .quiz-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; margin-bottom: 8px;
+    border: 1px solid var(--slate-12); border-radius: var(--radius);
+    font-size: 14px; color: var(--slate-70); cursor: pointer;
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .quiz-option:last-child { margin-bottom: 0; }
+  .quiz-option:hover { border-color: var(--champagne); }
+  .quiz-option input { accent-color: var(--slate); flex-shrink: 0; }
+  .quiz-option:has(input:checked) {
+    border-color: var(--slate); background: rgba(229,196,163,0.14); color: var(--slate);
+  }
+
+  .quiz-result {
+    background: rgba(244,220,214,0.35); border-radius: 8px;
+    padding: 22px 20px; margin-bottom: 24px;
+  }
+  .quiz-result-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate-55); margin-bottom: 6px; }
+  .quiz-result-title { font-family: var(--serif); font-size: 21px; font-weight: 500; color: var(--slate); margin-bottom: 8px; }
+  .quiz-result-text { font-size: 14px; color: var(--slate-70); line-height: 1.65; }
+
   /* ---------- Footer ---------- */
   footer { background: var(--slate); color: var(--pearl-80); padding: 48px 0 30px; text-align: center; }
   .footer-brand { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 14px; }
@@ -313,8 +343,64 @@
         </form>
       </div>
 
+      <div class="registro-box quiz-box" id="quizBox" hidden>
+        <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <h2>Tu diagnóstico de piel</h2>
+        <p>Responde estas 5 preguntas rápidas y descubre tu tipo de piel — es gratis.</p>
+
+        <form id="quizForm" novalidate>
+          <fieldset class="quiz-question">
+            <legend>1. Después de lavar tu rostro sin productos, ¿cómo se siente?</legend>
+            <label class="quiz-option"><input type="radio" name="q1" value="A" required>Cómoda y equilibrada</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="B">Tirante o seca</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="C">Cómoda en mejillas, grasa en zona T</label>
+            <label class="quiz-option"><input type="radio" name="q1" value="D">Grasa en todo el rostro</label>
+          </fieldset>
+
+          <fieldset class="quiz-question">
+            <legend>2. ¿Dónde ves brillo durante el día?</legend>
+            <label class="quiz-option"><input type="radio" name="q2" value="A" required>Casi ninguno</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="B">Ninguno (algo seca)</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="C">En frente, nariz y barbilla</label>
+            <label class="quiz-option"><input type="radio" name="q2" value="D">En todo el rostro</label>
+          </fieldset>
+
+          <fieldset class="quiz-question">
+            <legend>3. ¿Cómo están tus poros?</legend>
+            <label class="quiz-option"><input type="radio" name="q3" value="A" required>Poco visibles</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="B">Poco visibles, textura áspera</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="C">Visibles en zona T</label>
+            <label class="quiz-option"><input type="radio" name="q3" value="D">Visibles en varias zonas</label>
+          </fieldset>
+
+          <fieldset class="quiz-question">
+            <legend>4. Cuando el clima es seco o hace frío:</legend>
+            <label class="quiz-option"><input type="radio" name="q4" value="A" required>Mi piel no cambia mucho</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="B">Se siente más tirante y seca</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="C">Algunas zonas se resecan, otras grasan</label>
+            <label class="quiz-option"><input type="radio" name="q4" value="D">Sigue produciendo grasa</label>
+          </fieldset>
+
+          <fieldset class="quiz-question">
+            <legend>5. Después de aplicar hidratante:</legend>
+            <label class="quiz-option"><input type="radio" name="q5" value="A" required>Se siente perfecta</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="B">Necesito más hidratación</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="C">Las mejillas mejoran, zona T se siente pesada</label>
+            <label class="quiz-option"><input type="radio" name="q5" value="D">A veces queda muy brillante</label>
+          </fieldset>
+
+          <p class="registro-error" id="quizError" hidden></p>
+          <button class="btn btn-primary registro-submit" id="quizSubmit" type="submit">Ver mi diagnóstico</button>
+        </form>
+      </div>
+
       <div class="registro-box" id="confirmBox" hidden>
         <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <div class="quiz-result" id="quizResult" hidden>
+          <p class="quiz-result-label">Tu tipo de piel</p>
+          <p class="quiz-result-title" id="quizResultTitle"></p>
+          <p class="quiz-result-text" id="quizResultText"></p>
+        </div>
         <h2>¡Listo, <span id="confirmNombre"></span>!</h2>
         <p>Nos vemos <span id="confirmFecha">pronto</span></p>
         <p class="registro-hint">Te enviaremos un recordatorio antes de que empecemos. Mientras tanto, revisa tu correo.</p>
@@ -475,7 +561,72 @@
     }
 
     localStorage.setItem(REGISTRO_KEY, JSON.stringify({ nombre, correo, telefono }));
-    mostrarConfirmacion(nombre);
+    mostrarCuestionario(nombre);
+  });
+
+  // ---------- CUESTIONARIO DE DIAGNÓSTICO (contenido: TEST_GLOW_Rapido.md) ----------
+  const RESULTADOS_PIEL = {
+    A: {
+      emoji: '🌿', titulo: 'Normal / Equilibrada',
+      texto: 'Prioridad: mantener el equilibrio. Necesitas limpieza suave, hidratación y protector solar.'
+    },
+    B: {
+      emoji: '💧', titulo: 'Seca',
+      texto: 'Prioridad: hidratación y barrera cutánea. Necesitas limpiadores suaves, hidratación profunda y apoyo a la barrera. (Piel seca no es lo mismo que piel deshidratada.)'
+    },
+    C: {
+      emoji: '🔄', titulo: 'Mixta',
+      texto: 'Prioridad: equilibrio sin agredir. Necesitas adaptar tu rutina según la zona — zona T vs. mejillas.'
+    },
+    D: {
+      emoji: '🌸', titulo: 'Grasa',
+      texto: 'Prioridad: equilibrio sin resecar. Necesitas limpieza adecuada, hidratación ligera, protector solar y evitar la limpieza excesiva. (Piel grasa puede estar deshidratada igual.)'
+    }
+  };
+
+  let registroNombre = '';
+
+  function mostrarCuestionario(nombre) {
+    registroNombre = nombre;
+    document.getElementById('registroBox').hidden = true;
+    document.getElementById('quizBox').hidden = false;
+  }
+
+  const quizForm = document.getElementById('quizForm');
+  const quizSubmit = document.getElementById('quizSubmit');
+
+  function mostrarErrorQuiz(msg) {
+    const el = document.getElementById('quizError');
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  quizForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    document.getElementById('quizError').hidden = true;
+
+    const nombresPreguntas = ['q1', 'q2', 'q3', 'q4', 'q5'];
+    const respuestas = nombresPreguntas.map((nombreCampo) => {
+      const marcada = quizForm.querySelector(`input[name="${nombreCampo}"]:checked`);
+      return marcada ? marcada.value : null;
+    });
+
+    if (respuestas.some((r) => !r)) {
+      mostrarErrorQuiz('Responde las 5 preguntas para ver tu diagnóstico.');
+      return;
+    }
+
+    const conteo = { A: 0, B: 0, C: 0, D: 0 };
+    respuestas.forEach((r) => conteo[r]++);
+    const letraGanadora = Object.keys(conteo).reduce((a, b) => (conteo[b] > conteo[a] ? b : a));
+    const resultado = RESULTADOS_PIEL[letraGanadora];
+
+    document.getElementById('quizResultTitle').textContent = `${resultado.emoji} ${resultado.titulo}`;
+    document.getElementById('quizResultText').textContent = resultado.texto;
+    document.getElementById('quizResult').hidden = false;
+
+    document.getElementById('quizBox').hidden = true;
+    mostrarConfirmacion(registroNombre);
   });
 
   (async function init() {
