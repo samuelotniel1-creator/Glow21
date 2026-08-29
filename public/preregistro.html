@@ -77,6 +77,8 @@
   .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
   .btn-primary:active { transform: translateY(0); }
   .btn-primary:disabled { opacity: 0.7; cursor: wait; }
+  .btn-outline { background: transparent; color: var(--slate); border: 1px solid var(--slate-12); }
+  .btn-outline:hover { border-color: var(--champagne); }
 
   /* ---------- Hero ---------- */
   .hero {
@@ -190,6 +192,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .registro-hint { font-size: 12.5px; color: var(--slate-55); line-height: 1.6; margin-top: 18px; }
+  #calendarBtn { width: 100%; margin-top: 4px; }
 
   /* ---------- Cuestionario de diagnóstico ---------- */
   .quiz-box { max-width: 560px; }
@@ -403,6 +406,7 @@
         </div>
         <h2>¡Listo, <span id="confirmNombre"></span>!</h2>
         <p>Nos vemos <span id="confirmFecha">pronto</span></p>
+        <a class="btn btn-outline" id="calendarBtn" target="_blank" rel="noopener" hidden>Agendar en mi calendario</a>
         <p class="registro-hint">Te enviaremos un recordatorio antes de que empecemos. Mientras tanto, revisa tu correo.</p>
       </div>
     </div>
@@ -499,12 +503,39 @@
     catch { return null; }
   }
 
+  // Google Calendar quiere las fechas en UTC ("...T...Z"); cada calendario
+  // las muestra ya convertidas a la hora local de quien la agrega, sin que
+  // tengamos que detectar su zona horaria nosotros mismos.
+  function formatoUTC(date) {
+    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+  }
+
+  function construirLinkCalendario(inicio) {
+    const fin = new Date(inicio.getTime() + 90 * 60000); // duración estimada: 90 min
+    const params = new URLSearchParams({
+      action: 'TEMPLATE',
+      text: 'Masterclass en vivo: Tu piel habla antes que tú',
+      dates: `${formatoUTC(inicio)}/${formatoUTC(fin)}`,
+      details: 'Tu lugar ya está reservado. Te esperamos en la Masterclass en vivo — revisa tu correo para el enlace de acceso.'
+    });
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  }
+
   function mostrarConfirmacion(nombre) {
     document.getElementById('registroBox').hidden = true;
     document.getElementById('confirmNombre').textContent = nombre;
-    document.getElementById('confirmFecha').textContent = sessionDatetime && !isNaN(new Date(sessionDatetime))
-      ? formatearFechaSesion(new Date(sessionDatetime))
-      : 'pronto';
+
+    const calendarBtn = document.getElementById('calendarBtn');
+    const fecha = sessionDatetime ? new Date(sessionDatetime) : null;
+    if (fecha && !isNaN(fecha)) {
+      document.getElementById('confirmFecha').textContent = formatearFechaSesion(fecha);
+      calendarBtn.href = construirLinkCalendario(fecha);
+      calendarBtn.hidden = false;
+    } else {
+      document.getElementById('confirmFecha').textContent = 'pronto';
+      calendarBtn.hidden = true;
+    }
+
     document.getElementById('confirmBox').hidden = false;
   }
 
