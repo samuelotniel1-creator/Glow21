@@ -42,9 +42,11 @@ Son dos capas distintas del mismo embudo — no confundirlas al editar contenido
 ## `/preregistro` — landing de pauta
 
 - Hero de dos columnas en escritorio (texto+temporizador a la izquierda, foto pegada al borde derecho de la pantalla, foto con degradado de desvanecido en la parte de abajo); en móvil la foto va arriba con el título "Tu piel habla antes que tú" superpuesto en cursiva/negrita sobre el espacio vacío de la imagen, y el H1 duplicado de abajo se oculta (ya que se repetiría).
-- 4 bullets de beneficio + formulario inline (nombre, correo, teléfono) que al enviarse se reemplaza por un mensaje de confirmación en la misma página (sin redirigir), mostrando la fecha real de la sesión.
-- Guarda en `glow21_profiles` con `origen = 'preregistro'`.
+- 4 bullets de beneficio + formulario inline (nombre, correo, teléfono). Al enviarse: se guarda el lead de inmediato en Supabase (con `origen = 'preregistro'`) y se muestra el **cuestionario de diagnóstico de piel** (5 preguntas, contenido de `TEST_GLOW_Rapido.md`) en la misma página, sin redirigir.
+- Al terminar el cuestionario se calcula el tipo de piel por mayoría de respuesta (Normal/Seca/Mixta/Grasa) y se muestra en una tarjeta de resultado, seguida del mensaje de confirmación con la fecha real de la sesión y un botón **"Agendar en mi calendario"** (link a Google Calendar construido en UTC a partir de `session_datetime`, así cada quien lo ve convertido a su propia zona horaria sin que el sitio la tenga que detectar).
+- El diagnóstico se muestra solo en pantalla — no se guarda en Supabase todavía (ver Pendientes si se quiere agregar).
 - Reutiliza la misma llave `glow21_registro` de `localStorage` que el registro de la landing principal.
+- Logo propio de la masterclass (no "G21"): `public/assets/logos/logo-masterclass.png`/`.webp`, con un desvanecido radial en vez de un corte de fondo (el PNG original tiene fondo sólido rosa, casi idéntico al Rosa Cuarzo de la marca, así que no hace falta quitarlo).
 - Foto del hero: `public/assets/hero/mujer-hero.webp`/`.png` (fondo transparente real, viene de `Glow21 - recursos/Imagen para landing.png`).
 - Brief de marca para generar imágenes de anuncios con IA: `brief-imagenes-pauta.md` (pégalo en ChatGPT junto con el pedido de imagen).
 
@@ -78,8 +80,8 @@ Verificado end-to-end el 2026-08-22 con un pago de prueba real ($20 MXN): el lea
 
 ## Pendientes
 
-1. **Cambiar el logo de `/preregistro`** — el usuario pidió reemplazar el ícono "G21" del hero por el logo nuevo `Glow21 - recursos/Logo Tu piel habla antes que tu.png` (una gota + hojas en tono oro rosado, sin relación visual directa a "G21"). Ese archivo tiene fondo sólido rosa (no transparente) — probablemente hay que quitarle el fondo (o generar una versión con fondo transparente) antes de usarlo, igual que se hizo con la foto del hero. Pendiente también decidir si el footer ("Glow21" en texto chico) se deja o se quita para ser consistente con el resto de la página.
-2. **Cuestionario/diagnóstico funcional después de registrarse en `/preregistro`** — el usuario confirmó que quiere un cuestionario real (no solo mencionarlo en texto), que se muestre justo después de enviar el formulario de registro y termine mostrando un resultado/diagnóstico. **El contenido ya existe**: `TEST_GLOW_Rapido.md` en la raíz del repo trae las 5 preguntas (opción A/B/C/D cada una) y la lógica de resultado (mayoría de una letra → tipo de piel: Normal/Equilibrada, Seca, Mixta o Grasa, con su descripción). Falta: diseñar la UI (pantallas de pregunta a pregunta o todo en una página, cómo se ve el resultado), decidir si el resultado se guarda en Supabase junto al lead (ej. una columna `tipo_piel` en `glow21_profiles`) y construirlo.
+1. **Guardar el resultado del diagnóstico en Supabase** — hoy el tipo de piel calculado por el cuestionario solo se muestra en pantalla, no queda guardado junto al lead. Si se quiere (ej. una columna `tipo_piel` en `glow21_profiles`, visible en el CRM), hace falta agregar la columna y, como `anon` hoy solo puede INSERT en esa tabla (no UPDATE), decidir cómo escribirla: lo más simple es incluirla en el INSERT original retrasando el guardado del lead hasta que termine el cuestionario (con el riesgo de no capturar a quien abandona el cuestionario a medias), o abrir una policy de UPDATE limitada para `anon`.
+2. Considerar si el footer de `/preregistro` (dice "Glow21" en texto chico) debe quitarse también para ser 100% consistente con el resto de la página, que ya no menciona la marca en ningún otro lugar.
 3. Housekeeping menor, no urgente: hay archivos sueltos en la raíz del repo (`Aranza Circulo.png`, `Aranza Malagon.png`, `glow21-landing-*.html/js/json`) que quedaron de antes de la separación en `public/`/`admin`/`crm` — no tocar salvo que se pida.
 
 ## Cómo continuar en otra máquina
