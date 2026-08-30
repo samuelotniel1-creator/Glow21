@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tu piel habla antes que tú · Masterclass en vivo</title>
 <meta name="description" content="Apártate un lugar en esta Masterclass en vivo: 21 días de método, ciencia y comunidad para transformar tu piel. Cupo limitado.">
-<link rel="icon" type="image/png" href="favicon.png">
+<link rel="icon" type="image/png" href="favicon-masterclass.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -99,13 +99,8 @@
     -webkit-mask-image: radial-gradient(circle, black 55%, transparent 100%);
     mask-image: radial-gradient(circle, black 55%, transparent 100%);
   }
-  .hero h1 {
-    font-size: clamp(2.4rem, 3.2vw + 1rem, 3.6rem);
-    line-height: 1.12; letter-spacing: -0.02em;
-    margin-bottom: 22px;
-  }
-  .hero h1 strong { font-weight: 700; }
-  .hero h1 em { font-style: italic; font-weight: 400; }
+  .hero-title { margin: 0 0 22px; }
+  .hero-title img { display: block; width: 100%; max-width: 380px; height: auto; }
   .hero .subtitle {
     font-size: clamp(17px, 1vw + 13px, 20px);
     color: var(--slate-70); max-width: 46ch;
@@ -117,13 +112,8 @@
     -webkit-mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
     mask-image: linear-gradient(to bottom, black 0%, black 82%, transparent 100%);
   }
-  .hero-photo-caption {
-    display: none;
-    font-family: var(--serif); font-size: 26px; font-weight: 500;
-    color: var(--slate); line-height: 1.25; letter-spacing: -0.01em;
-  }
-  .hero-photo-caption strong { font-weight: 700; }
-  .hero-photo-caption em { font-style: italic; font-weight: 400; }
+  .hero-photo-caption { display: none; }
+  .hero-photo-caption img { display: block; width: 100%; height: auto; }
 
   /* ---------- Temporizador (idéntico al de la landing principal) ---------- */
   .countdown { margin-bottom: 8px; text-align: left; }
@@ -266,10 +256,15 @@
     <div class="hero-flex">
       <div class="hero-text">
         <div class="hero-mark">
-          <img src="assets/logos/logo-masterclass.png" alt="" aria-hidden="true">
+          <img src="assets/logos/logo-masterclass-grande.png" alt="" aria-hidden="true">
         </div>
 
-        <h1>Tu piel <strong>habla</strong> <em>antes que tú.</em></h1>
+        <h1 class="hero-title">
+          <picture>
+            <source srcset="assets/logos/titulo-masterclass.webp" type="image/webp">
+            <img src="assets/logos/titulo-masterclass.png" alt="Tu piel habla antes que tú">
+          </picture>
+        </h1>
         <p class="subtitle">Masterclass en vivo — Tu piel desde el conocimiento, no desde la publicidad. Ciencia y comunidad para aprender a cuidar tu piel. Cupo limitado.</p>
 
         <div class="countdown" id="countdown" hidden>
@@ -288,7 +283,10 @@
           <source srcset="assets/hero/mujer-hero.webp" type="image/webp">
           <img src="assets/hero/mujer-hero.png" alt="" aria-hidden="true">
         </picture>
-        <p class="hero-photo-caption">Tu piel <strong>habla</strong> <em>antes que tú</em></p>
+        <picture class="hero-photo-caption">
+          <source srcset="assets/logos/titulo-masterclass.webp" type="image/webp">
+          <img src="assets/logos/titulo-masterclass.png" alt="Tu piel habla antes que tú">
+        </picture>
       </div>
     </div>
   </section>
@@ -321,7 +319,7 @@
   <section class="registro-section" id="registro">
     <div class="container">
       <div class="registro-box" id="registroBox">
-        <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <div class="mark"><img src="assets/logos/logo-masterclass-grande.png" alt=""></div>
         <h2>Aparta tu lugar</h2>
         <p>Completa tus datos, es gratis.</p>
 
@@ -347,7 +345,7 @@
       </div>
 
       <div class="registro-box quiz-box" id="quizBox" hidden>
-        <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <div class="mark"><img src="assets/logos/logo-masterclass-grande.png" alt=""></div>
         <h2>Tu diagnóstico de piel</h2>
         <p>Responde estas 5 preguntas rápidas y descubre tu tipo de piel — es gratis.</p>
 
@@ -398,7 +396,7 @@
       </div>
 
       <div class="registro-box" id="confirmBox" hidden>
-        <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <div class="mark"><img src="assets/logos/logo-masterclass-grande.png" alt=""></div>
         <div class="quiz-result" id="quizResult" hidden>
           <p class="quiz-result-label">Tu tipo de piel</p>
           <p class="quiz-result-title" id="quizResultTitle"></p>
@@ -411,7 +409,7 @@
       </div>
 
       <div class="registro-box" id="vencidoBox" hidden>
-        <div class="mark"><img src="assets/logos/logo-masterclass.png" alt=""></div>
+        <div class="mark"><img src="assets/logos/logo-masterclass-grande.png" alt=""></div>
         <h2>Esta sesión ya concluyó</h2>
         <p>Muy pronto anunciamos la fecha de la próxima Masterclass — vuelve a checar esta página.</p>
       </div>
