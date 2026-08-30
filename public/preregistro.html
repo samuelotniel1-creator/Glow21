@@ -105,6 +105,7 @@
      alto de .hero, que es lo que la recortaba por arriba antes. */
   .hero-flex { display: flex; align-items: center; justify-content: space-between; }
   .hero-text { flex: 1 1 auto; min-width: 0; max-width: 640px; padding: 80px 0 60px 56px; text-align: left; }
+  .hero-mark-wrap { max-width: 380px; }
   .hero-mark { width: 132px; height: 132px; margin: 0 auto 28px; }
   .hero-mark img, .mark img {
     -webkit-mask-image: radial-gradient(circle, black 55%, transparent 100%);
@@ -237,6 +238,7 @@
     .hero-text { order: 2; max-width: none; padding: 24px 22px 40px; text-align: center; }
     /* El título ya se muestra encimado en la foto (.hero-photo-caption) */
     .hero h1 { display: none; }
+    .hero-mark-wrap { max-width: none; }
     .hero-mark { width: 100px; height: 100px; margin: 0 auto 20px; }
     .hero .subtitle { margin: 0 auto 32px; }
     .countdown { text-align: center; }
@@ -270,8 +272,10 @@
   <section class="hero">
     <div class="hero-flex">
       <div class="hero-text">
-        <div class="hero-mark">
-          <img src="assets/logos/logo-masterclass-grande.png" alt="" aria-hidden="true">
+        <div class="hero-mark-wrap">
+          <div class="hero-mark">
+            <img src="assets/logos/logo-masterclass-grande.png" alt="" aria-hidden="true">
+          </div>
         </div>
 
         <h1 class="hero-title">
