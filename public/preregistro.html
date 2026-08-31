@@ -194,7 +194,13 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .registro-hint { font-size: 12.5px; color: var(--slate-55); line-height: 1.6; margin-top: 18px; }
-  #calendarBtn { width: 100%; margin-top: 4px; }
+
+  .community-block { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--slate-08); }
+  .community-text { font-size: 13.5px; color: var(--slate-70); line-height: 1.6; margin-bottom: 16px; }
+  #communityBtn { width: 100%; }
+
+  .calendar-prompt { font-size: 12.5px; color: var(--slate-55); margin-top: 24px; margin-bottom: 10px; }
+  #calendarBtn { width: 100%; }
 
   /* ---------- Cuestionario de diagnóstico ---------- */
   .quiz-box { max-width: 560px; }
@@ -424,8 +430,14 @@
         </div>
         <h2>¡Listo, <span id="confirmNombre"></span>!</h2>
         <p>Nos vemos <span id="confirmFecha">pronto</span></p>
-        <a class="btn btn-outline" id="calendarBtn" target="_blank" rel="noopener" hidden>Agendar en mi calendario</a>
-        <p class="registro-hint">Ya guardamos tu lugar. Agrégalo a tu calendario para no olvidarlo.</p>
+
+        <div class="community-block" id="communityBlock" hidden>
+          <p class="community-text">Recordatorios, anuncios y ofertas exclusivas antes de la clase — directo a tu WhatsApp.</p>
+          <a class="btn btn-primary" id="communityBtn" target="_blank" rel="noopener">Únete a la Comunidad</a>
+        </div>
+
+        <p class="calendar-prompt">¿Prefieres que también te llegue a tu calendario?</p>
+        <a class="btn btn-outline" id="calendarBtn" target="_blank" rel="noopener" hidden>Agéndalo aquí</a>
       </div>
 
       <div class="registro-box" id="vencidoBox" hidden>
@@ -515,14 +527,17 @@
     document.getElementById('vencidoBox').hidden = false;
   }
 
+  let whatsappCommunityUrl = '';
+
   async function cargarFechaSesion() {
     if (!sb) return;
-    const { data, error } = await sb.from('glow21_settings').select('session_datetime').eq('id', 1).single();
+    const { data, error } = await sb.from('glow21_settings').select('session_datetime, whatsapp_community_url').eq('id', 1).single();
     if (error || !data) {
-      console.warn('Glow21: no se pudo leer la fecha de la sesión', error);
+      console.warn('Glow21: no se pudo leer la configuración de la sesión', error);
       return;
     }
     sessionDatetime = data.session_datetime || '';
+    whatsappCommunityUrl = data.whatsapp_community_url || '';
 
     // La fecha la ajusta manualmente el admin — si nadie la actualizó
     // después de que la sesión ya pasó, no dejamos que el formulario
@@ -567,6 +582,18 @@
   function mostrarConfirmacion(nombre) {
     document.getElementById('registroBox').hidden = true;
     document.getElementById('confirmNombre').textContent = nombre;
+
+    const hayComunidad = !!whatsappCommunityUrl;
+    const communityBlock = document.getElementById('communityBlock');
+    if (hayComunidad) {
+      document.getElementById('communityBtn').href = whatsappCommunityUrl;
+      communityBlock.hidden = false;
+    } else {
+      communityBlock.hidden = true;
+    }
+    document.querySelector('.calendar-prompt').textContent = hayComunidad
+      ? '¿Prefieres que también te llegue a tu calendario?'
+      : 'Agrega esta fecha a tu calendario:';
 
     const calendarBtn = document.getElementById('calendarBtn');
     const fecha = sessionDatetime ? new Date(sessionDatetime) : null;

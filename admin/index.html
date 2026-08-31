@@ -271,6 +271,15 @@
       <p class="hint">A dónde va quien completa el formulario de Acceso Premium. Pégalo en cuanto crees el Payment Link en Stripe (Dashboard → Payment Links). Vacío = se les avisa que el pago aún no está disponible.</p>
     </div>
 
+    <div class="field">
+      <label for="whatsappCommunityUrl">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
+        Link de la Comunidad (WhatsApp)
+      </label>
+      <input type="text" id="whatsappCommunityUrl" placeholder="https://chat.whatsapp.com/...">
+      <p class="hint">A dónde manda el botón "Únete a la Comunidad" en /preregistro, justo después de que alguien se registra. Cuando se llene el grupo, solo cambia el link aquí — no hace falta tocar el código.</p>
+    </div>
+
     <div class="actions">
       <button class="btn btn-save" onclick="guardar()">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L19 7"/></svg></span>
@@ -361,6 +370,7 @@
   const zoomParsedPreviewEl = document.getElementById('zoomParsedPreview');
   const sessionDateTimeEl = document.getElementById('sessionDateTime');
   const paymentLinkUrlEl = document.getElementById('paymentLinkUrl');
+  const whatsappCommunityUrlEl = document.getElementById('whatsappCommunityUrl');
   const toggleEl = document.getElementById('toggleCompra');
   const estadoEl = document.getElementById('estadoCompra');
   const toggleEnVivoEl = document.getElementById('toggleEnVivo');
@@ -425,6 +435,7 @@
         zoomInviteEl.value = buildZoomInviteDisplay(data.zoom_id, data.zoom_password);
         sessionDateTimeEl.value = isoADatetimeLocal(data.session_datetime);
         paymentLinkUrlEl.value = data.payment_link_url || '';
+        whatsappCommunityUrlEl.value = data.whatsapp_community_url || '';
         setToggle(toggleEl, estadoEl, !!data.show_premium_button);
         setToggle(toggleEnVivoEl, estadoEnVivoEl, !!data.session_live);
         setConnStatus('online');
@@ -441,6 +452,7 @@
     );
     sessionDateTimeEl.value = isoADatetimeLocal(localStorage.getItem('glow21_session_datetime'));
     paymentLinkUrlEl.value = localStorage.getItem('glow21_payment_link_url') || '';
+    whatsappCommunityUrlEl.value = localStorage.getItem('glow21_whatsapp_community_url') || '';
     setToggle(toggleEl, estadoEl, localStorage.getItem('glow21_boton_compra') === 'true');
     setToggle(toggleEnVivoEl, estadoEnVivoEl, localStorage.getItem('glow21_session_live') === 'true');
     actualizarZoomPreview();
@@ -466,6 +478,7 @@
     const { zoomId, zoomPassword } = parseZoomInvite(zoomInviteEl.value.trim());
     const sessionDatetime = datetimeLocalAIso(sessionDateTimeEl.value);
     const paymentLinkUrl = paymentLinkUrlEl.value.trim();
+    const whatsappCommunityUrl = whatsappCommunityUrlEl.value.trim();
     const botonActivo = toggleEl.classList.contains('active');
     const enVivo = toggleEnVivoEl.classList.contains('active');
 
@@ -481,6 +494,7 @@
         zoom_password: zoomPassword,
         session_datetime: sessionDatetime,
         payment_link_url: paymentLinkUrl,
+        whatsapp_community_url: whatsappCommunityUrl,
         show_premium_button: botonActivo,
         session_live: enVivo,
         updated_at: new Date().toISOString()
@@ -498,6 +512,7 @@
     if (sessionDatetime) localStorage.setItem('glow21_session_datetime', sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
     localStorage.setItem('glow21_payment_link_url', paymentLinkUrl);
+    localStorage.setItem('glow21_whatsapp_community_url', whatsappCommunityUrl);
     localStorage.setItem('glow21_boton_compra', botonActivo);
     localStorage.setItem('glow21_session_live', enVivo);
 

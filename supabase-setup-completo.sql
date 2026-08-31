@@ -46,14 +46,15 @@ create policy "glow21_settings_authenticated_update"
   using (auth.uid() is not null)
   with check (auth.uid() is not null);
 
--- ---------- Zoom password, fecha/hora real de la sesión, "en vivo ahora", link de pago ----------
+-- ---------- Zoom password, fecha/hora real de la sesión, "en vivo ahora", link de pago, comunidad de WhatsApp ----------
 create extension if not exists pgcrypto;
 
 alter table public.glow21_settings
   add column if not exists zoom_password text not null default '',
   add column if not exists session_live boolean not null default false,
   add column if not exists session_datetime timestamptz,
-  add column if not exists payment_link_url text not null default '';
+  add column if not exists payment_link_url text not null default '',
+  add column if not exists whatsapp_community_url text not null default '';
 
 -- Nota: la columna vieja "session_date" (texto libre) ya no se usa desde el
 -- admin ni la landing. Se deja tal cual por si quieres conservarla; puedes
