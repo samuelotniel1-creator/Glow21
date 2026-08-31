@@ -49,6 +49,7 @@ Son dos capas distintas del mismo embudo — no confundirlas al editar contenido
 - Logo propio de la masterclass (no "G21"): `public/assets/logos/logo-masterclass.png`/`.webp`, con un desvanecido radial en vez de un corte de fondo (el PNG original tiene fondo sólido rosa, casi idéntico al Rosa Cuarzo de la marca, así que no hace falta quitarlo).
 - Foto del hero: `public/assets/hero/mujer-hero.webp`/`.png` (fondo transparente real, viene de `Glow21 - recursos/Imagen para landing.png`).
 - Brief de marca para generar imágenes de anuncios con IA: `brief-imagenes-pauta.md` (pégalo en ChatGPT junto con el pedido de imagen).
+- **Meta Pixel instalado** (2026-08-31): pixel `1416585077128417` ("Masterclass Skincare" en Events Manager) en el `<head>`, con `fbq('track', 'CompleteRegistration')` disparándose justo después de que el insert a Supabase se confirma sin error (no en el clic del botón). Esto era lo que bloqueaba configurar el "Evento de conversión" al armar la campaña en Ads Manager. Instalado solo en `/preregistro` (es la página a la que apunta la pauta); si se quiere el mismo tracking en `public/index.html`, falta agregarlo ahí también.
 
 ## Panel admin (`/admin`)
 
