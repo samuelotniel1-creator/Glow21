@@ -5,9 +5,9 @@
     { "source": "/admin/", "destination": "/admin/index.html" },
     { "source": "/crm", "destination": "/crm/index.html" },
     { "source": "/crm/", "destination": "/crm/index.html" },
-    { "source": "/preregistro", "destination": "/public/preregistro.html" },
-    { "source": "/preregistro/", "destination": "/public/preregistro.html" },
-    { "source": "/assets/:path*", "destination": "/public/assets/:path*" },
-    { "source": "/favicon.png", "destination": "/public/favicon.png" }
+    { "source": "/preregistro", "destination": "/preregistro.html" },
+    { "source": "/preregistro/", "destination": "/preregistro.html" },
+    { "source": "/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/favicon.png", "destination": "/favicon.png" }
   ]
 }
