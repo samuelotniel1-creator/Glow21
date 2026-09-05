@@ -30,6 +30,13 @@ function leerCuerpoCrudo(req) {
   });
 }
 
+// Nos quedamos solo con los últimos 10 dígitos (ignora +52, espacios,
+// guiones, etc.) para poder comparar el teléfono tal cual lo captura
+// Stripe contra el que la persona escribió en nuestro formulario.
+function normalizarTelefono(valor) {
+  return (valor || '').replace(/\D/g, '').slice(-10);
+}
+
 module.exports = async (req, res) => {
   if (req.method !== 'POST') {
     res.status(405).send('Method Not Allowed');
@@ -60,24 +67,61 @@ module.exports = async (req, res) => {
   if (evento.type === 'checkout.session.completed') {
     const session = evento.data.object;
     const correo = (session.customer_details && session.customer_details.email) || session.customer_email;
+    const telefonoStripe = session.customer_details && session.customer_details.phone;
 
-    if (!correo) {
-      console.warn('Glow21 webhook: checkout.session.completed sin correo, no se pudo cruzar con un lead');
-    } else {
-      const { error } = await supabase
+    const datosPago = {
+      pagado: true,
+      paid_at: new Date().toISOString(),
+      stripe_session_id: session.id,
+      monto_centavos: session.amount_total ?? null,
+      moneda: session.currency ?? null,
+    };
+
+    let coincidencias = [];
+
+    if (correo) {
+      const { data, error } = await supabase
         .from('glow21_premium_leads')
-        .update({
-          pagado: true,
-          paid_at: new Date().toISOString(),
-          stripe_session_id: session.id,
-          monto_centavos: session.amount_total ?? null,
-          moneda: session.currency ?? null,
-        })
-        .ilike('correo', correo);
+        .update(datosPago)
+        .ilike('correo', correo)
+        .select('id');
 
-      if (error) {
-        console.error('Glow21 webhook: error marcando pagado', error);
+      if (error) console.error('Glow21 webhook: error marcando pagado por correo', error);
+      else coincidencias = data || [];
+    }
+
+    // Plan B: si no hubo match por correo (p. ej. usó uno distinto al
+    // pagar), intenta cruzar por los últimos 10 dígitos del teléfono.
+    // Solo funciona si el Payment Link de Stripe pide teléfono en el checkout.
+    if (!coincidencias.length) {
+      const telNormalizado = normalizarTelefono(telefonoStripe);
+
+      if (telNormalizado.length === 10) {
+        const { data: candidatos, error: errorCandidatos } = await supabase
+          .from('glow21_premium_leads')
+          .select('id, telefono')
+          .eq('pagado', false);
+
+        if (errorCandidatos) {
+          console.error('Glow21 webhook: error buscando candidatos por teléfono', errorCandidatos);
+        } else {
+          const match = (candidatos || []).find((r) => normalizarTelefono(r.telefono) === telNormalizado);
+
+          if (match) {
+            const { error: errorUpdate } = await supabase
+              .from('glow21_premium_leads')
+              .update(datosPago)
+              .eq('id', match.id);
+
+            if (errorUpdate) console.error('Glow21 webhook: error marcando pagado por teléfono', errorUpdate);
+            else coincidencias = [match];
+          }
+        }
       }
+    }
+
+    if (!coincidencias.length) {
+      console.warn('Glow21 webhook: checkout.session.completed sin match por correo ni teléfono', { correo, telefonoStripe });
     }
   }
 
