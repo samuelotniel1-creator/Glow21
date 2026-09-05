@@ -440,16 +440,16 @@
     border-radius: 10px;
     padding: 20px;
     box-shadow: var(--shadow-card);
-    max-width: 920px; margin: 0 auto;
+    max-width: 1200px; margin: 0 auto;
   }
   .zoom-frame-shell { position: relative; }
   .zoom-embed-wrapper {
-    position: relative; width: 100%; padding-bottom: 56.25%; height: 0;
+    position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: min(78vh, 760px);
     overflow: hidden; border-radius: 6px; background: var(--slate);
   }
   .zoom-embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-  .zoom-embed-wrapper:fullscreen { padding-bottom: 0; height: 100%; border-radius: 0; }
-  .zoom-embed-wrapper:-webkit-full-screen { padding-bottom: 0; height: 100%; border-radius: 0; }
+  .zoom-embed-wrapper:fullscreen { aspect-ratio: unset; max-height: none; height: 100%; border-radius: 0; }
+  .zoom-embed-wrapper:-webkit-full-screen { aspect-ratio: unset; max-height: none; height: 100%; border-radius: 0; }
 
   .zoom-fullscreen-toggle {
     position: absolute; top: 14px; right: 14px; z-index: 5;
