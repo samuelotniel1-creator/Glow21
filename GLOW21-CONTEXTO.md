@@ -56,6 +56,31 @@ por la columna `origen` ('preregistro' vs 'masterclass').
      estado real de pago (ver sección Pagos).
    - **Correos** — plantillas + cola de envío (ver sección Correos).
 
+## La masterclass en sí — contenido y oferta
+
+La clase es 100% educativa hasta el final (anatomía de la piel, comunicación
+celular, filosofía de la cosmética coreana) — la oferta se presenta solo al
+cierre, enmarcada como invitación a un programa de acompañamiento, no como
+venta de un kit. El guion completo está en `MASTERCLASS-PRESENTACION.md`;
+resumen:
+
+- **El producto real**: kit **Luminovation**, rutina de 4 pasos (limpiador,
+  tónico, loción, crema) basada en tecnología de **Mannatech** (glicociencia
+  / "glicanos") con filosofía de cosmética coreana. Esto es lo que compra
+  quien usa el botón "Obtén tu Paquete Glow21" del sitio.
+- **La oferta completa** ("Programa Premium Glow 21"): el kit + comunidad
+  privada Glow Club (90 días) + Reto Glow 21 (21 días de misiones diarias) +
+  eBook Premium + una MasterClass extra sobre cómo leer ingredientes +
+  mentoría grupal (30 días, Zoom) + guía de nutricosmética + calendario de
+  seguimiento. Valor listado ~$14,856 MXN, precio promocional ~$3,262.72 MXN.
+- **Bono "VIP Glow"** solo para las primeras 20 personas que compren ese día:
+  diagnóstico de piel personalizado + mini-masterclass + Círculo VIP 90 días.
+  Esto es justo lo que muestra la imagen del producto en el formulario de
+  compra del sitio ("VIP GLOW · PRIMERAS 20").
+- El guion **no incluye ningún colágeno de regalo** — esa oferta parece ser
+  un bono aparte, pendiente de aprobación (consistente con por qué se quitó
+  del sitio, ver más abajo).
+
 ## Arquitectura técnica
 
 - Sitio estático (HTML/CSS/JS sin build, sin framework) + una función
@@ -141,6 +166,8 @@ Dos comunidades distintas, no confundirlas:
 
 ## Dónde encontrar más detalle
 
+- `MASTERCLASS-PRESENTACION.md` — guion completo de la clase en vivo y de la
+  oferta ("Programa Premium Glow 21"), con precios y bonos detallados.
 - `ESTADO-DEL-PROYECTO.md` — estado técnico línea por línea, pendientes,
   cómo retomar el proyecto en otra máquina.
 - `brand-glow21.skill` — voz de marca e identidad visual completas.
