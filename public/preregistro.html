@@ -111,15 +111,9 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
     width: 100%; max-width: 1080px; margin: 0 auto;
     display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
   }
-  .top-bar-community {
-    font-size: 12.5px; font-weight: 600; color: var(--slate-70);
-    text-decoration: none; opacity: 0.75; white-space: nowrap;
-    transition: opacity 0.2s ease;
-  }
-  .top-bar-community:hover { opacity: 1; }
   @media (max-width: 640px) {
     .top-bar-inner { justify-content: center; }
-    .top-bar-community { display: none; }
+    .top-bar-secondary { display: none; }
   }
 
   /* ---------- Hero ---------- */
@@ -301,7 +295,7 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
 
 <div class="top-bar">
   <div class="top-bar-inner">
-    <a href="https://www.skool.com/glow21-4957" target="_blank" rel="noopener" class="top-bar-community">Únete a nuestra comunidad de Skool →</a>
+    <a href="https://www.skool.com/glow21-4957" target="_blank" rel="noopener" class="btn btn-outline btn-small top-bar-secondary">Únete a nuestra comunidad de Skool</a>
     <a href="#registro" class="btn btn-primary btn-small">Asegura tu lugar</a>
   </div>
 </div>
