@@ -330,6 +330,10 @@
   .correos-toolbar .search-wrap { max-width: none; flex: 1; min-width: 180px; }
   .selected-count { font-size: 12.5px; color: var(--champagne); font-weight: 600; white-space: nowrap; }
 
+  .csv-upload-block { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(253,251,247,0.08); }
+  .csv-upload-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .csv-upload-row .btn { cursor: pointer; }
+
   .template-row { display: flex; gap: 10px; margin-bottom: 14px; }
   .template-row select { flex: 1; }
   select {
@@ -480,6 +484,17 @@
           <span class="selected-count" id="selectedCount">0 seleccionados</span>
         </div>
         <div class="recipient-list" id="recipientList"></div>
+
+        <div class="csv-upload-block">
+          <p class="hint" style="margin-bottom:10px;">¿Ya tienes tu propia lista? Súbela en CSV (columnas "nombre" y "correo") — se agrega y selecciona junto con el resto.</p>
+          <div class="csv-upload-row">
+            <button type="button" class="btn btn-outline btn-small" id="descargarPlantillaCsvBtn">Descargar plantilla CSV</button>
+            <label class="btn btn-outline btn-small" for="csvUploadInput">
+              Subir CSV
+              <input type="file" id="csvUploadInput" accept=".csv" hidden>
+            </label>
+          </div>
+        </div>
       </div>
 
       <div class="correos-card">
@@ -616,6 +631,7 @@
   let queue = [];
   let tabActiva = 'interesados';
   let seleccionados = new Map(); // correo -> nombre
+  let externos = new Map(); // correo -> nombre (subidos por CSV, solo en esta sesión)
 
   function mostrarStatus(msg) {
     const el = document.getElementById('appStatus');
@@ -1027,9 +1043,54 @@
     const vistos = new Map(); // correo -> nombre
     interesados.forEach((r) => { if (r.correo) vistos.set(r.correo.trim().toLowerCase(), r.nombre); });
     premium.forEach((r) => { if (r.correo && !vistos.has(r.correo.trim().toLowerCase())) vistos.set(r.correo.trim().toLowerCase(), r.nombre); });
+    externos.forEach((nombre, correo) => { if (!vistos.has(correo)) vistos.set(correo, nombre); });
     return Array.from(vistos.entries())
       .map(([correo, nombre]) => ({ correo, nombre }))
       .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  }
+
+  function parsearLineaCSV(linea) {
+    const campos = [];
+    let actual = '';
+    let entreComillas = false;
+    for (let i = 0; i < linea.length; i++) {
+      const c = linea[i];
+      if (entreComillas) {
+        if (c === '"') {
+          if (linea[i + 1] === '"') { actual += '"'; i++; }
+          else entreComillas = false;
+        } else actual += c;
+      } else if (c === '"') {
+        entreComillas = true;
+      } else if (c === ',') {
+        campos.push(actual);
+        actual = '';
+      } else {
+        actual += c;
+      }
+    }
+    campos.push(actual);
+    return campos.map((c) => c.trim());
+  }
+
+  function parsearCSV(texto) {
+    const lineas = texto.split(/\r\n|\n|\r/).filter((l) => l.trim() !== '');
+    if (!lineas.length) return [];
+
+    const encabezados = parsearLineaCSV(lineas[0]).map((h) => h.toLowerCase());
+    const idxCorreo = encabezados.findIndex((h) => h === 'correo' || h === 'email');
+    if (idxCorreo === -1) return null;
+    const idxNombre = encabezados.findIndex((h) => h === 'nombre');
+
+    return lineas.slice(1)
+      .map((linea) => {
+        const campos = parsearLineaCSV(linea);
+        return {
+          nombre: (idxNombre !== -1 ? campos[idxNombre] : '') || '',
+          correo: (campos[idxCorreo] || '').toLowerCase()
+        };
+      })
+      .filter((r) => r.correo);
   }
 
   function actualizarSelectedCount() {
@@ -1243,6 +1304,46 @@
       list.appendChild(row);
     });
   }
+
+  document.getElementById('descargarPlantillaCsvBtn').addEventListener('click', () => {
+    const csv = 'nombre,correo\r\nMaría López,maria@ejemplo.com\r\n';
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'plantilla-contactos.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('csvUploadInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const texto = await file.text();
+    const filas = parsearCSV(texto);
+
+    if (filas === null) {
+      mostrarStatus('El CSV necesita una columna "correo".');
+      return;
+    }
+    if (!filas.length) {
+      mostrarStatus('No se encontraron contactos válidos en ese CSV.');
+      return;
+    }
+
+    filas.forEach((r) => {
+      externos.set(r.correo, r.nombre || r.correo);
+      seleccionados.set(r.correo, r.nombre || '');
+    });
+
+    renderDestinatarios();
+    actualizarPreview();
+    mostrarStatus(filas.length + ' contacto(s) del CSV agregados y seleccionados.');
+  });
 
   document.getElementById('correosSearchInput').addEventListener('input', renderDestinatarios);
   document.getElementById('plantillaSelect').addEventListener('change', cargarPlantillaSeleccionada);
