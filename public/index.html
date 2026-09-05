@@ -1235,6 +1235,10 @@
       state.sessionLive = nextLive;
       localStorage.setItem('glow21_session_live', nextLive);
       actualizarGateEnVivo();
+      if (nextLive) {
+        const registroPrevio = obtenerRegistro();
+        if (registroPrevio && state.zoomId) mostrarZoomInline(registroPrevio.nombre);
+      }
     }
 
     const nextDatetime = data.session_datetime || '';
@@ -1304,7 +1308,7 @@
   function abrirRegistro() {
     const registro = obtenerRegistro();
     if (registro) {
-      mostrarZoomInline(registro.nombre);
+      if (state.sessionLive) mostrarZoomInline(registro.nombre);
       return;
     }
     registroLastFocused = document.activeElement;
@@ -1556,7 +1560,7 @@
     await cargarConfigInicial();
     actualizarGateEnVivo();
     const registroPrevio = obtenerRegistro();
-    if (registroPrevio && state.zoomId) {
+    if (registroPrevio && state.zoomId && state.sessionLive) {
       mostrarZoomInline(registroPrevio.nombre, { scroll: false });
     }
     actualizarCountdown();
