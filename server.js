@@ -2,6 +2,9 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
+// Nota: cambio trivial para forzar que Vercel reconstruya esta función
+// (producción se había quedado sirviendo una versión vieja que no
+// reconocía la ruta /preregistro pese a que este archivo sí la tiene).
 
 // El webhook de Stripe necesita el cuerpo crudo (sin parsear) para
 // verificar la firma, así que se monta antes que express.json().
