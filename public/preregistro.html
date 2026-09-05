@@ -668,22 +668,30 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
     preSubmit.classList.add('is-loading');
     preSubmitText.textContent = 'Guardando...';
 
-    const { data, error } = await sb.from('glow21_profiles')
-      .insert({ nombre, correo, telefono, origen: 'preregistro' })
-      .select('id')
-      .single();
+    let perfilIdNuevo = null;
+    try {
+      const resp = await fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'crear', nombre, correo, telefono }),
+      });
+      if (!resp.ok) throw new Error('respuesta no ok');
+      const data = await resp.json();
+      perfilIdNuevo = data.id || null;
+    } catch (err) {
+      console.warn('Glow21: error guardando el preregistro', err);
+      preSubmit.disabled = false;
+      preSubmit.classList.remove('is-loading');
+      preSubmitText.textContent = 'Reservar mi lugar';
+      mostrarErrorPre('No pudimos guardar tus datos. Verifica tu conexión e intenta de nuevo.');
+      return;
+    }
 
     preSubmit.disabled = false;
     preSubmit.classList.remove('is-loading');
     preSubmitText.textContent = 'Reservar mi lugar';
 
-    if (error) {
-      console.warn('Glow21: error guardando el preregistro', error);
-      mostrarErrorPre('No pudimos guardar tus datos. Verifica tu conexión e intenta de nuevo.');
-      return;
-    }
-
-    perfilId = data ? data.id : null;
+    perfilId = perfilIdNuevo;
     localStorage.setItem(REGISTRO_KEY, JSON.stringify({ nombre, correo, telefono }));
     if (typeof fbq === 'function') fbq('track', 'CompleteRegistration');
     mostrarCuestionario(nombre);
@@ -754,9 +762,12 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
     document.getElementById('quizBox').hidden = true;
     mostrarConfirmacion(registroNombre);
 
-    if (sb && perfilId) {
-      sb.from('glow21_profiles').update({ tipo_piel: resultado.titulo }).eq('id', perfilId)
-        .then(({ error }) => { if (error) console.warn('Glow21: error guardando tipo_piel', error); });
+    if (perfilId) {
+      fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'diagnostico', id: perfilId, tipo_piel: resultado.titulo }),
+      }).catch((err) => console.warn('Glow21: error guardando tipo_piel', err));
     }
   });
 
