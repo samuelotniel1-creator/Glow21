@@ -437,6 +437,9 @@
     <button class="tab active" id="tabInteresados" onclick="cambiarTab('interesados')">
       Interesados <span class="count" id="countInteresados">0</span>
     </button>
+    <button class="tab" id="tabRegistrados" onclick="cambiarTab('registrados')">
+      Registrados <span class="count" id="countRegistrados">0</span>
+    </button>
     <button class="tab" id="tabPremium" onclick="cambiarTab('premium')">
       Premium / Pago <span class="count" id="countPremium">0</span>
     </button>
@@ -455,6 +458,7 @@
 
     <div class="panel-table">
       <div class="lead-list" id="listInteresados"></div>
+      <div class="lead-list" id="listRegistrados" hidden></div>
       <div class="lead-list" id="listPremium" hidden></div>
       <div class="empty-state" id="emptyState" hidden>
         <strong>Nada por aquí todavía</strong>
@@ -655,7 +659,9 @@
     plantillas = resPlantillas.data || [];
     queue = resQueue.data || [];
 
-    document.getElementById('countInteresados').textContent = interesados.length;
+    const countPauta = interesados.filter((r) => r.origen === 'preregistro').length;
+    document.getElementById('countInteresados').textContent = countPauta;
+    document.getElementById('countRegistrados').textContent = interesados.length - countPauta;
     document.getElementById('countPremium').textContent = premium.length;
 
     renderTablas();
@@ -667,10 +673,12 @@
   function cambiarTab(tab) {
     tabActiva = tab;
     document.getElementById('tabInteresados').classList.toggle('active', tab === 'interesados');
+    document.getElementById('tabRegistrados').classList.toggle('active', tab === 'registrados');
     document.getElementById('tabPremium').classList.toggle('active', tab === 'premium');
     document.getElementById('tabCorreos').classList.toggle('active', tab === 'correos');
     document.getElementById('leadsView').hidden = tab === 'correos';
     document.getElementById('correosView').hidden = tab !== 'correos';
+    document.getElementById('exportBtn').hidden = tab === 'correos';
     if (tab !== 'correos') document.getElementById('searchInput').value = '';
     renderTablas();
   }
@@ -893,43 +901,52 @@
     return true;
   }
 
+  function renderListaPerfiles(esPauta, listId) {
+    const q = document.getElementById('searchInput').value.trim();
+    const fuente = interesados.filter((r) => esPauta ? r.origen === 'preregistro' : r.origen !== 'preregistro');
+    const filas = fuente.filter((r) => coincide(r, q));
+    const list = document.getElementById(listId);
+    list.innerHTML = '';
+
+    const correosPagados = new Set(
+      premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
+    );
+
+    filas.forEach((row) => {
+      const wrap = document.createElement('span');
+      wrap.className = 'pago-meta';
+      const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
+      const pagoDot = document.createElement('span');
+      pagoDot.className = 'pago-dot' + (yaPago ? ' is-paid' : '');
+      pagoDot.textContent = yaPago ? 'Pagó' : '—';
+      wrap.appendChild(pagoDot);
+      list.appendChild(crearFilaLead('glow21_profiles', row, wrap));
+    });
+
+    return { filas, total: fuente.length };
+  }
+
   function renderTablas() {
     const q = document.getElementById('searchInput').value.trim();
     const emptyEl = document.getElementById('emptyState');
 
+    document.getElementById('listInteresados').hidden = tabActiva !== 'interesados';
+    document.getElementById('listRegistrados').hidden = tabActiva !== 'registrados';
+    document.getElementById('listPremium').hidden = tabActiva !== 'premium';
+
     if (tabActiva === 'interesados') {
-      const filas = interesados.filter((r) => coincide(r, q));
-      const list = document.getElementById('listInteresados');
-      list.innerHTML = '';
-
-      const correosPagados = new Set(
-        premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
-      );
-
-      filas.forEach((row) => {
-        const wrap = document.createElement('span');
-        wrap.className = 'pago-meta';
-        if (row.origen === 'preregistro') {
-          const origenBadge = document.createElement('span');
-          origenBadge.className = 'badge badge-pending';
-          origenBadge.textContent = 'Pauta';
-          wrap.appendChild(origenBadge);
-        }
-        const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
-        const pagoDot = document.createElement('span');
-        pagoDot.className = 'pago-dot' + (yaPago ? ' is-paid' : '');
-        pagoDot.textContent = yaPago ? 'Pagó' : '—';
-        wrap.appendChild(pagoDot);
-        list.appendChild(crearFilaLead('glow21_profiles', row, wrap));
-      });
-
-      document.getElementById('listInteresados').hidden = false;
-      document.getElementById('listPremium').hidden = true;
+      const { filas, total } = renderListaPerfiles(true, 'listInteresados');
       emptyEl.hidden = filas.length > 0;
-      document.getElementById('emptyStateText').textContent = interesados.length === 0
-        ? 'Cuando alguien se registre para ver la masterclass, va a aparecer aquí.'
+      document.getElementById('emptyStateText').textContent = total === 0
+        ? 'Cuando alguien se registre desde la pauta, va a aparecer aquí.'
         : 'Nadie coincide con esa búsqueda.';
-    } else {
+    } else if (tabActiva === 'registrados') {
+      const { filas, total } = renderListaPerfiles(false, 'listRegistrados');
+      emptyEl.hidden = filas.length > 0;
+      document.getElementById('emptyStateText').textContent = total === 0
+        ? 'Cuando alguien se registre en la landing antes de la clase, va a aparecer aquí.'
+        : 'Nadie coincide con esa búsqueda.';
+    } else if (tabActiva === 'premium') {
       const filas = premium.filter((r) => coincide(r, q));
       const list = document.getElementById('listPremium');
       list.innerHTML = '';
@@ -951,8 +968,6 @@
         list.appendChild(crearFilaLead('glow21_premium_leads', row, wrap));
       });
 
-      document.getElementById('listInteresados').hidden = true;
-      document.getElementById('listPremium').hidden = false;
       emptyEl.hidden = filas.length > 0;
       document.getElementById('emptyStateText').textContent = premium.length === 0
         ? 'Cuando alguien dé clic en Acceso Premium, va a aparecer aquí.'
@@ -969,18 +984,19 @@
   }
 
   document.getElementById('exportBtn').addEventListener('click', () => {
+    if (tabActiva === 'correos') return;
     const q = document.getElementById('searchInput').value.trim();
     let filas, encabezados, datos;
 
-    if (tabActiva === 'interesados') {
-      filas = interesados.filter((r) => coincide(r, q));
+    if (tabActiva === 'interesados' || tabActiva === 'registrados') {
+      const esPauta = tabActiva === 'interesados';
+      filas = interesados.filter((r) => (esPauta ? r.origen === 'preregistro' : r.origen !== 'preregistro') && coincide(r, q));
       const correosPagados = new Set(
         premium.filter((p) => p.pagado).map((p) => (p.correo || '').trim().toLowerCase())
       );
-      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Origen', 'Pagó', 'Registrado', 'Contactado', 'Nota'];
+      encabezados = ['Nombre', 'Correo', 'Teléfono', 'Pagó', 'Registrado', 'Contactado', 'Nota'];
       datos = filas.map((r) => [
         r.nombre, r.correo, r.telefono,
-        r.origen === 'preregistro' ? 'Preregistro' : 'Masterclass',
         correosPagados.has((r.correo || '').trim().toLowerCase()) ? 'Sí' : 'No',
         formatearFecha(r.created_at), r.contactado ? 'Sí' : 'No', r.nota || ''
       ]);
