@@ -82,6 +82,14 @@ alter table public.glow21_profiles
   add column if not exists nota text not null default '',
   add column if not exists origen text not null default 'masterclass';
 
+-- Resultado del cuestionario de diagnóstico de piel de /preregistro (ver
+-- TEST_GLOW_Rapido.md). El registro se guarda ANTES del cuestionario (para no
+-- perder el lead si lo abandona a medias), así que esto se llena con un
+-- UPDATE aparte cuando termina el cuestionario — por eso anon necesita permiso
+-- de UPDATE, pero limitado solo a esta columna (ver GRANT/policy abajo).
+alter table public.glow21_profiles
+  add column if not exists tipo_piel text;
+
 alter table public.glow21_profiles enable row level security;
 
 -- ---------- Datos de envío para el Acceso Premium (producto físico) ----------
@@ -113,6 +121,13 @@ alter table public.glow21_premium_leads enable row level security;
 -- ---------- Permisos base de tabla (ver la lección al inicio del archivo) ----------
 grant insert on public.glow21_profiles to anon, authenticated;
 grant select, update on public.glow21_profiles to authenticated;
+
+-- Cualquier visitante puede además actualizar SOLO la columna tipo_piel de
+-- SU propio registro (usa el id que le devolvió el INSERT original) — el
+-- grant limita la columna, la policy de abajo no puede darle acceso a nada
+-- más aunque su "using" sea permisivo, porque el permiso de columna ya lo
+-- restringe primero.
+grant update (tipo_piel) on public.glow21_profiles to anon;
 
 grant insert on public.glow21_premium_leads to anon, authenticated;
 grant select, update on public.glow21_premium_leads to authenticated;
@@ -150,6 +165,14 @@ create policy "glow21_profiles_authenticated_update"
   to authenticated
   using (auth.uid() is not null)
   with check (auth.uid() is not null);
+
+drop policy if exists "glow21_profiles_anon_update_tipo_piel" on public.glow21_profiles;
+create policy "glow21_profiles_anon_update_tipo_piel"
+  on public.glow21_profiles
+  for update
+  to anon
+  using (true)
+  with check (true);
 
 drop policy if exists "glow21_premium_leads_authenticated_select" on public.glow21_premium_leads;
 create policy "glow21_premium_leads_authenticated_select"

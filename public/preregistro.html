@@ -668,7 +668,10 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
     preSubmit.classList.add('is-loading');
     preSubmitText.textContent = 'Guardando...';
 
-    const { error } = await sb.from('glow21_profiles').insert({ nombre, correo, telefono, origen: 'preregistro' });
+    const { data, error } = await sb.from('glow21_profiles')
+      .insert({ nombre, correo, telefono, origen: 'preregistro' })
+      .select('id')
+      .single();
 
     preSubmit.disabled = false;
     preSubmit.classList.remove('is-loading');
@@ -680,6 +683,7 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
       return;
     }
 
+    perfilId = data ? data.id : null;
     localStorage.setItem(REGISTRO_KEY, JSON.stringify({ nombre, correo, telefono }));
     if (typeof fbq === 'function') fbq('track', 'CompleteRegistration');
     mostrarCuestionario(nombre);
@@ -706,6 +710,7 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
   };
 
   let registroNombre = '';
+  let perfilId = null;
 
   function mostrarCuestionario(nombre) {
     registroNombre = nombre;
@@ -748,6 +753,11 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
 
     document.getElementById('quizBox').hidden = true;
     mostrarConfirmacion(registroNombre);
+
+    if (sb && perfilId) {
+      sb.from('glow21_profiles').update({ tipo_piel: resultado.titulo }).eq('id', perfilId)
+        .then(({ error }) => { if (error) console.warn('Glow21: error guardando tipo_piel', error); });
+    }
   });
 
   (async function init() {
