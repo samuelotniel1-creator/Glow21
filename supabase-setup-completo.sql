@@ -165,3 +165,53 @@ create policy "glow21_premium_leads_authenticated_update"
   to authenticated
   using (auth.uid() is not null)
   with check (auth.uid() is not null);
+
+-- ---------- Plantillas de correo + cola de envío (CRM → pestaña "Correos") ----------
+-- El envío real lo hace Claude desde el chat (usa el Gmail conectado del
+-- usuario), no un backend automático: el CRM solo arma la lista de a quién y
+-- qué mandar, y la deja aquí en estado 'pendiente' para que se procese.
+create table if not exists public.glow21_email_templates (
+  id uuid primary key default gen_random_uuid(),
+  nombre text not null,
+  asunto text not null default '',
+  cuerpo text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.glow21_email_templates enable row level security;
+
+grant select, insert, update, delete on public.glow21_email_templates to authenticated;
+
+drop policy if exists "glow21_email_templates_authenticated_all" on public.glow21_email_templates;
+create policy "glow21_email_templates_authenticated_all"
+  on public.glow21_email_templates
+  for all
+  to authenticated
+  using (auth.uid() is not null)
+  with check (auth.uid() is not null);
+
+create table if not exists public.glow21_email_queue (
+  id uuid primary key default gen_random_uuid(),
+  destinatario_nombre text not null,
+  destinatario_correo text not null,
+  asunto text not null,
+  cuerpo text not null,
+  origen_tabla text,
+  origen_id uuid,
+  estado text not null default 'pendiente',
+  created_at timestamptz not null default now(),
+  enviado_at timestamptz
+);
+
+alter table public.glow21_email_queue enable row level security;
+
+grant select, insert, update, delete on public.glow21_email_queue to authenticated;
+
+drop policy if exists "glow21_email_queue_authenticated_all" on public.glow21_email_queue;
+create policy "glow21_email_queue_authenticated_all"
+  on public.glow21_email_queue
+  for all
+  to authenticated
+  using (auth.uid() is not null)
+  with check (auth.uid() is not null);

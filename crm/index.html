@@ -300,6 +300,79 @@
   }
   .app-status.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* ---------- Correos (plantillas + cola de envío) ---------- */
+  .correos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  @media (max-width: 900px) { .correos-grid { grid-template-columns: 1fr; } }
+
+  .correos-card {
+    background: var(--slate-deep); border: 1px solid rgba(229,196,163,0.28);
+    border-radius: 10px; padding: 24px;
+  }
+  .correos-card h3 {
+    font-family: var(--serif); font-style: italic; font-weight: 500; font-size: 17px;
+    color: var(--pearl); margin-bottom: 4px;
+  }
+  .correos-card .hint { font-size: 12.5px; color: var(--pearl-50); margin-bottom: 18px; line-height: 1.5; }
+  .correos-card .hint code { background: rgba(253,251,247,0.08); padding: 2px 6px; border-radius: 4px; color: var(--champagne); }
+
+  .recipient-list { max-height: 360px; overflow-y: auto; border: 1px solid rgba(253,251,247,0.1); border-radius: 8px; }
+  .recipient-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+    border-bottom: 1px solid rgba(253,251,247,0.06); cursor: pointer;
+  }
+  .recipient-list > .recipient-row:last-child { border-bottom: none; }
+  .recipient-row:hover { background: rgba(253,251,247,0.03); }
+  .recipient-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--champagne); flex-shrink: 0; cursor: pointer; }
+  .recipient-row .lead-row-text { flex: 1; min-width: 0; }
+  .recipient-row .badge { flex-shrink: 0; }
+
+  .correos-toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; }
+  .correos-toolbar .search-wrap { max-width: none; flex: 1; min-width: 180px; }
+  .selected-count { font-size: 12.5px; color: var(--champagne); font-weight: 600; white-space: nowrap; }
+
+  .template-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .template-row select { flex: 1; }
+  select {
+    padding: 12px 14px; border: 1px solid rgba(253,251,247,0.18); border-radius: 6px;
+    background: rgba(253,251,247,0.04); color: var(--pearl); font-size: 14px; font-family: var(--sans);
+  }
+  select:focus { outline: none; border-color: var(--champagne); }
+  #plantillaCuerpo { width: 100%; min-height: 220px; padding: 12px 14px; font-size: 13.5px; line-height: 1.6; resize: vertical; }
+  #plantillaAsunto { width: 100%; margin-bottom: 14px; }
+
+  .placeholder-hint { font-size: 11.5px; color: var(--pearl-50); margin: 8px 0 0; }
+  .placeholder-hint code { background: rgba(253,251,247,0.08); padding: 2px 6px; border-radius: 4px; color: var(--champagne); }
+
+  .preview-box {
+    background: rgba(253,251,247,0.03); border: 1px solid rgba(253,251,247,0.1); border-radius: 8px;
+    padding: 16px; margin-top: 16px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+  }
+  .preview-box .preview-subject { font-weight: 700; color: var(--champagne); margin-bottom: 8px; }
+
+  .queue-list { border: 1px solid rgba(253,251,247,0.1); border-radius: 8px; }
+  .queue-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 16px; border-bottom: 1px solid rgba(253,251,247,0.06); font-size: 13px;
+  }
+  .queue-list > .queue-row:last-child { border-bottom: none; }
+  .queue-row-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .queue-row-text strong { font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .queue-row-text span { font-size: 12px; color: var(--pearl-50); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .queue-row-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .estado-tag { font-size: 10.5px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px; border-radius: 999px; flex-shrink: 0; }
+  .estado-pendiente { background: rgba(253,251,247,0.08); color: var(--pearl-50); }
+  .estado-enviado { background: rgba(74,222,128,0.15); color: #4ade80; }
+  .estado-error { background: rgba(244,220,214,0.15); color: var(--quartz); }
+
+  .queue-remove { background: none; border: none; color: var(--pearl-50); cursor: pointer; padding: 6px; flex-shrink: 0; display: flex; }
+  .queue-remove svg { width: 15px; height: 15px; }
+  .queue-remove:hover { color: var(--quartz); }
+
+  .send-instructions {
+    background: rgba(229,196,163,0.08); border: 1px solid rgba(229,196,163,0.25);
+    border-radius: 8px; padding: 14px 16px; font-size: 12.5px; color: var(--pearl-70); margin-top: 16px; line-height: 1.6;
+  }
+
   @media (max-width: 640px) {
     .login-card { padding: 32px 24px; }
     .app-header { align-items: flex-start; }
@@ -366,21 +439,73 @@
     <button class="tab" id="tabPremium" onclick="cambiarTab('premium')">
       Premium / Pago <span class="count" id="countPremium">0</span>
     </button>
+    <button class="tab" id="tabCorreos" onclick="cambiarTab('correos')">
+      Correos <span class="count" id="countQueue">0</span>
+    </button>
   </div>
 
-  <div class="toolbar">
-    <div class="search-wrap">
-      <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
-      <input type="search" id="searchInput" placeholder="Buscar por nombre o correo...">
+  <div id="leadsView">
+    <div class="toolbar">
+      <div class="search-wrap">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
+        <input type="search" id="searchInput" placeholder="Buscar por nombre o correo...">
+      </div>
+    </div>
+
+    <div class="panel-table">
+      <div class="lead-list" id="listInteresados"></div>
+      <div class="lead-list" id="listPremium" hidden></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <strong>Nada por aquí todavía</strong>
+        <span id="emptyStateText">Cuando alguien se registre, va a aparecer en esta lista.</span>
+      </div>
     </div>
   </div>
 
-  <div class="panel-table">
-    <div class="lead-list" id="listInteresados"></div>
-    <div class="lead-list" id="listPremium" hidden></div>
-    <div class="empty-state" id="emptyState" hidden>
-      <strong>Nada por aquí todavía</strong>
-      <span id="emptyStateText">Cuando alguien se registre, va a aparecer en esta lista.</span>
+  <div id="correosView" hidden>
+    <div class="correos-grid">
+      <div class="correos-card">
+        <h3>Destinatarios</h3>
+        <p class="hint">Selecciona a quién les quieres enviar este correo.</p>
+        <div class="correos-toolbar">
+          <div class="search-wrap">
+            <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg></span>
+            <input type="search" id="correosSearchInput" placeholder="Buscar por nombre o correo...">
+          </div>
+          <span class="selected-count" id="selectedCount">0 seleccionados</span>
+        </div>
+        <div class="recipient-list" id="recipientList"></div>
+      </div>
+
+      <div class="correos-card">
+        <h3>Plantilla</h3>
+        <p class="hint">Escribe el correo. Usa <code>{nombre}</code> donde quieras que aparezca el nombre de cada persona.</p>
+        <div class="template-row">
+          <select id="plantillaSelect">
+            <option value="">— Plantilla nueva —</option>
+          </select>
+          <button type="button" class="btn btn-outline" id="guardarPlantillaBtn">Guardar</button>
+        </div>
+        <input type="text" id="plantillaAsunto" placeholder="Asunto del correo">
+        <textarea id="plantillaCuerpo" placeholder="Hola {nombre},&#10;&#10;..."></textarea>
+        <p class="placeholder-hint">Vista previa con el primer seleccionado:</p>
+        <div id="previewBox" class="preview-box" hidden>
+          <div class="preview-subject" id="previewSubject"></div>
+          <div id="previewBody"></div>
+        </div>
+        <button type="button" class="btn btn-save" id="agregarColaBtn" style="margin-top:18px;">Agregar a la cola de envío</button>
+      </div>
+    </div>
+
+    <div class="correos-card" style="margin-top:20px;">
+      <h3>Cola de envío</h3>
+      <p class="hint">Estos correos están listos para mandarse, pero no se envían solos.</p>
+      <div class="queue-list" id="queueList"></div>
+      <div class="empty-state" id="queueEmptyState">
+        <strong>La cola está vacía</strong>
+        <span>Selecciona destinatarios y agrega un correo arriba.</span>
+      </div>
+      <div class="send-instructions">Cuando tengas la cola lista, dile a Claude en el chat algo como "manda los correos pendientes" — los envía desde tu Gmail conectado, uno por uno.</div>
     </div>
   </div>
 </div>
@@ -482,7 +607,10 @@
   // ---------- DATA ----------
   let interesados = [];
   let premium = [];
+  let plantillas = [];
+  let queue = [];
   let tabActiva = 'interesados';
+  let seleccionados = new Map(); // correo -> nombre
 
   function mostrarStatus(msg) {
     const el = document.getElementById('appStatus');
@@ -508,9 +636,11 @@
   async function cargarTodo() {
     if (!sb) return;
 
-    const [resInteresados, resPremium] = await Promise.all([
+    const [resInteresados, resPremium, resPlantillas, resQueue] = await Promise.all([
       sb.from('glow21_profiles').select('*').order('created_at', { ascending: false }),
-      sb.from('glow21_premium_leads').select('*').order('created_at', { ascending: false })
+      sb.from('glow21_premium_leads').select('*').order('created_at', { ascending: false }),
+      sb.from('glow21_email_templates').select('*').order('nombre', { ascending: true }),
+      sb.from('glow21_email_queue').select('*').order('created_at', { ascending: false })
     ]);
 
     if (resInteresados.error || resPremium.error) {
@@ -521,18 +651,26 @@
 
     interesados = resInteresados.data || [];
     premium = resPremium.data || [];
+    plantillas = resPlantillas.data || [];
+    queue = resQueue.data || [];
 
     document.getElementById('countInteresados').textContent = interesados.length;
     document.getElementById('countPremium').textContent = premium.length;
 
     renderTablas();
+    renderPlantillasSelect();
+    renderDestinatarios();
+    renderCola();
   }
 
   function cambiarTab(tab) {
     tabActiva = tab;
     document.getElementById('tabInteresados').classList.toggle('active', tab === 'interesados');
     document.getElementById('tabPremium').classList.toggle('active', tab === 'premium');
-    document.getElementById('searchInput').value = '';
+    document.getElementById('tabCorreos').classList.toggle('active', tab === 'correos');
+    document.getElementById('leadsView').hidden = tab === 'correos';
+    document.getElementById('correosView').hidden = tab !== 'correos';
+    if (tab !== 'correos') document.getElementById('searchInput').value = '';
     renderTablas();
   }
 
@@ -866,6 +1004,235 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   });
+
+  // ---------- CORREOS: destinatarios, plantillas y cola de envío ----------
+  function listaDestinatarios() {
+    const vistos = new Map(); // correo -> nombre
+    interesados.forEach((r) => { if (r.correo) vistos.set(r.correo.trim().toLowerCase(), r.nombre); });
+    premium.forEach((r) => { if (r.correo && !vistos.has(r.correo.trim().toLowerCase())) vistos.set(r.correo.trim().toLowerCase(), r.nombre); });
+    return Array.from(vistos.entries())
+      .map(([correo, nombre]) => ({ correo, nombre }))
+      .sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+  }
+
+  function actualizarSelectedCount() {
+    document.getElementById('selectedCount').textContent = seleccionados.size + ' seleccionados';
+  }
+
+  function renderDestinatarios() {
+    const q = document.getElementById('correosSearchInput').value.trim().toLowerCase();
+    const list = document.getElementById('recipientList');
+    list.innerHTML = '';
+
+    const todos = listaDestinatarios().filter((r) =>
+      !q || (r.nombre || '').toLowerCase().includes(q) || (r.correo || '').toLowerCase().includes(q)
+    );
+
+    todos.forEach((r) => {
+      const row = document.createElement('label');
+      row.className = 'recipient-row';
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.checked = seleccionados.has(r.correo);
+      check.addEventListener('change', () => {
+        if (check.checked) seleccionados.set(r.correo, r.nombre);
+        else seleccionados.delete(r.correo);
+        actualizarSelectedCount();
+        actualizarPreview();
+      });
+
+      const text = document.createElement('div');
+      text.className = 'lead-row-text';
+      const nombreEl = document.createElement('span'); nombreEl.className = 'lead-name'; nombreEl.textContent = r.nombre || '(sin nombre)';
+      const correoEl = document.createElement('span'); correoEl.className = 'lead-email'; correoEl.textContent = r.correo;
+      text.append(nombreEl, correoEl);
+
+      row.append(check, text);
+      list.appendChild(row);
+    });
+
+    actualizarSelectedCount();
+  }
+
+  function renderPlantillasSelect() {
+    const sel = document.getElementById('plantillaSelect');
+    const actual = sel.value;
+    sel.innerHTML = '<option value="">— Plantilla nueva —</option>';
+    plantillas.forEach((p) => {
+      const opt = document.createElement('option');
+      opt.value = p.id;
+      opt.textContent = p.nombre;
+      sel.appendChild(opt);
+    });
+    sel.value = plantillas.some((p) => p.id === actual) ? actual : '';
+  }
+
+  function renderizarPlaceholders(texto, nombre) {
+    return (texto || '').replace(/\{nombre\}/gi, nombre || '');
+  }
+
+  function actualizarPreview() {
+    const asunto = document.getElementById('plantillaAsunto').value;
+    const cuerpo = document.getElementById('plantillaCuerpo').value;
+    const previewBox = document.getElementById('previewBox');
+    const primero = seleccionados.size ? Array.from(seleccionados.values())[0] : null;
+
+    if (!asunto && !cuerpo) { previewBox.hidden = true; return; }
+
+    const nombreEjemplo = primero || 'Ejemplo';
+    document.getElementById('previewSubject').textContent = renderizarPlaceholders(asunto, nombreEjemplo) || '(sin asunto)';
+    document.getElementById('previewBody').textContent = renderizarPlaceholders(cuerpo, nombreEjemplo) || '(sin cuerpo)';
+    previewBox.hidden = false;
+  }
+
+  async function guardarPlantilla() {
+    const asunto = document.getElementById('plantillaAsunto').value.trim();
+    const cuerpo = document.getElementById('plantillaCuerpo').value.trim();
+    if (!asunto && !cuerpo) { mostrarStatus('Escribe algo antes de guardar.'); return; }
+
+    const selectEl = document.getElementById('plantillaSelect');
+    const idActual = selectEl.value;
+    const existente = plantillas.find((p) => p.id === idActual);
+    const nombre = window.prompt('Nombre de la plantilla:', existente ? existente.nombre : '');
+    if (!nombre || !nombre.trim()) return;
+
+    let error;
+    if (existente) {
+      ({ error } = await sb.from('glow21_email_templates')
+        .update({ nombre: nombre.trim(), asunto, cuerpo, updated_at: new Date().toISOString() })
+        .eq('id', existente.id));
+    } else {
+      const { data, error: insertError } = await sb.from('glow21_email_templates')
+        .insert({ nombre: nombre.trim(), asunto, cuerpo })
+        .select()
+        .single();
+      error = insertError;
+      if (!error && data) selectEl.dataset.pendingSelect = data.id;
+    }
+
+    if (error) {
+      console.warn('Glow21 CRM: error guardando plantilla', error);
+      mostrarStatus('No se pudo guardar la plantilla.');
+      return;
+    }
+
+    const { data: refrescadas } = await sb.from('glow21_email_templates').select('*').order('nombre', { ascending: true });
+    plantillas = refrescadas || [];
+    renderPlantillasSelect();
+    if (selectEl.dataset.pendingSelect) {
+      selectEl.value = selectEl.dataset.pendingSelect;
+      delete selectEl.dataset.pendingSelect;
+    }
+    mostrarStatus('Plantilla guardada.');
+  }
+
+  function cargarPlantillaSeleccionada() {
+    const id = document.getElementById('plantillaSelect').value;
+    const p = plantillas.find((t) => t.id === id);
+    document.getElementById('plantillaAsunto').value = p ? p.asunto : '';
+    document.getElementById('plantillaCuerpo').value = p ? p.cuerpo : '';
+    actualizarPreview();
+  }
+
+  async function agregarACola() {
+    const asunto = document.getElementById('plantillaAsunto').value.trim();
+    const cuerpo = document.getElementById('plantillaCuerpo').value.trim();
+
+    if (!seleccionados.size) { mostrarStatus('Selecciona al menos un destinatario.'); return; }
+    if (!asunto || !cuerpo) { mostrarStatus('Escribe un asunto y un cuerpo para el correo.'); return; }
+
+    const btn = document.getElementById('agregarColaBtn');
+    btn.disabled = true;
+    btn.textContent = 'Agregando...';
+
+    const filas = Array.from(seleccionados.entries()).map(([correo, nombre]) => ({
+      destinatario_nombre: nombre || '',
+      destinatario_correo: correo,
+      asunto: renderizarPlaceholders(asunto, nombre),
+      cuerpo: renderizarPlaceholders(cuerpo, nombre),
+      estado: 'pendiente'
+    }));
+
+    const { error } = await sb.from('glow21_email_queue').insert(filas);
+
+    btn.disabled = false;
+    btn.textContent = 'Agregar a la cola de envío';
+
+    if (error) {
+      console.warn('Glow21 CRM: error agregando a la cola', error);
+      mostrarStatus('No se pudo agregar a la cola.');
+      return;
+    }
+
+    const { data: refrescada } = await sb.from('glow21_email_queue').select('*').order('created_at', { ascending: false });
+    queue = refrescada || [];
+    seleccionados.clear();
+    renderDestinatarios();
+    renderCola();
+    mostrarStatus(filas.length + ' correo(s) agregados a la cola.');
+  }
+
+  async function quitarDeCola(id) {
+    const { error } = await sb.from('glow21_email_queue').delete().eq('id', id);
+    if (error) {
+      console.warn('Glow21 CRM: error quitando de la cola', error);
+      mostrarStatus('No se pudo quitar de la cola.');
+      return;
+    }
+    queue = queue.filter((q) => q.id !== id);
+    renderCola();
+    mostrarStatus('Quitado de la cola.');
+  }
+
+  function renderCola() {
+    const list = document.getElementById('queueList');
+    list.innerHTML = '';
+
+    const pendientes = queue.filter((q) => q.estado === 'pendiente').length;
+    document.getElementById('countQueue').textContent = pendientes;
+    document.getElementById('queueEmptyState').hidden = queue.length > 0;
+    list.hidden = queue.length === 0;
+
+    queue.forEach((item) => {
+      const row = document.createElement('div');
+      row.className = 'queue-row';
+
+      const text = document.createElement('div');
+      text.className = 'queue-row-text';
+      const linea1 = document.createElement('strong'); linea1.textContent = item.destinatario_nombre + ' · ' + item.asunto;
+      const linea2 = document.createElement('span'); linea2.textContent = item.destinatario_correo;
+      text.append(linea1, linea2);
+
+      const right = document.createElement('div');
+      right.className = 'queue-row-right';
+      const estado = document.createElement('span');
+      estado.className = 'estado-tag estado-' + item.estado;
+      estado.textContent = item.estado;
+      right.appendChild(estado);
+
+      if (item.estado === 'pendiente') {
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'queue-remove';
+        removeBtn.title = 'Quitar de la cola';
+        removeBtn.setAttribute('aria-label', 'Quitar de la cola');
+        removeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+        removeBtn.addEventListener('click', () => quitarDeCola(item.id));
+        right.appendChild(removeBtn);
+      }
+
+      row.append(text, right);
+      list.appendChild(row);
+    });
+  }
+
+  document.getElementById('correosSearchInput').addEventListener('input', renderDestinatarios);
+  document.getElementById('plantillaSelect').addEventListener('change', cargarPlantillaSeleccionada);
+  document.getElementById('guardarPlantillaBtn').addEventListener('click', guardarPlantilla);
+  document.getElementById('agregarColaBtn').addEventListener('click', agregarACola);
+  document.getElementById('plantillaAsunto').addEventListener('input', actualizarPreview);
+  document.getElementById('plantillaCuerpo').addEventListener('input', actualizarPreview);
 
   // ---------- INIT ----------
   (async function initAuth() {
