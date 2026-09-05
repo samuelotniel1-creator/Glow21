@@ -102,18 +102,10 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
   /* ---------- Barra superior ---------- */
   .top-bar {
     position: sticky; top: 0; z-index: 20;
-    display: flex; align-items: center; justify-content: center; gap: 18px;
-    padding: 14px 24px; background: rgba(253,251,247,0.9);
+    display: flex; justify-content: center;
+    padding: 14px 0; background: rgba(253,251,247,0.9);
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
     border-bottom: 1px solid var(--slate-08);
-  }
-  .top-bar-inner {
-    width: 100%; max-width: 1080px; margin: 0 auto;
-    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  }
-  @media (max-width: 640px) {
-    .top-bar-inner { justify-content: center; }
-    .top-bar-secondary { display: none; }
   }
 
   /* ---------- Hero ---------- */
@@ -294,10 +286,7 @@ src="https://www.facebook.com/tr?id=1416585077128417&ev=PageView&noscript=1"
 <body>
 
 <div class="top-bar">
-  <div class="top-bar-inner">
-    <a href="https://www.skool.com/glow21-4957" target="_blank" rel="noopener" class="btn btn-outline btn-small top-bar-secondary">Únete a nuestra comunidad de Skool</a>
-    <a href="#registro" class="btn btn-primary btn-small">Asegura tu lugar</a>
-  </div>
+  <a href="#registro" class="btn btn-primary btn-small">Asegura tu lugar</a>
 </div>
 
 <main>
