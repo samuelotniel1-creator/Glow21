@@ -1,15 +1,15 @@
-// Guarda el preregistro (y el resultado del diagnóstico de piel) usando la
-// service_role key, en vez de dejar que el navegador escriba directo a
-// Supabase con la llave pública.
+// Guarda el preregistro, el resultado del diagnóstico de piel, y los datos
+// de envío del Acceso Premium — usando la service_role key, en vez de dejar
+// que el navegador escriba directo a Supabase con la llave pública.
 //
-// Por qué existe este endpoint: las políticas RLS de glow21_profiles están
-// correctas (verificado a mano letra por letra), pero el proyecto de
-// Supabase tiene un bug de infraestructura que rechaza cualquier INSERT/UPDATE
-// del rol "anon" sin importar qué política exista — hasta una tabla de
-// prueba nueva con una política trivial "with check (true)" falla igual.
-// Mientras Supabase soporte lo resuelve, este endpoint rodea el problema
-// por completo: corre en el servidor de Vercel (nunca en el navegador), así
-// que puede usar la service_role key, que ignora RLS.
+// Por qué existe este endpoint: las políticas RLS de glow21_profiles y
+// glow21_premium_leads están correctas (verificadas a mano letra por letra),
+// pero el proyecto de Supabase tiene un bug de infraestructura que rechaza
+// cualquier INSERT/UPDATE del rol "anon" sin importar qué política exista —
+// hasta una tabla de prueba nueva con una política trivial "with check
+// (true)" falla igual. Mientras Supabase soporte lo resuelve, este endpoint
+// rodea el problema por completo: corre en el servidor de Vercel (nunca en
+// el navegador), así que puede usar la service_role key, que ignora RLS.
 //
 // Variables de entorno requeridas (Vercel → Project Settings → Environment
 // Variables, ya configuradas porque api/stripe-webhook.js las usa igual):
@@ -56,6 +56,31 @@ module.exports = async (req, res) => {
     }
 
     res.status(200).json({ id: data.id });
+    return;
+  }
+
+  if (body.action === 'premium') {
+    const nombre = (body.nombre || '').trim();
+    const correo = (body.correo || '').trim();
+    const telefono = (body.telefono || '').trim();
+    const direccion = (body.direccion || '').trim();
+
+    if (!nombre || !correo || !telefono || !direccion) {
+      res.status(400).json({ error: 'Faltan datos' });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('glow21_premium_leads')
+      .insert({ nombre, correo, telefono, direccion });
+
+    if (error) {
+      console.error('Glow21 registro: error guardando lead premium', error);
+      res.status(500).json({ error: 'No se pudo guardar' });
+      return;
+    }
+
+    res.status(200).json({ ok: true });
     return;
   }
 

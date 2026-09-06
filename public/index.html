@@ -432,6 +432,12 @@
   }
   .registro-submit.is-loading .registro-spinner { display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
+  .premium-msi-link {
+    margin-top: 2px; padding: 12px 34px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.03em;
+    color: var(--slate-55); border-color: var(--slate-08);
+  }
+  .premium-msi-link:hover { color: var(--slate); border-color: var(--slate-12); }
 
   /* ================= ZOOM (embebido, con opción de pantalla completa) ================= */
   .zoom-container {
@@ -1100,6 +1106,8 @@
             <span class="registro-spinner" aria-hidden="true"></span>
             <span id="premiumSubmitText">Continuar al pago</span>
           </button>
+
+          <a href="https://mpago.la/1fijSDm" target="_blank" rel="noopener" class="btn btn-outline registro-submit premium-msi-link">¿Prefieres pagar a meses?</a>
         </form>
       </div>
     </div>
@@ -1450,26 +1458,29 @@
       mostrarErrorPremium('Ingresa un correo válido.');
       return;
     }
-    if (!sb) {
-      mostrarErrorPremium('No hay conexión disponible en este momento. Intenta de nuevo en unos minutos.');
-      return;
-    }
-
     premiumSubmit.disabled = true;
     premiumSubmit.classList.add('is-loading');
     premiumSubmitText.textContent = 'Guardando...';
 
-    const { error } = await sb.from('glow21_premium_leads').insert({ nombre, correo, telefono, direccion });
+    try {
+      const resp = await fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'premium', nombre, correo, telefono, direccion }),
+      });
+      if (!resp.ok) throw new Error('respuesta no ok');
+    } catch (err) {
+      console.warn('Glow21: error guardando el registro premium', err);
+      premiumSubmit.disabled = false;
+      premiumSubmit.classList.remove('is-loading');
+      premiumSubmitText.textContent = 'Continuar al pago';
+      mostrarErrorPremium('No pudimos guardar tus datos. Verifica tu conexión e intenta de nuevo.');
+      return;
+    }
 
     premiumSubmit.disabled = false;
     premiumSubmit.classList.remove('is-loading');
     premiumSubmitText.textContent = 'Continuar al pago';
-
-    if (error) {
-      console.warn('Glow21: error guardando el registro premium', error);
-      mostrarErrorPremium('No pudimos guardar tus datos. Verifica tu conexión e intenta de nuevo.');
-      return;
-    }
 
     localStorage.setItem(PREMIUM_KEY, JSON.stringify({ nombre, correo, telefono, direccion }));
     cerrarPremium();
