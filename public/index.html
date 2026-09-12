@@ -1107,7 +1107,9 @@
             <span id="premiumSubmitText">Continuar al pago</span>
           </button>
 
-          <a href="https://mpago.la/1fijSDm" target="_blank" rel="noopener" class="btn btn-outline registro-submit premium-msi-link">¿Prefieres pagar a meses?</a>
+          <button type="button" class="btn btn-outline registro-submit premium-msi-link" id="premiumMsiBtn">
+            <span id="premiumMsiBtnText">¿Prefieres pagar a meses?</span>
+          </button>
         </form>
       </div>
     </div>
@@ -1435,8 +1437,16 @@
 
   premiumModal.addEventListener('click', (e) => { if (e.target === premiumModal) cerrarPremium(); });
 
-  premiumForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  const MERCADOPAGO_MSI_URL = 'https://mpago.la/1fijSDm';
+  const premiumMsiBtn = document.getElementById('premiumMsiBtn');
+  const premiumMsiBtnText = document.getElementById('premiumMsiBtnText');
+
+  // Valida los campos, guarda el lead en Supabase (vía /api/registro, que usa
+  // la service_role key), y devuelve los datos guardados — o null si algo
+  // falló (ya mostró el error correspondiente). La usan los dos botones de
+  // pago (Stripe de contado y Mercado Pago a meses), cada quien con su
+  // propio botón deshabilitado mientras se guarda.
+  async function guardarDatosPremium(botonActivo, textoEl, textoNormal) {
     limpiarErrorPremium();
 
     const nombre = document.getElementById('premNombre').value.trim();
@@ -1451,16 +1461,18 @@
 
     if (!nombre || !correo || !telefono || !calle || !numero || !colonia || !cp || !ciudad || !estado) {
       mostrarErrorPremium('Completa todos los campos para continuar.');
-      return;
+      return null;
     }
     const direccion = `${calle} ${numero}, ${colonia}, CP ${cp}, ${ciudad}, ${estado}`;
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
       mostrarErrorPremium('Ingresa un correo válido.');
-      return;
+      return null;
     }
+
     premiumSubmit.disabled = true;
-    premiumSubmit.classList.add('is-loading');
-    premiumSubmitText.textContent = 'Guardando...';
+    premiumMsiBtn.disabled = true;
+    botonActivo.classList.add('is-loading');
+    textoEl.textContent = 'Guardando...';
 
     try {
       const resp = await fetch('/api/registro', {
@@ -1471,21 +1483,31 @@
       if (!resp.ok) throw new Error('respuesta no ok');
     } catch (err) {
       console.warn('Glow21: error guardando el registro premium', err);
-      premiumSubmit.disabled = false;
-      premiumSubmit.classList.remove('is-loading');
-      premiumSubmitText.textContent = 'Continuar al pago';
       mostrarErrorPremium('No pudimos guardar tus datos. Verifica tu conexión e intenta de nuevo.');
-      return;
+      return null;
+    } finally {
+      premiumSubmit.disabled = false;
+      premiumMsiBtn.disabled = false;
+      botonActivo.classList.remove('is-loading');
+      textoEl.textContent = textoNormal;
     }
 
-    premiumSubmit.disabled = false;
-    premiumSubmit.classList.remove('is-loading');
-    premiumSubmitText.textContent = 'Continuar al pago';
-
-    localStorage.setItem(PREMIUM_KEY, JSON.stringify({ nombre, correo, telefono, direccion }));
+    const datos = { nombre, correo, telefono, direccion };
+    localStorage.setItem(PREMIUM_KEY, JSON.stringify(datos));
     cerrarPremium();
     premiumForm.reset();
-    irAPago();
+    return datos;
+  }
+
+  premiumForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const datos = await guardarDatosPremium(premiumSubmit, premiumSubmitText, 'Continuar al pago');
+    if (datos) irAPago();
+  });
+
+  premiumMsiBtn.addEventListener('click', async () => {
+    const datos = await guardarDatosPremium(premiumMsiBtn, premiumMsiBtnText, '¿Prefieres pagar a meses?');
+    if (datos) window.location.href = MERCADOPAGO_MSI_URL;
   });
 
   // ---------- ZOOM (embebido en la sección, con botón de pantalla completa) ----------
