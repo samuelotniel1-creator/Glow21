@@ -439,7 +439,7 @@
   }
   .premium-msi-link:hover { color: var(--slate); border-color: var(--slate-12); }
 
-  /* ================= STREAM (YouTube embebido, con opción de pantalla completa) ================= */
+  /* ================= STREAM (Jitsi Meet embebido, con opción de pantalla completa) ================= */
   .stream-container {
     background: #fff;
     border: 1px solid var(--slate-08);
@@ -826,7 +826,7 @@
       <div class="stream-container reveal reveal-1" id="streamStage" hidden>
         <div class="stream-frame-shell">
           <div class="stream-embed-wrapper" id="streamEmbedWrapper">
-            <iframe id="streamFrame" title="Transmisión en vivo Glow21" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+            <iframe id="streamFrame" title="Transmisión en vivo Glow21" allow="camera; microphone; display-capture; autoplay; fullscreen" allowfullscreen></iframe>
           </div>
           <button class="stream-fullscreen-toggle" onclick="alternarPantallaCompleta()" aria-label="Pantalla completa" title="Pantalla completa">
             <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 1-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></span>
@@ -1132,7 +1132,7 @@
   // Arranca con lo último que este navegador vio (evita parpadeos) y se
   // actualiza en cuanto responde Supabase.
   const state = {
-    youtubeVideoId: localStorage.getItem('glow21_youtube_video_id') || '',
+    jitsiRoom: localStorage.getItem('glow21_jitsi_room') || '',
     sessionDatetime: localStorage.getItem('glow21_session_datetime') || '',
     paymentLinkUrl: localStorage.getItem('glow21_payment_link_url') || '',
     showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true',
@@ -1146,12 +1146,12 @@
       console.warn('Glow21: no se pudo leer la configuración de Supabase', error);
       return;
     }
-    state.youtubeVideoId = data.youtube_video_id || '';
+    state.jitsiRoom = data.jitsi_room || '';
     state.sessionDatetime = data.session_datetime || '';
     state.paymentLinkUrl = data.payment_link_url || '';
     state.showPremiumButton = !!data.show_premium_button;
     state.sessionLive = !!data.session_live;
-    localStorage.setItem('glow21_youtube_video_id', state.youtubeVideoId);
+    localStorage.setItem('glow21_jitsi_room', state.jitsiRoom);
     if (state.sessionDatetime) localStorage.setItem('glow21_session_datetime', state.sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
     localStorage.setItem('glow21_payment_link_url', state.paymentLinkUrl);
@@ -1160,7 +1160,7 @@
   }
 
   function actualizarGateEnVivo() {
-    const configurado = !!state.youtubeVideoId;
+    const configurado = !!state.jitsiRoom;
     document.getElementById('liveGateReady').hidden = !configurado;
     document.getElementById('liveGateWaiting').hidden = configurado;
     if (configurado) {
@@ -1247,7 +1247,7 @@
       actualizarGateEnVivo();
       if (nextLive) {
         const registroPrevio = obtenerRegistro();
-        if (registroPrevio && state.youtubeVideoId) mostrarStreamInline();
+        if (registroPrevio && state.jitsiRoom) mostrarStreamInline();
       }
     }
 
@@ -1507,14 +1507,20 @@
     if (datos) window.location.href = MERCADOPAGO_MSI_URL;
   });
 
-  // ---------- STREAM (YouTube embebido en la sección, con botón de pantalla completa) ----------
+  // ---------- STREAM (Jitsi Meet embebido en la sección, con botón de pantalla completa) ----------
+  // Los espectadores entran silenciados y sin cámara, sin pantalla previa de
+  // "activa tu audio" (disableInitialGUM evita que el navegador les pida
+  // permiso de cámara/micrófono — solo necesitan permiso para ENVIAR video,
+  // nunca para recibirlo). La presentadora entra aparte, directo a
+  // https://meet.jit.si/SU_SALA en su propio navegador, con controles completos.
   function mostrarStreamInline(opciones) {
     const scroll = !opciones || opciones.scroll !== false;
-    if (!state.youtubeVideoId) {
+    if (!state.jitsiRoom) {
       alert('La sesión en vivo aún no está configurada. Intenta más tarde.');
       return;
     }
-    document.getElementById('streamFrame').src = `https://www.youtube.com/embed/${state.youtubeVideoId}?autoplay=1&rel=0`;
+    const config = 'config.prejoinPageEnabled=false&config.disableInitialGUM=true&config.startWithAudioMuted=true&config.startWithVideoMuted=true';
+    document.getElementById('streamFrame').src = `https://meet.jit.si/${encodeURIComponent(state.jitsiRoom)}#${config}`;
     document.getElementById('liveGate').hidden = true;
     const streamStage = document.getElementById('streamStage');
     streamStage.hidden = false;
@@ -1588,7 +1594,7 @@
     await cargarConfigInicial();
     actualizarGateEnVivo();
     const registroPrevio = obtenerRegistro();
-    if (registroPrevio && state.youtubeVideoId && state.sessionLive) {
+    if (registroPrevio && state.jitsiRoom && state.sessionLive) {
       mostrarStreamInline({ scroll: false });
     }
     actualizarCountdown();

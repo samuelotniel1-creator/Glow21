@@ -56,13 +56,17 @@ alter table public.glow21_settings
   add column if not exists payment_link_url text not null default '',
   add column if not exists whatsapp_community_url text not null default '';
 
--- La transmisión en vivo pasó de Zoom a YouTube (más simple para el público:
--- solo le dan play, sin tener que activar su propio audio/micrófono como en
--- una reunión de Zoom). Las columnas viejas "zoom_id"/"zoom_password" ya no
--- las usa ni la landing ni el admin — se dejan tal cual por si quieres
--- conservarlas, igual que "session_date" arriba.
+-- La transmisión en vivo pasó de Zoom a un video/sala embebida. Se probó
+-- YouTube primero (columna "youtube_video_id"), pero el canal necesitaba
+-- hasta 24h de verificación para poder transmitir — mientras tanto se usa
+-- Jitsi Meet (sin cuenta, sin espera; los espectadores entran silenciados y
+-- sin pantalla previa de "activa tu audio", a diferencia de Zoom). Las
+-- columnas viejas "zoom_id"/"zoom_password"/"youtube_video_id" ya no las usa
+-- ni la landing ni el admin — se dejan tal cual por si quieres conservarlas
+-- o volver a usarlas, igual que "session_date" arriba.
 alter table public.glow21_settings
-  add column if not exists youtube_video_id text not null default '';
+  add column if not exists youtube_video_id text not null default '',
+  add column if not exists jitsi_room text not null default '';
 
 -- Nota: la columna vieja "session_date" (texto libre) ya no se usa desde el
 -- admin ni la landing. Se deja tal cual por si quieres conservarla; puedes

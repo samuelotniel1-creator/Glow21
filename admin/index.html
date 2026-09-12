@@ -213,10 +213,10 @@
     <div class="field">
       <label for="streamInvite">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="14" height="12" rx="2"/><path d="M16.5 10.5l5-3v9l-5-3"/></svg></span>
-        Transmisión de YouTube
+        Sala de Jitsi Meet
       </label>
-      <input type="text" id="streamInvite" placeholder="Pega el link de tu transmisión de YouTube (o solo el ID del video)">
-      <p class="hint">Acepta el link completo (<code>youtube.com/watch?v=...</code>, <code>youtu.be/...</code>, <code>youtube.com/live/...</code>) o solo el ID del video.</p>
+      <input type="text" id="streamInvite" placeholder="Pega el link de tu sala (https://meet.jit.si/TuSala) o solo el nombre de la sala">
+      <p class="hint">Usa un nombre de sala único y difícil de adivinar (nadie más puede entrar sin saberlo). Ejemplo: <code>https://meet.jit.si/Glow21MasterClass2026</code>.</p>
       <p class="hint" id="streamParsedPreview" hidden></p>
     </div>
 
@@ -393,32 +393,26 @@
     return isNaN(d) ? null : d.toISOString();
   }
 
-  function parseYoutubeId(text) {
+  function parseJitsiRoom(text) {
     if (!text) return '';
     text = text.trim();
-    const patterns = [
-      /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/i,
-      /youtu\.be\/([a-zA-Z0-9_-]{11})/i
-    ];
-    for (const re of patterns) {
-      const m = text.match(re);
-      if (m) return m[1];
-    }
-    return /^[a-zA-Z0-9_-]{11}$/.test(text) ? text : '';
+    const m = text.match(/meet\.jit\.si\/([^/?#\s]+)/i);
+    if (m) return decodeURIComponent(m[1]);
+    return /^[^/?#\s]+$/.test(text) ? text : '';
   }
 
-  function buildStreamInviteDisplay(youtubeVideoId) {
-    if (!youtubeVideoId) return '';
-    return `https://youtu.be/${youtubeVideoId}`;
+  function buildStreamInviteDisplay(jitsiRoom) {
+    if (!jitsiRoom) return '';
+    return `https://meet.jit.si/${jitsiRoom}`;
   }
 
   function actualizarStreamPreview() {
-    const youtubeVideoId = parseYoutubeId(streamInviteEl.value.trim());
+    const jitsiRoom = parseJitsiRoom(streamInviteEl.value.trim());
     if (!streamInviteEl.value.trim()) { streamParsedPreviewEl.hidden = true; return; }
     streamParsedPreviewEl.hidden = false;
-    streamParsedPreviewEl.textContent = youtubeVideoId
-      ? `Detectado — ID: ${youtubeVideoId}`
-      : 'No se detectó un ID de video en ese texto.';
+    streamParsedPreviewEl.textContent = jitsiRoom
+      ? `Detectado — Sala: ${jitsiRoom}`
+      : 'No se detectó un nombre de sala en ese texto.';
   }
   streamInviteEl.addEventListener('input', actualizarStreamPreview);
 
@@ -435,7 +429,7 @@
     if (sb) {
       const { data, error } = await sb.from('glow21_settings').select('*').eq('id', 1).single();
       if (!error && data) {
-        streamInviteEl.value = buildStreamInviteDisplay(data.youtube_video_id);
+        streamInviteEl.value = buildStreamInviteDisplay(data.jitsi_room);
         sessionDateTimeEl.value = isoADatetimeLocal(data.session_datetime);
         paymentLinkUrlEl.value = data.payment_link_url || '';
         whatsappCommunityUrlEl.value = data.whatsapp_community_url || '';
@@ -449,7 +443,7 @@
       console.warn('Glow21 admin: error leyendo Supabase', error);
     }
     setConnStatus('offline');
-    streamInviteEl.value = buildStreamInviteDisplay(localStorage.getItem('glow21_youtube_video_id') || '');
+    streamInviteEl.value = buildStreamInviteDisplay(localStorage.getItem('glow21_jitsi_room') || '');
     sessionDateTimeEl.value = isoADatetimeLocal(localStorage.getItem('glow21_session_datetime'));
     paymentLinkUrlEl.value = localStorage.getItem('glow21_payment_link_url') || '';
     whatsappCommunityUrlEl.value = localStorage.getItem('glow21_whatsapp_community_url') || '';
@@ -475,22 +469,22 @@
   registrarToggle(toggleEnVivoEl, estadoEnVivoEl);
 
   async function guardar() {
-    const youtubeVideoId = parseYoutubeId(streamInviteEl.value.trim());
+    const jitsiRoom = parseJitsiRoom(streamInviteEl.value.trim());
     const sessionDatetime = datetimeLocalAIso(sessionDateTimeEl.value);
     const paymentLinkUrl = paymentLinkUrlEl.value.trim();
     const whatsappCommunityUrl = whatsappCommunityUrlEl.value.trim();
     const botonActivo = toggleEl.classList.contains('active');
     const enVivo = toggleEnVivoEl.classList.contains('active');
 
-    if (!youtubeVideoId) {
-      mostrarStatus('No pudimos encontrar el ID del video en ese texto. Pega el link completo de tu transmisión de YouTube.', 'error');
+    if (!jitsiRoom) {
+      mostrarStatus('No pudimos encontrar un nombre de sala en ese texto. Pega el link completo o solo el nombre de la sala.', 'error');
       streamInviteEl.focus();
       return;
     }
 
     if (sb) {
       const { error } = await sb.from('glow21_settings').update({
-        youtube_video_id: youtubeVideoId,
+        jitsi_room: jitsiRoom,
         session_datetime: sessionDatetime,
         payment_link_url: paymentLinkUrl,
         whatsapp_community_url: whatsappCommunityUrl,
@@ -506,7 +500,7 @@
       }
     }
 
-    localStorage.setItem('glow21_youtube_video_id', youtubeVideoId);
+    localStorage.setItem('glow21_jitsi_room', jitsiRoom);
     if (sessionDatetime) localStorage.setItem('glow21_session_datetime', sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
     localStorage.setItem('glow21_payment_link_url', paymentLinkUrl);
