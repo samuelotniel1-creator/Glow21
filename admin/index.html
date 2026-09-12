@@ -211,13 +211,13 @@
     <div class="conn-status" id="connStatus"><span class="conn-dot"></span><span id="connStatusText">Conectando con Supabase…</span></div>
 
     <div class="field">
-      <label for="streamInvite">
+      <label for="zoomInvite">
         <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="14" height="12" rx="2"/><path d="M16.5 10.5l5-3v9l-5-3"/></svg></span>
-        Transmisión de YouTube
+        Invitación de Zoom
       </label>
-      <input type="text" id="streamInvite" placeholder="Pega el link de tu transmisión de YouTube (o solo el ID del video)">
-      <p class="hint">Acepta el link completo (<code>youtube.com/watch?v=...</code>, <code>youtu.be/...</code>, <code>youtube.com/live/...</code>) o solo el ID del video.</p>
-      <p class="hint" id="streamParsedPreview" hidden></p>
+      <textarea id="zoomInvite" rows="3" placeholder="En Zoom da clic en “Copiar invitación” y pega aquí todo el texto"></textarea>
+      <p class="hint">Pega el texto completo de “Copiar invitación” (o solo el link <code>zoom.us/j/123456789?pwd=AbCdEfGh</code>) — el ID y el código de acceso se detectan solos.</p>
+      <p class="hint" id="zoomParsedPreview" hidden></p>
     </div>
 
     <div class="field">
@@ -366,8 +366,8 @@
     });
   }
 
-  const streamInviteEl = document.getElementById('streamInvite');
-  const streamParsedPreviewEl = document.getElementById('streamParsedPreview');
+  const zoomInviteEl = document.getElementById('zoomInvite');
+  const zoomParsedPreviewEl = document.getElementById('zoomParsedPreview');
   const sessionDateTimeEl = document.getElementById('sessionDateTime');
   const paymentLinkUrlEl = document.getElementById('paymentLinkUrl');
   const whatsappCommunityUrlEl = document.getElementById('whatsappCommunityUrl');
@@ -393,34 +393,31 @@
     return isNaN(d) ? null : d.toISOString();
   }
 
-  function parseYoutubeId(text) {
-    if (!text) return '';
-    text = text.trim();
-    const patterns = [
-      /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|live\/|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/i,
-      /youtu\.be\/([a-zA-Z0-9_-]{11})/i
-    ];
-    for (const re of patterns) {
-      const m = text.match(re);
-      if (m) return m[1];
-    }
-    return /^[a-zA-Z0-9_-]{11}$/.test(text) ? text : '';
+  function parseZoomInvite(text) {
+    if (!text) return { zoomId: '', zoomPassword: '' };
+    const idMatch = text.match(/zoom\.us\/(?:j|wc\/join)\/(\d+)/i)
+      || text.match(/(?:meeting id|id de reuni[oó]n)[:\s]*([\d\s]{9,})/i);
+    const pwdMatch = text.match(/[?&]pwd=([^&\s"'<]+)/i);
+    return {
+      zoomId: idMatch ? idMatch[1].replace(/\s+/g, '') : '',
+      zoomPassword: pwdMatch ? pwdMatch[1] : ''
+    };
   }
 
-  function buildStreamInviteDisplay(youtubeVideoId) {
-    if (!youtubeVideoId) return '';
-    return `https://youtu.be/${youtubeVideoId}`;
+  function buildZoomInviteDisplay(zoomId, zoomPassword) {
+    if (!zoomId) return '';
+    return `https://zoom.us/j/${zoomId}${zoomPassword ? '?pwd=' + zoomPassword : ''}`;
   }
 
-  function actualizarStreamPreview() {
-    const youtubeVideoId = parseYoutubeId(streamInviteEl.value.trim());
-    if (!streamInviteEl.value.trim()) { streamParsedPreviewEl.hidden = true; return; }
-    streamParsedPreviewEl.hidden = false;
-    streamParsedPreviewEl.textContent = youtubeVideoId
-      ? `Detectado — ID: ${youtubeVideoId}`
-      : 'No se detectó un ID de video en ese texto.';
+  function actualizarZoomPreview() {
+    const { zoomId, zoomPassword } = parseZoomInvite(zoomInviteEl.value.trim());
+    if (!zoomInviteEl.value.trim()) { zoomParsedPreviewEl.hidden = true; return; }
+    zoomParsedPreviewEl.hidden = false;
+    zoomParsedPreviewEl.textContent = zoomId
+      ? `Detectado — ID: ${zoomId}${zoomPassword ? ` · Código: ${zoomPassword}` : ' · sin código de acceso'}`
+      : 'No se detectó un ID de reunión en ese texto.';
   }
-  streamInviteEl.addEventListener('input', actualizarStreamPreview);
+  zoomInviteEl.addEventListener('input', actualizarZoomPreview);
 
   function setConnStatus(estado) {
     const el = document.getElementById('connStatus');
@@ -435,27 +432,30 @@
     if (sb) {
       const { data, error } = await sb.from('glow21_settings').select('*').eq('id', 1).single();
       if (!error && data) {
-        streamInviteEl.value = buildStreamInviteDisplay(data.youtube_video_id);
+        zoomInviteEl.value = buildZoomInviteDisplay(data.zoom_id, data.zoom_password);
         sessionDateTimeEl.value = isoADatetimeLocal(data.session_datetime);
         paymentLinkUrlEl.value = data.payment_link_url || '';
         whatsappCommunityUrlEl.value = data.whatsapp_community_url || '';
         setToggle(toggleEl, estadoEl, !!data.show_premium_button);
         setToggle(toggleEnVivoEl, estadoEnVivoEl, !!data.session_live);
         setConnStatus('online');
-        actualizarStreamPreview();
+        actualizarZoomPreview();
         return;
       }
       mostrarStatus('No se pudo conectar con Supabase. Revisa la consola.', 'error');
       console.warn('Glow21 admin: error leyendo Supabase', error);
     }
     setConnStatus('offline');
-    streamInviteEl.value = buildStreamInviteDisplay(localStorage.getItem('glow21_youtube_video_id') || '');
+    zoomInviteEl.value = buildZoomInviteDisplay(
+      localStorage.getItem('glow21_zoom_id') || '',
+      localStorage.getItem('glow21_zoom_password') || ''
+    );
     sessionDateTimeEl.value = isoADatetimeLocal(localStorage.getItem('glow21_session_datetime'));
     paymentLinkUrlEl.value = localStorage.getItem('glow21_payment_link_url') || '';
     whatsappCommunityUrlEl.value = localStorage.getItem('glow21_whatsapp_community_url') || '';
     setToggle(toggleEl, estadoEl, localStorage.getItem('glow21_boton_compra') === 'true');
     setToggle(toggleEnVivoEl, estadoEnVivoEl, localStorage.getItem('glow21_session_live') === 'true');
-    actualizarStreamPreview();
+    actualizarZoomPreview();
   }
 
   function setToggle(toggle, estadoLabel, activo) {
@@ -475,22 +475,23 @@
   registrarToggle(toggleEnVivoEl, estadoEnVivoEl);
 
   async function guardar() {
-    const youtubeVideoId = parseYoutubeId(streamInviteEl.value.trim());
+    const { zoomId, zoomPassword } = parseZoomInvite(zoomInviteEl.value.trim());
     const sessionDatetime = datetimeLocalAIso(sessionDateTimeEl.value);
     const paymentLinkUrl = paymentLinkUrlEl.value.trim();
     const whatsappCommunityUrl = whatsappCommunityUrlEl.value.trim();
     const botonActivo = toggleEl.classList.contains('active');
     const enVivo = toggleEnVivoEl.classList.contains('active');
 
-    if (!youtubeVideoId) {
-      mostrarStatus('No pudimos encontrar el ID del video en ese texto. Pega el link completo de tu transmisión de YouTube.', 'error');
-      streamInviteEl.focus();
+    if (!zoomId) {
+      mostrarStatus('No pudimos encontrar el ID de la reunión en ese texto. Pega el enlace o la invitación completa de Zoom.', 'error');
+      zoomInviteEl.focus();
       return;
     }
 
     if (sb) {
       const { error } = await sb.from('glow21_settings').update({
-        youtube_video_id: youtubeVideoId,
+        zoom_id: zoomId,
+        zoom_password: zoomPassword,
         session_datetime: sessionDatetime,
         payment_link_url: paymentLinkUrl,
         whatsapp_community_url: whatsappCommunityUrl,
@@ -506,7 +507,8 @@
       }
     }
 
-    localStorage.setItem('glow21_youtube_video_id', youtubeVideoId);
+    localStorage.setItem('glow21_zoom_id', zoomId);
+    localStorage.setItem('glow21_zoom_password', zoomPassword);
     if (sessionDatetime) localStorage.setItem('glow21_session_datetime', sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
     localStorage.setItem('glow21_payment_link_url', paymentLinkUrl);

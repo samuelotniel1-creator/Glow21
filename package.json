@@ -1,7 +1,7 @@
 {
   "name": "glow21-landing",
   "version": "1.0.0",
-  "description": "Landing Glow21 Masterclass - Elegancia minimalista con transmisión en vivo por YouTube",
+  "description": "Landing Glow21 Masterclass - Elegancia minimalista con Zoom en vivo",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -12,7 +12,7 @@
     "glow21",
     "landing",
     "masterclass",
-    "youtube",
+    "zoom",
     "skincare"
   ],
   "author": "Tutifruti",

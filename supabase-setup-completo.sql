@@ -56,14 +56,6 @@ alter table public.glow21_settings
   add column if not exists payment_link_url text not null default '',
   add column if not exists whatsapp_community_url text not null default '';
 
--- La transmisión en vivo pasó de Zoom a YouTube (más simple para el público:
--- solo le dan play, sin tener que activar su propio audio/micrófono como en
--- una reunión de Zoom). Las columnas viejas "zoom_id"/"zoom_password" ya no
--- las usa ni la landing ni el admin — se dejan tal cual por si quieres
--- conservarlas, igual que "session_date" arriba.
-alter table public.glow21_settings
-  add column if not exists youtube_video_id text not null default '';
-
 -- Nota: la columna vieja "session_date" (texto libre) ya no se usa desde el
 -- admin ni la landing. Se deja tal cual por si quieres conservarla; puedes
 -- borrarla tú mismo más adelante con:
