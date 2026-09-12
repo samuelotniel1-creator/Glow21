@@ -439,8 +439,8 @@
   }
   .premium-msi-link:hover { color: var(--slate); border-color: var(--slate-12); }
 
-  /* ================= ZOOM (embebido, con opción de pantalla completa) ================= */
-  .zoom-container {
+  /* ================= STREAM (YouTube embebido, con opción de pantalla completa) ================= */
+  .stream-container {
     background: #fff;
     border: 1px solid var(--slate-08);
     border-radius: 10px;
@@ -448,25 +448,25 @@
     box-shadow: var(--shadow-card);
     max-width: 1200px; margin: 0 auto;
   }
-  .zoom-frame-shell { position: relative; }
-  .zoom-embed-wrapper {
+  .stream-frame-shell { position: relative; }
+  .stream-embed-wrapper {
     position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: min(78vh, 760px);
     overflow: hidden; border-radius: 6px; background: var(--slate);
   }
-  .zoom-embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
-  .zoom-embed-wrapper:fullscreen { aspect-ratio: unset; max-height: none; height: 100%; border-radius: 0; }
-  .zoom-embed-wrapper:-webkit-full-screen { aspect-ratio: unset; max-height: none; height: 100%; border-radius: 0; }
+  .stream-embed-wrapper iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+  .stream-embed-wrapper:fullscreen { aspect-ratio: unset; max-height: none; height: 100%; border-radius: 0; }
+  .stream-embed-wrapper:-webkit-full-screen { aspect-ratio: unset; max-height: none; height: 100%; border-radius: 0; }
 
-  .zoom-fullscreen-toggle {
+  .stream-fullscreen-toggle {
     position: absolute; top: 14px; right: 14px; z-index: 5;
     display: flex; align-items: center; justify-content: center;
     width: 38px; height: 38px; border-radius: 50%; border: none;
     background: rgba(44, 53, 57, 0.55); color: var(--pearl);
     cursor: pointer; transition: background 0.3s ease;
   }
-  .zoom-fullscreen-toggle:hover { background: rgba(44, 53, 57, 0.8); }
-  .zoom-fullscreen-toggle .icon { width: 18px; height: 18px; flex-shrink: 0; }
-  .zoom-fullscreen-label { display: none; }
+  .stream-fullscreen-toggle:hover { background: rgba(44, 53, 57, 0.8); }
+  .stream-fullscreen-toggle .icon { width: 18px; height: 18px; flex-shrink: 0; }
+  .stream-fullscreen-label { display: none; }
 
   /* ================= PILLARS ================= */
   .pillars {
@@ -662,23 +662,23 @@
     .footer-tagline { text-align: left; }
     .live-gate-card { padding: 40px 24px; }
     .cta-content { padding: 44px 26px 34px; }
-    .zoom-container { padding: 12px; }
-    .zoom-embed-wrapper {
+    .stream-container { padding: 12px; }
+    .stream-embed-wrapper {
       padding-bottom: 0;
       height: min(75vh, 620px);
       height: min(75dvh, 620px);
     }
-    .zoom-embed-wrapper:fullscreen, .zoom-embed-wrapper:-webkit-full-screen { height: 100%; }
-    .zoom-frame-shell { display: flex; flex-direction: column; gap: 10px; }
-    .zoom-fullscreen-toggle {
+    .stream-embed-wrapper:fullscreen, .stream-embed-wrapper:-webkit-full-screen { height: 100%; }
+    .stream-frame-shell { display: flex; flex-direction: column; gap: 10px; }
+    .stream-fullscreen-toggle {
       position: static; align-self: flex-end;
       width: auto; height: auto; border-radius: 8px;
       padding: 10px 16px;
       background: var(--slate); color: var(--pearl);
     }
-    .zoom-fullscreen-toggle:hover { background: var(--slate); }
-    .zoom-fullscreen-toggle .icon { width: 18px; height: 18px; }
-    .zoom-fullscreen-label { display: inline; font-size: 13px; font-weight: 600; margin-left: 8px; }
+    .stream-fullscreen-toggle:hover { background: var(--slate); }
+    .stream-fullscreen-toggle .icon { width: 18px; height: 18px; }
+    .stream-fullscreen-label { display: inline; font-size: 13px; font-weight: 600; margin-left: 8px; }
 
     .premium-content.expanded { max-width: min(460px, 94vw); }
     .premium-grid {
@@ -823,14 +823,14 @@
         </div>
       </div>
 
-      <div class="zoom-container reveal reveal-1" id="zoomStage" hidden>
-        <div class="zoom-frame-shell">
-          <div class="zoom-embed-wrapper" id="zoomEmbedWrapper">
-            <iframe id="zoomFrame" title="Transmisión en vivo Glow21" allow="camera; microphone; autoplay"></iframe>
+      <div class="stream-container reveal reveal-1" id="streamStage" hidden>
+        <div class="stream-frame-shell">
+          <div class="stream-embed-wrapper" id="streamEmbedWrapper">
+            <iframe id="streamFrame" title="Transmisión en vivo Glow21" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
           </div>
-          <button class="zoom-fullscreen-toggle" onclick="alternarPantallaCompleta()" aria-label="Pantalla completa" title="Pantalla completa">
+          <button class="stream-fullscreen-toggle" onclick="alternarPantallaCompleta()" aria-label="Pantalla completa" title="Pantalla completa">
             <span class="icon"><svg viewBox="0 0 24 24"><path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 1-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4"/></svg></span>
-            <span class="zoom-fullscreen-label">Pantalla completa</span>
+            <span class="stream-fullscreen-label">Pantalla completa</span>
           </button>
         </div>
       </div>
@@ -1132,8 +1132,7 @@
   // Arranca con lo último que este navegador vio (evita parpadeos) y se
   // actualiza en cuanto responde Supabase.
   const state = {
-    zoomId: localStorage.getItem('glow21_zoom_id') || '',
-    zoomPassword: localStorage.getItem('glow21_zoom_password') || '',
+    youtubeVideoId: localStorage.getItem('glow21_youtube_video_id') || '',
     sessionDatetime: localStorage.getItem('glow21_session_datetime') || '',
     paymentLinkUrl: localStorage.getItem('glow21_payment_link_url') || '',
     showPremiumButton: localStorage.getItem('glow21_boton_compra') === 'true',
@@ -1147,14 +1146,12 @@
       console.warn('Glow21: no se pudo leer la configuración de Supabase', error);
       return;
     }
-    state.zoomId = data.zoom_id || '';
-    state.zoomPassword = data.zoom_password || '';
+    state.youtubeVideoId = data.youtube_video_id || '';
     state.sessionDatetime = data.session_datetime || '';
     state.paymentLinkUrl = data.payment_link_url || '';
     state.showPremiumButton = !!data.show_premium_button;
     state.sessionLive = !!data.session_live;
-    localStorage.setItem('glow21_zoom_id', state.zoomId);
-    localStorage.setItem('glow21_zoom_password', state.zoomPassword);
+    localStorage.setItem('glow21_youtube_video_id', state.youtubeVideoId);
     if (state.sessionDatetime) localStorage.setItem('glow21_session_datetime', state.sessionDatetime);
     else localStorage.removeItem('glow21_session_datetime');
     localStorage.setItem('glow21_payment_link_url', state.paymentLinkUrl);
@@ -1163,7 +1160,7 @@
   }
 
   function actualizarGateEnVivo() {
-    const configurado = !!state.zoomId;
+    const configurado = !!state.youtubeVideoId;
     document.getElementById('liveGateReady').hidden = !configurado;
     document.getElementById('liveGateWaiting').hidden = configurado;
     if (configurado) {
@@ -1250,7 +1247,7 @@
       actualizarGateEnVivo();
       if (nextLive) {
         const registroPrevio = obtenerRegistro();
-        if (registroPrevio && state.zoomId) mostrarZoomInline(registroPrevio.nombre);
+        if (registroPrevio && state.youtubeVideoId) mostrarStreamInline();
       }
     }
 
@@ -1293,7 +1290,7 @@
   function irAFree() { window.open('https://www.skool.com/glow21-4957', '_blank', 'noopener'); }
   window.testModal = mostrarModal;
 
-  // ---------- REGISTRO (gate antes del Zoom) ----------
+  // ---------- REGISTRO (gate antes de la transmisión) ----------
   const REGISTRO_KEY = 'glow21_registro';
   const registroModal = document.getElementById('registroModal');
   const registroForm = document.getElementById('registroForm');
@@ -1321,7 +1318,7 @@
   function abrirRegistro() {
     const registro = obtenerRegistro();
     if (registro) {
-      if (state.sessionLive) mostrarZoomInline(registro.nombre);
+      if (state.sessionLive) mostrarStreamInline();
       return;
     }
     registroLastFocused = document.activeElement;
@@ -1379,7 +1376,7 @@
     localStorage.setItem(REGISTRO_KEY, JSON.stringify({ nombre, correo, telefono }));
     cerrarRegistro();
     registroForm.reset();
-    mostrarZoomInline(nombre);
+    mostrarStreamInline();
   });
 
   // ---------- PREMIUM (datos de envío, formulario aparte del de la masterclass) ----------
@@ -1510,27 +1507,22 @@
     if (datos) window.location.href = MERCADOPAGO_MSI_URL;
   });
 
-  // ---------- ZOOM (embebido en la sección, con botón de pantalla completa) ----------
-  function mostrarZoomInline(nombre, opciones) {
+  // ---------- STREAM (YouTube embebido en la sección, con botón de pantalla completa) ----------
+  function mostrarStreamInline(opciones) {
     const scroll = !opciones || opciones.scroll !== false;
-    if (!state.zoomId) {
+    if (!state.youtubeVideoId) {
       alert('La sesión en vivo aún no está configurada. Intenta más tarde.');
       return;
     }
-    const params = new URLSearchParams();
-    if (state.zoomPassword) params.set('pwd', state.zoomPassword);
-    if (nombre) params.set('uname', nombre);
-    const qs = params.toString();
-
-    document.getElementById('zoomFrame').src = `https://zoom.us/wc/join/${state.zoomId}${qs ? '?' + qs : ''}`;
+    document.getElementById('streamFrame').src = `https://www.youtube.com/embed/${state.youtubeVideoId}?autoplay=1&rel=0`;
     document.getElementById('liveGate').hidden = true;
-    const zoomStage = document.getElementById('zoomStage');
-    zoomStage.hidden = false;
-    if (scroll) zoomStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const streamStage = document.getElementById('streamStage');
+    streamStage.hidden = false;
+    if (scroll) streamStage.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function alternarPantallaCompleta() {
-    const el = document.getElementById('zoomEmbedWrapper');
+    const el = document.getElementById('streamEmbedWrapper');
     if (document.fullscreenElement) {
       document.exitFullscreen();
     } else if (el.requestFullscreen) {
@@ -1596,8 +1588,8 @@
     await cargarConfigInicial();
     actualizarGateEnVivo();
     const registroPrevio = obtenerRegistro();
-    if (registroPrevio && state.zoomId && state.sessionLive) {
-      mostrarZoomInline(registroPrevio.nombre, { scroll: false });
+    if (registroPrevio && state.youtubeVideoId && state.sessionLive) {
+      mostrarStreamInline({ scroll: false });
     }
     actualizarCountdown();
     aplicarVisibilidadBotonPremium();
