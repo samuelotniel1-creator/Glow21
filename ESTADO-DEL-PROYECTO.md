@@ -1,7 +1,7 @@
 # Estado del proyecto Glow21
 
 Referencia rápida de qué existe, cómo está conectado, y qué falta. Útil al
-retomar el proyecto en otra máquina o sesión. Última actualización: 2026-09-15.
+retomar el proyecto en otra máquina o sesión. Última actualización: 2026-11-06 (dominio propio).
 
 Para el panorama de negocio/producto (qué es la marca, la masterclass, la
 oferta, reglas como "no mencionar Glow21 en /preregistro") ver
@@ -73,14 +73,15 @@ Cada lead: toggle "Contactado", nota editable, botón de WhatsApp directo. Impor
 
 ## Correos
 
-No hay proveedor transaccional conectado (Resend/SendGrid/etc.) — Glow21 no
-tiene dominio propio todavía, solo el subdominio de Vercel, y eso afecta la
-entregabilidad. El flujo actual es semi-manual:
+No hay proveedor transaccional conectado (Resend/SendGrid/etc.). El dominio
+propio ya existe (`glow21.com.mx`, GoDaddy → Vercel; los MX siguen en GoDaddy)
+pero falta verificarlo en un servicio de envío (SPF/DKIM/DMARC), y Gmail
+afecta la entregabilidad. El flujo actual es semi-manual:
 
 1. En `/crm` → pestaña Correos: eliges destinatarios (Interesados, Registrados, o CSV subido), escribes la plantilla, la agregas a la cola (`glow21_email_queue`, estado `pendiente`).
 2. Un asistente de Claude Code, con el conector de Gmail de `somosglow21@gmail.com` autorizado, procesa la cola cuando se le pide: manda cada correo (convirtiendo links en botones HTML) y marca la fila como `enviado`.
 
-Limitación conocida: sin dominio propio, riesgo de spam/avisos de "redirección sospechosa" en links, y no hay tracking de aperturas/clics.
+Limitación conocida: al enviar desde Gmail y no desde el dominio, riesgo de spam/avisos de "redirección sospechosa" en links, y no hay tracking de aperturas/clics.
 
 ## Base de datos (Supabase)
 
@@ -123,7 +124,7 @@ fue lo que desbloqueó configurar el "Evento de conversión" en Ads Manager.
 
 1. Decidir si quitar la mención de "Glow21" del footer de `/preregistro` (sigue ahí, el resto de la página ya no menciona la marca).
 2. Housekeeping menor, no urgente: archivos sueltos en la raíz sin usar por el sitio (`Aranza Circulo.png`, `Aranza Malagon.png`, `glow21-landing-*`) — no tocar salvo que se pida.
-3. Sistema de correo real (Resend/SendGrid) — requiere dominio propio verificado primero; hoy el envío es semi-manual vía CRM + Gmail (ver "Correos").
+3. Sistema de correo real (Resend/SendGrid) — el dominio `glow21.com.mx` ya existe, falta verificarlo en el servicio; hoy el envío es semi-manual vía CRM + Gmail (ver "Correos").
 4. El link de Mercado Pago está hardcodeado en el JS — si se quiere editable sin tocar código, habría que agregarlo a `glow21_settings` como se hizo con el de Stripe.
 5. No hay webhook de Mercado Pago — los pagos a meses no actualizan el estado `pagado` en el CRM automáticamente, hay que verificarlos a mano en el dashboard de Mercado Pago si se necesita saber quién pagó por esa vía.
 
