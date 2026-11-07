@@ -13,7 +13,8 @@ cómo está conectado, y los pendientes.
 - `public/index.html` — landing pública completa, marca Glow21 (`www.glow21.com.mx`)
 - `public/preregistro.html` — landing corta de preregistro para la pauta paga (`/preregistro`) — **no menciona "Glow21"** en el copy visible (ver `GLOW21-CONTEXTO.md`)
 - `public/programa.html` — landing `/programa` que lleva a pedir una cita con un especialista (guarda el lead con `origen = 'cita'` vía `/api/registro`, acción `cita`)
-- `public/contenido.html` — banco de contenido interno `/contenido` (tablero Kanban de 30 días de ideas y guiones, con las poses de Aura por escena; el avance se guarda solo en el navegador de quien lo usa, `noindex`)
+- `public/contenido.html` — banco de contenido interno `/contenido` (tablero Kanban de 30 días, con las poses de Aura por escena). Los guiones invitan a **seguir la cuenta** (no a masterclass ni cita, por ahora). Sin sesión es de solo lectura (etapas en el navegador); con sesión de Supabase (mismo correo/contraseña de /admin y /crm) lee y escribe la tabla `glow21_contenido`: editar guiones, crear contenido nuevo, mover etapas y borrar, compartido con todo el equipo.
+- `supabase-contenido.sql` — crea la tabla `glow21_contenido` (RLS solo para usuarios con sesión). Hay que ejecutarlo una vez en Supabase → SQL Editor.
 - `public/assets/aura/` — Aura (asistente virtual): `aura-hero.webp` y `pose-01..20.webp` recortadas de la hoja de poses (miniaturas de ~250 px, no aptas para exportar video; para video usar `Glow21 - recursos/Aura poses.png`)
 - `ASISTENTE-AURA-CONTEXTO.md` — base de conocimiento completa para entrenar a Aura
 - `admin/` — panel de control (`/admin`), requiere login

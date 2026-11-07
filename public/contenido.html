@@ -208,6 +208,37 @@
     .board{grid-template-columns:repeat(5,82vw)}
     .bar-right .progress{display:none}
   }
+
+  /* ===== Base de datos y editor ===== */
+  .dbbar{margin:10px 0 0;font-size:13px;color:var(--slate-70);background:#fff;border:1px solid var(--slate-08);border-radius:8px;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .dbbar.ok{background:#eef5ec;border-color:#cfe0c9}
+  .dbbar .btn{padding:7px 12px}
+  .btn.small:disabled,.btn:disabled{opacity:.5;cursor:default;transform:none;box-shadow:none}
+  dialog.edit{max-width:min(900px,95vw)}
+  .edit form{display:flex;flex-direction:column;max-height:92vh}
+  .edit .dlg-head{grid-template-columns:1fr auto}
+  .edit .dlg-body{max-height:none;flex:1}
+  .fgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+  .fld{display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-55)}
+  .fld.full{grid-column:1/-1}
+  .fld input,.fld textarea,.fld select,.srow input,.srow textarea{font:inherit;font-size:14.5px;font-weight:400;letter-spacing:0;text-transform:none;color:var(--slate);padding:9px 12px;border:1px solid var(--slate-12);border-radius:6px;background:#fff;width:100%}
+  .fld textarea,.srow textarea{resize:vertical;min-height:44px}
+  .fld input:focus,.fld textarea:focus,.fld select:focus,.srow input:focus,.srow textarea:focus{outline:none;border-color:var(--copper);box-shadow:0 0 0 3px rgba(185,131,95,.18)}
+  .srow{display:grid;grid-template-columns:150px 1fr 1fr 78px;gap:8px;padding:12px;margin-bottom:10px;background:#fff;border:1px solid var(--slate-08);border-radius:8px;align-items:start}
+  .srow .s-txt{grid-column:1/4}
+  .srow .sel{width:100%;border-radius:6px}
+  .s-btns{display:flex;gap:4px;justify-content:flex-end}
+  .s-btns button{width:34px;height:34px;border:1px solid var(--slate-12);background:#fff;border-radius:6px;font-size:15px}
+  .login-box{padding:26px;display:flex;flex-direction:column;gap:14px;min-width:min(380px,86vw)}
+  .login-box h2{font-size:24px}
+  .login-err{font-size:13px;color:#a33a3a}
+  .btn.danger{border-color:#a33a3a;color:#a33a3a;background:transparent}
+  @media (max-width:860px){
+    .fgrid{grid-template-columns:1fr 1fr}
+    .srow{grid-template-columns:1fr 1fr}
+    .srow .s-txt{grid-column:1/-1}
+    .srow .s-btns{grid-column:1/-1;justify-content:flex-start}
+  }
 </style>
 </head>
 <body>
@@ -232,9 +263,11 @@
       <select class="sel" id="selPilar" aria-label="Categoría"></select>
       <div class="seg" role="group" aria-label="Vista"><button type="button" data-view="board" aria-pressed="true">Tablero</button><button type="button" data-view="list" aria-pressed="false">Lista</button></div>
       <span class="spacer"></span>
+      <button class="btn small" id="btnNew" type="button" hidden>+ Nuevo contenido</button>
       <a class="btn ghost small" href="#poses">Poses de Aura</a>
       <button class="btn ghost small" id="btnMd" type="button">Descargar .md</button>
     </div>
+    <div class="dbbar" id="dbBar"></div>
     <p class="legend"><b>Tipo A:</b> se arma con Aura y texto, sin grabarte · <b>B:</b> necesita fotos del producto o capturas de pantalla · <b>C:</b> necesita a Aranza (o a alguien) grabando. Arrastra una tarjeta para cambiar su etapa; toca una para ver el guion y las poses de Aura por escena.</p>
   </div>
 </div>
@@ -258,7 +291,7 @@
     <div class="rules-grid">
       <div class="rule-card yes"><h3>Sí</h3><ul>
         <li>Hablar de hábitos, constancia y mejoría percibida.</li>
-        <li>Educar primero; la invitación va al final y sin prisa.</li>
+        <li>Educar primero; al final, invita a seguir la cuenta para más tips.</li>
         <li>Presentar Luminovation como herramienta dentro del método.</li>
         <li>Recomendar a un dermatólogo ante cualquier condición médica.</li>
         <li>Cerrar con cercanía: “Nunca es tarde para cuidarte”.</li>
@@ -292,11 +325,52 @@
   </div>
   <div class="dlg-foot">
     <div class="grp"><button class="btn ghost small" id="prev" type="button">← Anterior</button><button class="btn ghost small" id="next" type="button">Siguiente →</button></div>
-    <label class="toggle">Etapa <select class="sel" id="dEtapa"></select></label>
+    <div class="grp"><button class="btn small" id="dEdit" type="button" hidden>Editar</button><label class="toggle">Etapa <select class="sel" id="dEtapa"></select></label></div>
   </div>
+</dialog>
+<dialog id="dlgE" class="edit" aria-labelledby="eHead">
+  <form id="fEdit">
+    <div class="dlg-head"><h2 id="eHead">Editar</h2><button class="x" id="eClose" type="button" aria-label="Cerrar">×</button></div>
+    <div class="dlg-body">
+      <div class="fgrid">
+        <label class="fld full">Título<input id="eTitulo" type="text" required></label>
+        <label class="fld full">Gancho (la primera frase)<input id="eGancho" type="text"></label>
+        <label class="fld">Número de día (opcional)<input id="eNum" type="number" min="1" step="1"></label>
+        <label class="fld">Pilar<select id="ePilar"></select></label>
+        <label class="fld">Formato<select id="eFormato"></select></label>
+        <label class="fld">Objetivo<select id="eObj"></select></label>
+        <label class="fld">Tipo de producción<select id="eTipo"></select></label>
+        <label class="fld">Etapa<select id="eEtapa"></select></label>
+        <label class="fld">Pose principal de Aura<select id="ePose"></select></label>
+        <label class="fld full">Destino del llamado a la acción<select id="eDest"></select></label>
+      </div>
+      <div class="blk"><h4><span>Escenas / slides</span><button class="btn ghost small" id="eAddScene" type="button">+ Agregar escena</button></h4><div id="eScenes"></div></div>
+      <div class="fgrid">
+        <label class="fld full">Caption<textarea id="eCap" rows="3"></textarea></label>
+        <label class="fld full">Llamado a la acción<input id="eCta" type="text"></label>
+        <label class="fld full">Hashtags<input id="eTags" type="text"></label>
+        <label class="fld full">Nota «antes de publicar» (opcional)<textarea id="eNota" rows="2"></textarea></label>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button class="btn danger small" id="eDel" type="button" hidden>Eliminar</button>
+      <div class="grp"><button class="btn ghost small" id="eCancel" type="button">Cancelar</button><button class="btn small" id="eSave" type="submit">Guardar</button></div>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgL" aria-labelledby="lH">
+  <form id="fLogin" class="login-box">
+    <h2 id="lH">Entrar para editar</h2>
+    <label class="fld">Correo<input id="lMail" type="text" autocomplete="username" required></label>
+    <label class="fld">Contraseña<input id="lPass" type="password" autocomplete="current-password" required></label>
+    <p class="login-err" id="lErr" hidden></p>
+    <div class="grp" style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost small" id="lCancel" type="button">Cancelar</button><button class="btn small" id="lGo" type="submit">Entrar</button></div>
+  </form>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
 
@@ -348,308 +422,358 @@
 
   /* Tipos de escena: g gancho · p problema · e enseñanza · c cierre · s slide/historia */
   var POSE_TIPO = { p: 3, e: 11 };
-  function poseCierre(dest) { return dest === "cita" ? 1 : dest === "comunidad" ? 8 : dest === "interaccion" ? 18 : 10; }
+  function poseCierre(dest) { return dest === "cita" || dest === "seguir" ? 1 : dest === "comunidad" ? 8 : dest === "interaccion" ? 18 : 10; }
 
   /* [tipo, etiqueta, texto, (pose opcional)] */
   var D = [
-    { d:1, s:0, p:"educacion", f:"Reel", o:"Atraer", pose:18, dest:"masterclass",
+    { d:1, s:0, p:"educacion", f:"Reel", o:"Atraer", pose:18, dest:"seguir",
       t:"Tu piel habla antes que tú", g:"Antes de que digas una sola palabra, tu piel ya habló.",
-      partes:[["g","0–3 s · Gancho","Antes de que digas una sola palabra, tu piel ya habló."],
-              ["p","3–12 s · Idea","Cómo duermes, cómo comes, cuánto estrés cargas… todo se nota. No es vanidad: es información."],
-              ["e","12–28 s · Enseñanza","El problema es que casi a nadie le enseñaron a escucharla. Nos dijeron qué comprar, pero no cómo funciona."],
-              ["c","28–38 s · Cierre","Por eso preparé una masterclass gratuita para aprender a leer tu piel. Reserva tu lugar, link en mi bio."]],
-      cap:"Tu piel habla antes que tú 🤍\nAprender a escucharla cambia la forma en que te cuidas. Reserva tu lugar en la masterclass gratuita (link en bio).",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", tags:"#Glow21 #TuPielHablaAntesQueTú #CuidaTuPiel #PielSana #SkincareConsciente" },
+      partes:[
+        ["g","0–3 s · Gancho","Antes de que digas una sola palabra, tu piel ya habló."],
+        ["p","3–12 s · Idea","Cómo duermes, cómo comes, cuánto estrés cargas… todo se nota. No es vanidad: es información."],
+        ["e","12–28 s · Enseñanza","El problema es que casi a nadie le enseñaron a escucharla. Nos dijeron qué comprar, pero no cómo funciona."],
+        ["c","28–38 s · Cierre","Por eso aquí comparto tips para aprender a leer tu piel. Sígueme para no perdértelos."]],
+      cap:"Tu piel habla antes que tú 🤍\nAprender a escucharla cambia la forma en que te cuidas. Sígueme para más tips de skincare consciente.",
+      cta:"Sígueme para aprender a leer tu piel.",
+      tags:"#Glow21 #TuPielHablaAntesQueTú #CuidaTuPiel #PielSana #SkincareConsciente" },
 
-    { d:2, s:0, p:"educacion", f:"Carrusel", o:"Educar", pose:11, dest:"interaccion",
+    { d:2, s:0, p:"educacion", f:"Carrusel", o:"Educar", pose:11, dest:"seguir",
       t:"Las 3 capas de tu piel, explicadas fácil", g:"Tu piel tiene 3 capas. ¿Sabes qué hace cada una?",
-      partes:[["g","Portada","Tu piel tiene 3 capas. ¿Sabes qué hace cada una?"],
-              ["s","Slide 2 · Epidermis","La capa que ves y tocas. Es tu primera barrera: protege y ayuda a retener la hidratación."],
-              ["s","Slide 3 · Dermis","Aquí viven el colágeno y la elastina, que aportan firmeza y elasticidad."],
-              ["s","Slide 4 · Hipodermis","La capa más profunda: amortigua y ayuda a regular la temperatura."],
-              ["s","Slide 5 · Idea clave","Cuidar tu piel no es solo lo de afuera: todo está conectado."],
-              ["c","Slide 6 · Cierre","Guarda este carrusel y compártelo con alguien que quiera entender su piel."]],
-      cap:"Entender tu piel es el primer paso para cuidarla bien. Guarda este carrusel 🤍\n¿Qué capa te sorprendió más?",
-      cta:"Guarda y comparte con alguien que quiera entender su piel.", tags:"#Glow21 #AnatomiaDeLaPiel #CuidaTuPiel #EducacionSkincare #PielSana" },
+      partes:[
+        ["g","Portada","Tu piel tiene 3 capas. ¿Sabes qué hace cada una?"],
+        ["s","Slide 2 · Epidermis","La capa que ves y tocas. Es tu primera barrera: protege y ayuda a retener la hidratación."],
+        ["s","Slide 3 · Dermis","Aquí viven el colágeno y la elastina, que aportan firmeza y elasticidad."],
+        ["s","Slide 4 · Hipodermis","La capa más profunda: amortigua y ayuda a regular la temperatura."],
+        ["s","Slide 5 · Idea clave","Cuidar tu piel no es solo lo de afuera: todo está conectado."],
+        ["c","Slide 6 · Cierre","Guarda este carrusel y compártelo con alguien que quiera entender su piel. Y sígueme para más tips."]],
+      cap:"Entender tu piel es el primer paso para cuidarla bien. Guarda este carrusel 🤍\n¿Qué capa te sorprendió más?\nSígueme para más tips de skincare 🤍",
+      cta:"Guarda y comparte con alguien que quiera entender su piel y sígueme para más tips.",
+      tags:"#Glow21 #AnatomiaDeLaPiel #CuidaTuPiel #EducacionSkincare #PielSana" },
 
-    { d:3, s:0, p:"rutina", f:"Reel", o:"Educar", pose:4, dest:"masterclass",
+    { d:3, s:0, p:"rutina", f:"Reel", o:"Educar", pose:4, dest:"seguir",
       t:"Mito: “piel grasa no necesita hidratante”", g:"Si tu piel es grasa, no te saltes este paso.",
-      partes:[["g","0–3 s · Gancho","Si tu piel es grasa, no te saltes este paso.",4],
-              ["p","3–12 s · El mito","Mito: “si brilla, no necesita hidratación”. Pero piel grasa no es lo mismo que piel hidratada.",4],
-              ["e","12–28 s · La verdad","Una piel grasa también puede estar deshidratada. Si la resecas de más, puede responder con más grasa. La clave: limpieza adecuada, hidratación ligera y protector solar.",11],
-              ["c","28–38 s · Cierre","Equilibrio, no guerra contra tu piel. ¿Quieres saber qué tipo de piel tienes? Haz el test rápido, link en bio.",10]],
-      cap:"Piel grasa ≠ piel hidratada. Equilibrio, no guerra contra tu piel 🌸\nDescubre tu tipo de piel con el test rápido (link en bio).",
-      cta:"Haz el test rápido de tipo de piel: link en bio.", tags:"#Glow21 #PielGrasa #Hidratacion #MitosDelSkincare #CuidaTuPiel" },
+      partes:[
+        ["g","0–3 s · Gancho","Si tu piel es grasa, no te saltes este paso.",4],
+        ["p","3–12 s · El mito","Mito: “si brilla, no necesita hidratación”. Pero piel grasa no es lo mismo que piel hidratada.",4],
+        ["e","12–28 s · La verdad","Una piel grasa también puede estar deshidratada. Si la resecas de más, puede responder con más grasa. La clave: limpieza adecuada, hidratación ligera y protector solar.",11],
+        ["c","28–38 s · Cierre","Equilibrio, no guerra contra tu piel. Sígueme y te desmiento más mitos del skincare.",1]],
+      cap:"Piel grasa ≠ piel hidratada. Equilibrio, no guerra contra tu piel 🌸\nSígueme para más mitos y verdades del skincare.",
+      cta:"Sígueme para más mitos y verdades del skincare.",
+      tags:"#Glow21 #PielGrasa #Hidratacion #MitosDelSkincare #CuidaTuPiel" },
 
-    { d:4, s:0, p:"comunidad", f:"Reel", o:"Conectar", pose:14, dest:"interaccion", aranza:true,
+    { d:4, s:0, p:"comunidad", f:"Reel", o:"Conectar", pose:14, dest:"seguir", aranza:true,
       t:"La niña frente al espejo", g:"A los 11 años me miré al espejo y sentí que nadie podía responder mis preguntas.",
-      partes:[["g","0–3 s · Gancho","A los 11 años me miré al espejo y sentí que nadie podía responder mis preguntas."],
-              ["p","3–15 s · La historia","Tuve acné severo durante años. Probé dermatólogos y tratamientos: mejoras temporales y recaídas que dolían más."],
-              ["e","15–30 s · El giro","Entendí algo: nunca me faltó “la crema correcta”. Me faltó que alguien me enseñara cómo funciona mi piel."],
-              ["c","30–45 s · Cierre","Hoy no tengo una piel perfecta ni quiero vender esa idea. Lo que cambió fue mi forma de mirarme al espejo. Por eso existe Glow21."]],
-      cap:"Glow21 nació frente a un espejo 🤍\nSi alguna vez sentiste que nadie respondía tus preguntas sobre tu piel, este espacio es para ti. Cuéntame en comentarios: ¿qué es lo primero que piensas al mirarte?",
-      cta:"Comenta “ESPEJO” si te identificas.", nota:"Graba Aranza a cámara, sin filtros. No presentes las cicatrices como algo que “arruinó” su vida: despertaron su misión. No digas que algún producto o rutina las eliminó.",
+      partes:[
+        ["g","0–3 s · Gancho","A los 11 años me miré al espejo y sentí que nadie podía responder mis preguntas."],
+        ["p","3–15 s · La historia","Tuve acné severo durante años. Probé dermatólogos y tratamientos: mejoras temporales y recaídas que dolían más."],
+        ["e","15–30 s · El giro","Entendí algo: nunca me faltó “la crema correcta”. Me faltó que alguien me enseñara cómo funciona mi piel."],
+        ["c","30–45 s · Cierre","Hoy no tengo una piel perfecta ni quiero vender esa idea. Lo que cambió fue mi forma de mirarme al espejo. Por eso existe Glow21. Y sígueme para más tips."]],
+      cap:"Glow21 nació frente a un espejo 🤍\nSi alguna vez sentiste que nadie respondía tus preguntas sobre tu piel, este espacio es para ti. Cuéntame en comentarios: ¿qué es lo primero que piensas al mirarte?\nSígueme para más tips de skincare 🤍",
+      cta:"Comenta “ESPEJO” si te identificas y sígueme para más tips.", nota:"Graba Aranza a cámara, sin filtros. No presentes las cicatrices como algo que “arruinó” su vida: despertaron su misión. No digas que algún producto o rutina las eliminó.",
       tags:"#Glow21 #AutoestimaYPiel #HistoriaReal #AmorPropio #NuncaEsTardeParaCuidarte" },
 
-    { d:5, s:0, p:"educacion", f:"Carrusel", o:"Atraer", pose:10, dest:"masterclass",
-      t:"Descubre tu tipo de piel en 1 minuto", g:"¿Qué tipo de piel tienes? Contesta 5 preguntas.",
-      partes:[["g","Portada","¿Qué tipo de piel tienes? Contesta 5 preguntas y descúbrelo en 1 minuto."],
-              ["s","Slide 2 · Pregunta 1","Después de lavar tu rostro sin productos, ¿cómo se siente? A) Cómoda y equilibrada · B) Tirante o seca · C) Cómoda en mejillas y grasa en zona T · D) Grasa en todo el rostro."],
-              ["s","Slide 3 · Pregunta 2","¿Dónde ves brillo durante el día? A) Casi ninguno · B) Ninguno, algo seca · C) Frente, nariz y barbilla · D) En todo el rostro."],
-              ["s","Slide 4 · Resultado","Mayoría A: normal · B: seca · C: mixta · D: grasa."],
-              ["s","Slide 5 · Aclaración","Tu piel puede tener tipo + estado (por ejemplo, mixta y deshidratada). Este test no sustituye una valoración dermatológica."],
-              ["c","Slide 6 · Cierre","Haz el test completo de 5 preguntas: link en bio.",10]],
-      cap:"¿Normal, seca, mixta o grasa? Descúbrelo en 1 minuto 🌿\nHaz el test completo en el link de mi bio.",
-      cta:"Haz el test completo: link en bio.", tags:"#Glow21 #TipoDePiel #TestDePiel #SkincareConsciente #CuidaTuPiel" },
+    { d:5, s:0, p:"educacion", f:"Carrusel", o:"Atraer", pose:10, dest:"seguir",
+      t:"Descubre tu tipo de piel en 1 minuto", g:"¿Qué tipo de piel tienes? Contesta 2 preguntas.",
+      partes:[
+        ["g","Portada","¿Qué tipo de piel tienes? Contesta 2 preguntas y descúbrelo en 1 minuto."],
+        ["s","Slide 2 · Pregunta 1","Después de lavar tu rostro sin productos, ¿cómo se siente? A) Cómoda y equilibrada · B) Tirante o seca · C) Cómoda en mejillas y grasa en zona T · D) Grasa en todo el rostro."],
+        ["s","Slide 3 · Pregunta 2","¿Dónde ves brillo durante el día? A) Casi ninguno · B) Ninguno, algo seca · C) Frente, nariz y barbilla · D) En todo el rostro."],
+        ["s","Slide 4 · Resultado","Mayoría A: normal · B: seca · C: mixta · D: grasa."],
+        ["s","Slide 5 · Aclaración","Tu piel puede tener tipo + estado (por ejemplo, mixta y deshidratada). Este test no sustituye una valoración dermatológica."],
+        ["c","Slide 6 · Cierre","Guarda este carrusel y sígueme: la próxima te enseño a cuidar cada tipo de piel.",1]],
+      cap:"¿Normal, seca, mixta o grasa? Descúbrelo en 1 minuto 🌿\nGuárdalo y sígueme para aprender a cuidar tu tipo de piel.",
+      cta:"Guarda este carrusel y sígueme para más tips.",
+      tags:"#Glow21 #TipoDePiel #TestDePiel #SkincareConsciente #CuidaTuPiel" },
 
-    { d:6, s:0, p:"educacion", f:"Reel", o:"Educar", pose:3, dest:"interaccion",
+    { d:6, s:0, p:"educacion", f:"Reel", o:"Educar", pose:3, dest:"seguir",
       t:"Piel seca ≠ piel deshidratada", g:"Seca y deshidratada no son lo mismo.",
-      partes:[["g","0–3 s · Gancho","Seca y deshidratada no son lo mismo.",4],
-              ["p","3–12 s · La diferencia","La piel seca es un tipo de piel: produce poca grasa. La deshidratación es un estado: le falta agua, y le puede pasar a cualquier tipo de piel.",3],
-              ["e","12–28 s · Cómo notarlo","Por eso una piel grasa puede estar deshidratada. Señales: se siente tirante, se ve opaca o sin confort.",11],
-              ["c","28–38 s · Cierre","Antes de comprar algo más, aprende a reconocer cuál es tu caso. Guarda este video para tenerlo a la mano.",13]],
-      cap:"Tipo de piel y estado de la piel son cosas distintas 💧\nGuárdalo para cuando lo necesites. ¿Tu piel está seca o deshidratada?",
-      cta:"Guarda este video y cuéntame en comentarios cuál es tu caso.", tags:"#Glow21 #PielSeca #PielDeshidratada #Hidratacion #CuidaTuPiel" },
+      partes:[
+        ["g","0–3 s · Gancho","Seca y deshidratada no son lo mismo.",4],
+        ["p","3–12 s · La diferencia","La piel seca es un tipo de piel: produce poca grasa. La deshidratación es un estado: le falta agua, y le puede pasar a cualquier tipo de piel.",3],
+        ["e","12–28 s · Cómo notarlo","Por eso una piel grasa puede estar deshidratada. Señales: se siente tirante, se ve opaca o sin confort.",11],
+        ["c","28–38 s · Cierre","Antes de comprar algo más, aprende a reconocer cuál es tu caso. Guarda este video para tenerlo a la mano. Y sígueme para más tips.",13]],
+      cap:"Tipo de piel y estado de la piel son cosas distintas 💧\nGuárdalo para cuando lo necesites. ¿Tu piel está seca o deshidratada?\nSígueme para más tips de skincare 🤍",
+      cta:"Guarda este video y cuéntame en comentarios cuál es tu caso y sígueme para más tips.",
+      tags:"#Glow21 #PielSeca #PielDeshidratada #Hidratacion #CuidaTuPiel" },
 
-    { d:7, s:0, p:"educacion", f:"Reel", o:"Convertir", conv:true, pose:1, dest:"masterclass",
+    { d:7, s:0, p:"educacion", f:"Reel", o:"Atraer", pose:1, dest:"seguir",
       t:"Nadie te enseñó cómo funciona tu piel", g:"Probaste de todo… ¿y nadie te explicó cómo funciona tu piel?",
-      partes:[["g","0–3 s · Gancho","Probaste de todo… ¿y nadie te explicó cómo funciona tu piel?",3],
-              ["p","3–12 s · Problema","Cremas, sérums, tendencias. Y sigues sin saber qué necesita tu piel.",15],
-              ["e","12–28 s · Solución","En mi masterclass gratuita “Tu piel habla antes que tú” vemos la anatomía de la piel, los enemigos invisibles y la cosmética coreana, en lenguaje sencillo.",11],
-              ["c","28–38 s · Cierre","Sin tecnicismos y sin presión. Reserva tu lugar, link en bio.",1]],
-      cap:"Nadie nos enseñó cómo funciona la piel. Eso cambia en la masterclass gratuita 🤍\nReserva tu lugar en el link de mi bio.",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", nota:"Antes de publicar, confirma la fecha vigente de la próxima sesión en /admin. No pongas una fecha que no esté confirmada.",
-      tags:"#Glow21 #MasterclassGratuita #TuPielHablaAntesQueTú #CuidaTuPiel #EducacionSkincare" },
+      partes:[
+        ["g","0–3 s · Gancho","Probaste de todo… ¿y nadie te explicó cómo funciona tu piel?",3],
+        ["p","3–12 s · Problema","Cremas, sérums, tendencias. Y sigues sin saber qué necesita tu piel.",15],
+        ["e","12–28 s · Solución","Aquí vas a aprender cómo funciona: la anatomía de la piel, los enemigos invisibles y la cosmética coreana, en lenguaje sencillo.",11],
+        ["c","28–38 s · Cierre","Sin tecnicismos y sin presión. Sígueme y aprendemos juntas.",1]],
+      cap:"Nadie nos enseñó cómo funciona la piel. Aquí lo aprendemos juntas 🤍\nSígueme para más tips de skincare consciente.",
+      cta:"Sígueme para aprender cómo funciona tu piel.",
+      tags:"#Glow21 #TipsDeSkincare #TuPielHablaAntesQueTú #CuidaTuPiel #EducacionSkincare" },
 
-    { d:8, s:1, p:"rutina", f:"Carrusel", o:"Educar", pose:11, dest:"interaccion",
+    { d:8, s:1, p:"rutina", f:"Carrusel", o:"Educar", pose:11, dest:"seguir",
       t:"La rutina coreana en 4 pasos (sin 12 productos)", g:"Cuatro pasos con propósito. Eso es todo.",
-      partes:[["g","Portada","La rutina coreana en 4 pasos, sin 12 productos."],
-              ["s","Slide 2 · Limpiar","Retira el día sin agredir tu barrera cutánea."],
-              ["s","Slide 3 · Equilibrar","Prepara tu piel y devuélvele el equilibrio con un tónico o esencia."],
-              ["s","Slide 4 · Nutrir","Hidrata y aporta confort con tu crema o loción."],
-              ["s","Slide 5 · Proteger","De día, protector solar. De noche, sella la hidratación."],
-              ["c","Slide 6 · Cierre","Guarda tu rutina y revisa hoy: ¿cuál de los 4 pasos te falta?"]],
-      cap:"No existen productos milagro. Existe un sistema 🌿\nLimpiar → Equilibrar → Nutrir → Proteger. ¿Cuál paso te falta?",
-      cta:"Guarda tu rutina y cuéntame qué paso te falta.", tags:"#Glow21 #RutinaCoreana #KBeauty #RutinaInteligente #CuidaTuPiel" },
+      partes:[
+        ["g","Portada","La rutina coreana en 4 pasos, sin 12 productos."],
+        ["s","Slide 2 · Limpiar","Retira el día sin agredir tu barrera cutánea."],
+        ["s","Slide 3 · Equilibrar","Prepara tu piel y devuélvele el equilibrio con un tónico o esencia."],
+        ["s","Slide 4 · Nutrir","Hidrata y aporta confort con tu crema o loción."],
+        ["s","Slide 5 · Proteger","De día, protector solar. De noche, sella la hidratación."],
+        ["c","Slide 6 · Cierre","Guarda tu rutina y revisa hoy: ¿cuál de los 4 pasos te falta? Y sígueme para más tips."]],
+      cap:"No existen productos milagro. Existe un sistema 🌿\nLimpiar → Equilibrar → Nutrir → Proteger. ¿Cuál paso te falta?\nSígueme para más tips de skincare 🤍",
+      cta:"Guarda tu rutina y cuéntame qué paso te falta y sígueme para más tips.",
+      tags:"#Glow21 #RutinaCoreana #KBeauty #RutinaInteligente #CuidaTuPiel" },
 
-    { d:9, s:1, p:"rutina", f:"Reel", o:"Educar", pose:15, dest:"interaccion",
+    { d:9, s:1, p:"rutina", f:"Reel", o:"Educar", pose:15, dest:"seguir",
       t:"El error número 1: limpiar de más", g:"Si tu piel se siente “chirriante de limpia”, ya te pasaste.",
-      partes:[["g","0–3 s · Gancho","Si tu piel se siente “chirriante de limpia”, ya te pasaste.",15],
-              ["p","3–12 s · El error","Esa tirantez no es limpieza profunda. Es tu barrera cutánea pidiendo ayuda.",3],
-              ["e","12–28 s · Qué hacer","Limpia con suavidad, mañana y noche. Sin tallar, con agua tibia y productos que respeten tu piel.",11],
-              ["c","28–38 s · Cierre","Más limpieza no es más salud. Comenta “SUAVE” si te pasaba, porque a muchas nos pasa.",18]],
-      cap:"Más limpieza no es más salud 🫧\nSi tu piel se siente tirante después de lavarla, hay que ajustar. Comenta SUAVE si te pasaba.",
-      cta:"Comenta “SUAVE” si te pasaba.", tags:"#Glow21 #BarreraCutanea #LimpiezaFacial #ErroresDeSkincare #CuidaTuPiel" },
+      partes:[
+        ["g","0–3 s · Gancho","Si tu piel se siente “chirriante de limpia”, ya te pasaste.",15],
+        ["p","3–12 s · El error","Esa tirantez no es limpieza profunda. Es tu barrera cutánea pidiendo ayuda.",3],
+        ["e","12–28 s · Qué hacer","Limpia con suavidad, mañana y noche. Sin tallar, con agua tibia y productos que respeten tu piel.",11],
+        ["c","28–38 s · Cierre","Más limpieza no es más salud. Comenta “SUAVE” si te pasaba, porque a muchas nos pasa. Y sígueme para más tips.",18]],
+      cap:"Más limpieza no es más salud 🫧\nSi tu piel se siente tirante después de lavarla, hay que ajustar. Comenta SUAVE si te pasaba.\nSígueme para más tips de skincare 🤍",
+      cta:"Comenta “SUAVE” si te pasaba y sígueme para más tips.",
+      tags:"#Glow21 #BarreraCutanea #LimpiezaFacial #ErroresDeSkincare #CuidaTuPiel" },
 
-    { d:10, s:1, p:"rutina", f:"Reel", o:"Educar", pose:10, dest:"interaccion",
+    { d:10, s:1, p:"rutina", f:"Reel", o:"Educar", pose:10, dest:"seguir",
       t:"El paso que no se negocia: protector solar", g:"Si solo vas a hacer una cosa por tu piel, que sea esta.",
-      partes:[["g","0–3 s · Gancho","Si solo vas a hacer una cosa por tu piel, que sea esta.",10],
-              ["p","3–12 s · Por qué","Los rayos UV son de los enemigos invisibles más constantes: también cuando está nublado.",15],
-              ["e","12–28 s · Cómo","Protector solar todos los días, en cantidad suficiente, y reaplicando si vas a estar al aire libre.",11],
-              ["c","28–38 s · Cierre","No es un paso opcional: es la base de cualquier rutina. ¿Ya lo usaste hoy? Cuéntame 👇",9]],
-      cap:"Si solo pudieras elegir un paso, que sea el protector solar ☀️\n¿Ya lo usaste hoy?",
-      cta:"Cuéntame en comentarios si ya te pusiste protector hoy.", tags:"#Glow21 #ProtectorSolar #CuidadoDeLaPiel #RutinaInteligente #SPF" },
+      partes:[
+        ["g","0–3 s · Gancho","Si solo vas a hacer una cosa por tu piel, que sea esta.",10],
+        ["p","3–12 s · Por qué","Los rayos UV son de los enemigos invisibles más constantes: también cuando está nublado.",15],
+        ["e","12–28 s · Cómo","Protector solar todos los días, en cantidad suficiente, y reaplicando si vas a estar al aire libre.",11],
+        ["c","28–38 s · Cierre","No es un paso opcional: es la base de cualquier rutina. ¿Ya lo usaste hoy? Cuéntame 👇 Y sígueme para más tips.",9]],
+      cap:"Si solo pudieras elegir un paso, que sea el protector solar ☀️\n¿Ya lo usaste hoy?\nSígueme para más tips de skincare 🤍",
+      cta:"Cuéntame en comentarios si ya te pusiste protector hoy y sígueme para más tips.",
+      tags:"#Glow21 #ProtectorSolar #CuidadoDeLaPiel #RutinaInteligente #SPF" },
 
-    { d:11, s:1, p:"educacion", f:"Carrusel", o:"Educar", pose:5, dest:"interaccion",
+    { d:11, s:1, p:"educacion", f:"Carrusel", o:"Educar", pose:5, dest:"seguir",
       t:"El secreto de tu piel: la barrera cutánea", g:"Lo que nadie te contó de tu piel.",
-      partes:[["g","Portada","El secreto que tu piel quiere que sepas: la barrera cutánea."],
-              ["s","Slide 2 · Qué es","Una capa protectora que ayuda a retener el agua y a frenar irritantes."],
-              ["s","Slide 3 · Cómo se debilita","Limpiar de más, tallar, sol sin protección y estrés constante."],
-              ["s","Slide 4 · Señales","Tirantez, enrojecimiento y sensibilidad."],
-              ["s","Slide 5 · Cómo cuidarla","Limpieza suave, hidratación, protector solar y constancia."],
-              ["c","Slide 6 · Ojo","Si tienes irritación fuerte o persistente, consulta a un dermatólogo."]],
-      cap:"Tu barrera cutánea es tu escudo 🛡️🤍\nGuarda este carrusel para cuando tu piel esté sensible.",
-      cta:"Guarda este carrusel y compártelo.", tags:"#Glow21 #BarreraCutanea #Microbiota #PielSensible #CuidaTuPiel" },
+      partes:[
+        ["g","Portada","El secreto que tu piel quiere que sepas: la barrera cutánea."],
+        ["s","Slide 2 · Qué es","Una capa protectora que ayuda a retener el agua y a frenar irritantes."],
+        ["s","Slide 3 · Cómo se debilita","Limpiar de más, tallar, sol sin protección y estrés constante."],
+        ["s","Slide 4 · Señales","Tirantez, enrojecimiento y sensibilidad."],
+        ["s","Slide 5 · Cómo cuidarla","Limpieza suave, hidratación, protector solar y constancia."],
+        ["c","Slide 6 · Ojo","Si tienes irritación fuerte o persistente, consulta a un dermatólogo. Y sígueme para más tips."]],
+      cap:"Tu barrera cutánea es tu escudo 🛡️🤍\nGuarda este carrusel para cuando tu piel esté sensible.\nSígueme para más tips de skincare 🤍",
+      cta:"Guarda este carrusel y compártelo y sígueme para más tips.",
+      tags:"#Glow21 #BarreraCutanea #Microbiota #PielSensible #CuidaTuPiel" },
 
-    { d:12, s:1, p:"rutina", f:"Reel", o:"Educar", pose:9, dest:"interaccion",
+    { d:12, s:1, p:"rutina", f:"Reel", o:"Educar", pose:9, dest:"seguir",
       t:"Menos productos, más sistema", g:"¿12 productos en tu baño y tu piel sigue igual?",
-      partes:[["g","0–3 s · Gancho","¿12 productos en tu baño y tu piel sigue igual?",3],
-              ["p","3–12 s · Idea","La cosmética coreana no se trata de tener más. Se trata de tener un sistema.",9],
-              ["e","12–28 s · Cómo","Cada paso tiene un propósito: limpiar, equilibrar, nutrir, proteger. Si un producto no cumple un propósito, sobra.",11],
-              ["c","28–38 s · Cierre","Revisa tu rutina hoy: ¿cuál es el propósito de cada producto? Cuéntame cuántos tienes 👇",18]],
-      cap:"Menos productos, más sistema ✨\n¿Cuántos productos usas al día? Te leo.",
-      cta:"Cuéntame cuántos productos usas.", tags:"#Glow21 #KBeauty #RutinaMinimalista #SkincareConsciente #CuidaTuPiel" },
+      partes:[
+        ["g","0–3 s · Gancho","¿12 productos en tu baño y tu piel sigue igual?",3],
+        ["p","3–12 s · Idea","La cosmética coreana no se trata de tener más. Se trata de tener un sistema.",9],
+        ["e","12–28 s · Cómo","Cada paso tiene un propósito: limpiar, equilibrar, nutrir, proteger. Si un producto no cumple un propósito, sobra.",11],
+        ["c","28–38 s · Cierre","Revisa tu rutina hoy: ¿cuál es el propósito de cada producto? Cuéntame cuántos tienes 👇 Y sígueme para más tips.",18]],
+      cap:"Menos productos, más sistema ✨\n¿Cuántos productos usas al día? Te leo.\nSígueme para más tips de skincare 🤍",
+      cta:"Cuéntame cuántos productos usas y sígueme para más tips.",
+      tags:"#Glow21 #KBeauty #RutinaMinimalista #SkincareConsciente #CuidaTuPiel" },
 
-    { d:13, s:1, p:"comunidad", f:"Historias", o:"Conectar", pose:2, dest:"interaccion",
+    { d:13, s:1, p:"comunidad", f:"Historias", o:"Conectar", pose:2, dest:"seguir",
       t:"Encuesta: ¿cuántos productos usas?", g:"Hoy quiero conocerte mejor.",
-      partes:[["g","Historia 1 · Encuesta","“¿Cuántos productos usas al día?” Opciones: 1 a 3 · 4 a 6 · 7 o más.",2],
-              ["s","Historia 2 · Dato","Más productos no significa mejor piel. Lo importante es el propósito de cada paso."],
-              ["s","Historia 3 · Caja de preguntas","“¿Qué te gustaría entender de tu piel?” (usa las respuestas como ideas para próximos contenidos)."],
-              ["c","Historia 4 · Cierre","Gracias por contestar 🤍 Esta semana respondo las preguntas más repetidas.",18]],
+      partes:[
+        ["g","Historia 1 · Encuesta","“¿Cuántos productos usas al día?” Opciones: 1 a 3 · 4 a 6 · 7 o más.",2],
+        ["s","Historia 2 · Dato","Más productos no significa mejor piel. Lo importante es el propósito de cada paso."],
+        ["s","Historia 3 · Caja de preguntas","“¿Qué te gustaría entender de tu piel?” (usa las respuestas como ideas para próximos contenidos)."],
+        ["c","Historia 4 · Cierre","Gracias por contestar 🤍 Esta semana respondo las preguntas más repetidas. Y sígueme para más tips.",18]],
       cap:"(Las historias no llevan caption.)",
-      cta:"Responde la encuesta y manda tu pregunta.", tags:"(sin hashtags en historias)" },
-
-    { d:14, s:1, p:"comunidad", f:"Reel", o:"Convertir", conv:true, pose:19, dest:"cita",
-      t:"¿Cómo es una cita con una especialista?", g:"¿Qué pasa cuando hablas con una especialista de Glow21?",
-      partes:[["g","0–3 s · Gancho","¿Qué pasa cuando hablas con una especialista de Glow21?",3],
-              ["p","3–15 s · Qué es","Es una conversación, no una consulta médica. Platicamos de tu piel, tus hábitos y lo que quieres lograr.",19],
-              ["e","15–30 s · Qué sigue","Te explicamos cómo funciona el programa y resolvemos tus dudas, sin compromiso de inscribirte.",11],
-              ["c","30–40 s · Cierre","Si quieres conocerlo, agenda tu cita en el link de mi bio.",1]],
-      cap:"Una conversación sin compromiso para conocer el programa 🤍\nAgenda tu cita con un especialista en el link de mi bio.",
-      cta:"Agenda tu cita con un especialista: link en bio.", nota:"Confirma antes de publicar que la cita es sin costo y sin compromiso, y si quieres decir cuánto dura. Hoy esos datos están marcados como por confirmar.",
-      tags:"#Glow21 #CitaConEspecialista #ProgramaGlow21 #CuidaTuPiel #NuncaEsTardeParaCuidarte" },
-
-    { d:15, s:2, p:"nutri", f:"Reel", o:"Educar", pose:8, dest:"interaccion",
-      t:"Tu piel refleja lo que pasa por dentro", g:"Tu piel no vive aislada del resto de tu cuerpo.",
-      partes:[["g","0–3 s · Gancho","Tu piel no vive aislada del resto de tu cuerpo.",8],
-              ["p","3–12 s · Idea","Lo que comes, cuánto duermes y cómo manejas el estrés se refleja en cómo se ve y se siente.",3],
-              ["e","12–28 s · Nutricosmética","Por eso trabajamos la nutricosmética: cuidarte también desde adentro, como complemento de tu rutina, nunca como sustituto.",11],
-              ["c","28–38 s · Cierre","Empieza con algo simple hoy: un vaso de agua, una fruta más. Pequeñas decisiones, constancia.",17]],
-      cap:"Cuidar tu piel también es cuidarte por dentro 🌿\nElige hoy un hábito pequeño y cuéntamelo en comentarios.",
-      cta:"Cuéntame qué hábito eliges hoy.", tags:"#Glow21 #Nutricosmetica #PielSana #HabitosSaludables #Bienestar" },
-
-    { d:16, s:2, p:"nutri", f:"Carrusel", o:"Educar", pose:17, dest:"interaccion",
-      t:"5 hábitos que tu piel agradece", g:"No necesitas un producto nuevo. Necesitas estos 5 hábitos.",
-      partes:[["g","Portada","5 hábitos que tu piel agradece."],
-              ["s","Slide 2 · Hidratarte","Toma agua a lo largo del día."],
-              ["s","Slide 3 · Dormir","Descansar lo suficiente también se nota en tu piel."],
-              ["s","Slide 4 · Comer colorido","Frutas y verduras de colores aportan antioxidantes."],
-              ["s","Slide 5 · Menos azúcar","Reduce el exceso de azúcar y alcohol cuando puedas."],
-              ["c","Slide 6 · Pausas","Tómate pausas para el estrés. Comenta con el número del hábito que más te cuesta."]],
-      cap:"Una piel hermosa es el resultado de buenos hábitos repetidos todos los días 🌿\n¿Cuál te cuesta más? Comenta el número.",
-      cta:"Comenta el número del hábito que más te cuesta.", tags:"#Glow21 #HabitosSaludables #Nutricosmetica #PielSana #Bienestar" },
-
-    { d:17, s:2, p:"educacion", f:"Reel", o:"Atraer", pose:4, dest:"masterclass",
-      t:"Los enemigos invisibles de tu piel", g:"Hay 5 enemigos de tu piel que ni ves.",
-      partes:[["g","0–3 s · Gancho","Hay 5 enemigos de tu piel que ni ves.",15],
-              ["p","3–25 s · La lista","Uno: el estrés. Dos: el exceso de azúcar. Tres: los rayos UV. Cuatro: la contaminación. Cinco: la luz azul de las pantallas.",11],
-              ["e","25–33 s · Ojo","No es para asustarte: es para que sepas dónde puedes ayudar a tu piel.",5],
-              ["c","33–40 s · Cierre","Lo explico en la masterclass gratuita, sin tecnicismos. Link en bio.",10]],
-      cap:"No se ven, pero tu piel los siente 👀\nAprende a identificarlos en la masterclass gratuita (link en bio).",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", tags:"#Glow21 #EnemigosInvisibles #CuidadoDeLaPiel #MasterclassGratuita #PielSana" },
-
-    { d:18, s:2, p:"ciencia", f:"Reel", o:"Educar", pose:3, dest:"masterclass",
-      t:"Tu piel es una ciudad: comunicación celular", g:"Imagina tu piel como una ciudad.",
-      partes:[["g","0–3 s · Gancho","Imagina tu piel como una ciudad.",3],
-              ["p","3–15 s · La analogía","Cada célula es una casa. Para que la ciudad funcione, las casas necesitan comunicarse: pasarse información y recursos.",11],
-              ["e","15–30 s · La idea","Cuando esa comunicación funciona bien, la ciudad prospera. Es una analogía para entender por qué importa cuidar el entorno de tus células.",13],
-              ["c","30–40 s · Cierre","Lo explico completo en la masterclass: ciencia sencilla, sin promesas médicas. Link en bio.",10]],
-      cap:"Tu piel como una ciudad 🏙️✨\nUna analogía para entender la comunicación celular. La explico completa en la masterclass gratuita (link en bio).",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", nota:"Es una analogía educativa. No afirmes que cura, trata ni previene nada.",
-      tags:"#Glow21 #CienciaCelular #ComunicacionCelular #EducacionSkincare #PielSana" },
-
-    { d:19, s:2, p:"ciencia", f:"Carrusel", o:"Educar", pose:13, dest:"masterclass",
-      t:"Glicociencia, sin tecnicismos", g:"¿Glico qué? Te lo explico fácil.",
-      partes:[["g","Portada","Glicociencia: qué es, sin tecnicismos."],
-              ["s","Slide 2 · Qué son los glicanos","Estructuras de azúcares que participan en cómo se reconocen y se comunican las células."],
-              ["s","Slide 3 · Quién la investiga","Mannatech lleva más de 30 años investigando glicociencia y nutrición celular."],
-              ["s","Slide 4 · Dónde encaja","Es una pieza dentro de una visión integral, junto con hábitos, alimentación y rutina."],
-              ["s","Slide 5 · Ojo","No es una solución única ni un milagro."],
-              ["c","Slide 6 · Cierre","Lo explico paso a paso en la masterclass gratuita. Link en bio.",10]],
-      cap:"La ciencia debe ser comprensible para cualquier mujer 🔬🤍\nTe la explico sin tecnicismos en la masterclass gratuita.",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", nota:"Mantén el lenguaje educativo. Evita verbos como “cura”, “repara” o “rejuvenece”.",
-      tags:"#Glow21 #Glicociencia #CienciaCelular #EducacionSkincare #Mannatech" },
-
-    { d:20, s:2, p:"rutina", f:"Reel", o:"Educar", pose:11, dest:"cita",
-      t:"Una rutina no es un producto: es un sistema", g:"Una rutina no es un producto. Es un sistema.",
-      partes:[["g","0–3 s · Gancho","Una rutina no es un producto. Es un sistema.",9],
-              ["p","3–15 s · La rutina","En Glow21, la rutina recomendada es Luminovation, de 4 pasos: limpiador, tónico, loción y crema.",11],
-              ["e","15–30 s · El propósito","Cada paso cumple un propósito dentro del método: limpiar, equilibrar, nutrir y proteger.",13],
-              ["c","30–40 s · Cierre","Es una herramienta para poner en práctica lo que aprendes. El centro siempre es entender tu piel. Si quieres conocer cómo encaja en tu caso, agenda una cita.",1]],
-      cap:"Luminovation es la rutina recomendada dentro del método Glow21: una herramienta, no un milagro 🤍\n¿Quieres saber cómo encaja en tu caso? Agenda tu cita (link en bio).",
-      cta:"Agenda tu cita con un especialista: link en bio.", nota:"Presenta el kit como herramienta de apoyo. No prometas resultados y no menciones el colágeno de regalo.",
-      tags:"#Glow21 #Luminovation #RutinaCoreana #KBeauty #CuidaTuPiel" },
-
-    { d:21, s:2, p:"comunidad", f:"Carrusel", o:"Convertir", conv:true, pose:7, dest:"cita",
-      t:"Qué incluye el Programa Glow21", g:"Mucho más que un kit: un programa de acompañamiento.",
-      partes:[["g","Portada","Qué incluye el Programa Glow21.",7],
-              ["s","Slide 2","Kit Luminovation y Reto Glow 21: 21 días de misiones diarias."],
-              ["s","Slide 3","Comunidad privada Glow Club (90 días) y mentoría grupal por Zoom (30 días)."],
-              ["s","Slide 4","eBook “La Ciencia de una Piel Radiante”, guía de nutricosmética y una MasterClass para leer ingredientes."],
-              ["s","Slide 5","Calendario Glow para llevar tu seguimiento diario."],
-              ["c","Slide 6 · Cierre","Conoce cómo encaja en tu caso: agenda tu cita con un especialista. Link en bio.",1]],
-      cap:"Glow21 es un programa de acompañamiento, no un producto suelto 🤍\nAgenda tu cita para conocer cada parte (link en bio).",
-      cta:"Agenda tu cita con un especialista: link en bio.", nota:"No pongas precios ni el colágeno. Quien explique el precio vigente es el especialista.",
-      tags:"#Glow21 #ProgramaGlow21 #RetoGlow21 #Comunidad #NuncaEsTardeParaCuidarte" },
-
-    { d:22, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:20, dest:"masterclass",
-      t:"¿Por qué 21 días?", g:"¿Por qué 21 días y no 7 ni 30?",
-      partes:[["g","0–3 s · Gancho","¿Por qué 21 días y no 7 ni 30?",3],
-              ["p","3–15 s · Idea","Porque los cambios reales no pasan en un día: pasan cuando repites pequeños actos de amor propio.",8],
-              ["e","15–30 s · El punto de partida","21 días es el punto de partida para instalar un hábito. La transformación continúa después.",11],
-              ["c","30–40 s · Cierre","No es una meta de perfección: es empezar. ¿Empezamos juntas? Link en bio.",20]],
-      cap:"Pequeños actos de amor propio, repetidos todos los días 🤍\nEmpieza con la masterclass gratuita (link en bio).",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", tags:"#Glow21 #Reto21Dias #Habitos #AmorPropio #NuncaEsTardeParaCuidarte" },
-
-    { d:23, s:3, p:"rutina", f:"Carrusel", o:"Atraer", pose:2, dest:"interaccion",
-      t:"Mini reto Glow: 3 días, 3 hábitos", g:"Empieza hoy con un mini reto de 3 días.",
-      partes:[["g","Portada","Mini reto Glow: 3 días, 3 hábitos.",2],
-              ["s","Día 1","Limpia con suavidad, mañana y noche."],
-              ["s","Día 2","Hidrata tu piel y toma agua durante el día."],
-              ["s","Día 3","Protector solar de día y un ritual tranquilo de noche."],
-              ["c","Cierre","Cuéntame cómo te fue con #RetoGlow. Te leo con cariño.",18]],
-      cap:"3 días, 3 hábitos, 0 presión 🌿\nCuéntame cómo te va con #RetoGlow.",
-      cta:"Comparte tu avance con #RetoGlow.", tags:"#Glow21 #RetoGlow #MiniReto #HabitosSaludables #CuidaTuPiel" },
-
-    { d:24, s:3, p:"comunidad", f:"Historias", o:"Conectar", pose:18, dest:"comunidad",
-      t:"Caja de preguntas: ¿qué piensas al mirarte al espejo?", g:"Quiero escucharte de verdad.",
-      partes:[["g","Historia 1 · Pregunta","“¿Qué es lo primero que piensas al mirarte al espejo?” (caja de preguntas).",18],
-              ["s","Historia 2 · Respuesta","Responde 3 mensajes con empatía: “Gracias por confiar. No estás sola”."],
-              ["c","Historia 3 · Cierre","Aquí aprendemos a mirarnos distinto. Únete a la comunidad gratuita (link).",8]],
-      cap:"(Las historias no llevan caption.)",
-      cta:"Únete a la comunidad Skool gratuita.", nota:"No compartas mensajes de otras personas sin su permiso. Quita nombres y datos.",
+      cta:"Responde la encuesta y manda tu pregunta y sígueme para más tips.",
       tags:"(sin hashtags en historias)" },
 
-    { d:25, s:3, p:"educacion", f:"Reel", o:"Educar", pose:13, dest:"cita",
+    { d:14, s:1, p:"educacion", f:"Reel", o:"Atraer", pose:2, dest:"seguir",
+      t:"Lo que vas a aprender en esta cuenta", g:"Esto es lo que vas a encontrar aquí.",
+      partes:[
+        ["g","0–3 s · Gancho","Esto es lo que vas a encontrar en esta cuenta.",2],
+        ["p","3–15 s · Cada semana","Un tema por semana: entender tu piel, cuidarla con una rutina simple, nutrirla desde adentro y entender la ciencia detrás.",11],
+        ["e","15–30 s · Cómo lo hago","Sin promesas milagro, sin 12 productos y sin tecnicismos: educación para que decidas con criterio.",9],
+        ["c","30–40 s · Cierre","Sígueme para no perderte ningún tip. Y cuéntame qué te gustaría aprender primero.",1]],
+      cap:"Aquí aprendemos a cuidar la piel con conocimiento, no con milagros 🤍\nSígueme y cuéntame qué tema quieres ver primero.",
+      cta:"Sígueme y dime qué tema quieres aprender primero.",
+      tags:"#Glow21 #TipsDeSkincare #SkincareConsciente #CuidaTuPiel #NuncaEsTardeParaCuidarte" },
+
+    { d:15, s:2, p:"nutri", f:"Reel", o:"Educar", pose:8, dest:"seguir",
+      t:"Tu piel refleja lo que pasa por dentro", g:"Tu piel no vive aislada del resto de tu cuerpo.",
+      partes:[
+        ["g","0–3 s · Gancho","Tu piel no vive aislada del resto de tu cuerpo.",8],
+        ["p","3–12 s · Idea","Lo que comes, cuánto duermes y cómo manejas el estrés se refleja en cómo se ve y se siente.",3],
+        ["e","12–28 s · Nutricosmética","Por eso trabajamos la nutricosmética: cuidarte también desde adentro, como complemento de tu rutina, nunca como sustituto.",11],
+        ["c","28–38 s · Cierre","Empieza con algo simple hoy: un vaso de agua, una fruta más. Pequeñas decisiones, constancia. Y sígueme para más tips.",17]],
+      cap:"Cuidar tu piel también es cuidarte por dentro 🌿\nElige hoy un hábito pequeño y cuéntamelo en comentarios.\nSígueme para más tips de skincare 🤍",
+      cta:"Cuéntame qué hábito eliges hoy y sígueme para más tips.",
+      tags:"#Glow21 #Nutricosmetica #PielSana #HabitosSaludables #Bienestar" },
+
+    { d:16, s:2, p:"nutri", f:"Carrusel", o:"Educar", pose:17, dest:"seguir",
+      t:"5 hábitos que tu piel agradece", g:"No necesitas un producto nuevo. Necesitas estos 5 hábitos.",
+      partes:[
+        ["g","Portada","5 hábitos que tu piel agradece."],
+        ["s","Slide 2 · Hidratarte","Toma agua a lo largo del día."],
+        ["s","Slide 3 · Dormir","Descansar lo suficiente también se nota en tu piel."],
+        ["s","Slide 4 · Comer colorido","Frutas y verduras de colores aportan antioxidantes."],
+        ["s","Slide 5 · Menos azúcar","Reduce el exceso de azúcar y alcohol cuando puedas."],
+        ["c","Slide 6 · Pausas","Tómate pausas para el estrés. Comenta con el número del hábito que más te cuesta. Y sígueme para más tips."]],
+      cap:"Una piel hermosa es el resultado de buenos hábitos repetidos todos los días 🌿\n¿Cuál te cuesta más? Comenta el número.\nSígueme para más tips de skincare 🤍",
+      cta:"Comenta el número del hábito que más te cuesta y sígueme para más tips.",
+      tags:"#Glow21 #HabitosSaludables #Nutricosmetica #PielSana #Bienestar" },
+
+    { d:17, s:2, p:"educacion", f:"Reel", o:"Atraer", pose:4, dest:"seguir",
+      t:"Los enemigos invisibles de tu piel", g:"Hay 5 enemigos de tu piel que ni ves.",
+      partes:[
+        ["g","0–3 s · Gancho","Hay 5 enemigos de tu piel que ni ves.",15],
+        ["p","3–25 s · La lista","Uno: el estrés. Dos: el exceso de azúcar. Tres: los rayos UV. Cuatro: la contaminación. Cinco: la luz azul de las pantallas.",11],
+        ["e","25–33 s · Ojo","No es para asustarte: es para que sepas dónde puedes ayudar a tu piel.",5],
+        ["c","33–40 s · Cierre","Sígueme y te cuento cómo cuidarte de cada uno.",1]],
+      cap:"No se ven, pero tu piel los siente 👀\nSígueme para aprender a cuidarte de cada uno.",
+      cta:"Sígueme para aprender a cuidarte de ellos.",
+      tags:"#Glow21 #EnemigosInvisibles #CuidadoDeLaPiel #TipsDeSkincare #PielSana" },
+
+    { d:18, s:2, p:"ciencia", f:"Reel", o:"Educar", pose:3, dest:"seguir",
+      t:"Tu piel es una ciudad: comunicación celular", g:"Imagina tu piel como una ciudad.",
+      partes:[
+        ["g","0–3 s · Gancho","Imagina tu piel como una ciudad.",3],
+        ["p","3–15 s · La analogía","Cada célula es una casa. Para que la ciudad funcione, las casas necesitan comunicarse: pasarse información y recursos.",11],
+        ["e","15–30 s · La idea","Cuando esa comunicación funciona bien, la ciudad prospera. Es una analogía para entender por qué importa cuidar el entorno de tus células.",13],
+        ["c","30–40 s · Cierre","Ciencia sencilla, sin promesas médicas. Sígueme: vuelvo con más cada semana.",1]],
+      cap:"Tu piel como una ciudad 🏙️✨\nUna analogía para entender la comunicación celular. Sígueme para más ciencia sencilla.",
+      cta:"Sígueme para más ciencia sencilla.", nota:"Es una analogía educativa. No afirmes que cura, trata ni previene nada.",
+      tags:"#Glow21 #CienciaCelular #ComunicacionCelular #EducacionSkincare #PielSana" },
+
+    { d:19, s:2, p:"ciencia", f:"Carrusel", o:"Educar", pose:13, dest:"seguir",
+      t:"Glicociencia, sin tecnicismos", g:"¿Glico qué? Te lo explico fácil.",
+      partes:[
+        ["g","Portada","Glicociencia: qué es, sin tecnicismos."],
+        ["s","Slide 2 · Qué son los glicanos","Estructuras de azúcares que participan en cómo se reconocen y se comunican las células."],
+        ["s","Slide 3 · Quién la investiga","Mannatech lleva más de 30 años investigando glicociencia y nutrición celular."],
+        ["s","Slide 4 · Dónde encaja","Es una pieza dentro de una visión integral, junto con hábitos, alimentación y rutina."],
+        ["s","Slide 5 · Ojo","No es una solución única ni un milagro."],
+        ["c","Slide 6 · Cierre","Guarda este carrusel y sígueme: la ciencia sencilla vuelve cada semana.",1]],
+      cap:"La ciencia debe ser comprensible para cualquier mujer 🔬🤍\nGuárdalo y sígueme para más ciencia sin tecnicismos.",
+      cta:"Guarda este carrusel y sígueme para más ciencia sencilla.", nota:"Mantén el lenguaje educativo. Evita verbos como “cura”, “repara” o “rejuvenece”.",
+      tags:"#Glow21 #Glicociencia #CienciaCelular #EducacionSkincare #Mannatech" },
+
+    { d:20, s:2, p:"rutina", f:"Reel", o:"Educar", pose:11, dest:"seguir",
+      t:"Una rutina no es un producto: es un sistema", g:"Una rutina no es un producto. Es un sistema.",
+      partes:[
+        ["g","0–3 s · Gancho","Una rutina no es un producto. Es un sistema.",9],
+        ["p","3–15 s · La rutina","La rutina que recomendamos en Glow21 tiene 4 pasos: limpiador, tónico, loción y crema.",11],
+        ["e","15–30 s · El propósito","Cada paso cumple un propósito dentro del método: limpiar, equilibrar, nutrir y proteger.",13],
+        ["c","30–40 s · Cierre","El centro siempre es entender tu piel, no acumular productos. Sígueme y armamos tu rutina paso a paso.",1]],
+      cap:"Una rutina es un sistema, no un producto suelto 🤍\nLimpiar → Equilibrar → Nutrir → Proteger. Sígueme para armar la tuya paso a paso.",
+      cta:"Sígueme para armar tu rutina paso a paso.",
+      tags:"#Glow21 #RutinaCoreana #KBeauty #RutinaInteligente #CuidaTuPiel" },
+
+    { d:21, s:2, p:"rutina", f:"Carrusel", o:"Educar", pose:11, dest:"seguir",
+      t:"Rutina de mañana vs. rutina de noche", g:"Tu piel necesita cosas distintas de día y de noche.",
+      partes:[
+        ["g","Portada","Rutina de mañana vs. rutina de noche: qué hace cada una.",11],
+        ["s","Slide 2 · Mañana","Limpieza suave, hidratación y, sobre todo, protector solar. De día, tu piel necesita protección."],
+        ["s","Slide 3 · Noche","Retira el día: limpia, equilibra y nutre. De noche, tu piel necesita calma y confort."],
+        ["s","Slide 4 · La diferencia","Mañana: proteger. Noche: limpiar y nutrir. El mismo sistema, con otro propósito."],
+        ["s","Slide 5 · Tip","No necesitas más pasos: necesitas constancia."],
+        ["c","Slide 6 · Cierre","Guárdalo y sígueme para más tips de rutina.",1]],
+      cap:"Misma piel, necesidades distintas 🌗\nGuarda este carrusel y sígueme para más tips de rutina.",
+      cta:"Guarda este carrusel y sígueme para más tips.",
+      tags:"#Glow21 #RutinaDeMañana #RutinaDeNoche #KBeauty #CuidaTuPiel" },
+
+    { d:22, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:20, dest:"seguir",
+      t:"¿Por qué 21 días?", g:"¿Por qué 21 días y no 7 ni 30?",
+      partes:[
+        ["g","0–3 s · Gancho","¿Por qué 21 días y no 7 ni 30?",3],
+        ["p","3–15 s · Idea","Porque los cambios reales no pasan en un día: pasan cuando repites pequeños actos de amor propio.",8],
+        ["e","15–30 s · El punto de partida","21 días es el punto de partida para instalar un hábito. La transformación continúa después.",11],
+        ["c","30–40 s · Cierre","No es una meta de perfección: es empezar. ¿Empezamos juntas? Sígueme y vamos paso a paso.",20]],
+      cap:"Pequeños actos de amor propio, repetidos todos los días 🤍\nSígueme y empecemos juntas, paso a paso.",
+      cta:"Sígueme y empecemos juntas.",
+      tags:"#Glow21 #Reto21Dias #Habitos #AmorPropio #NuncaEsTardeParaCuidarte" },
+
+    { d:23, s:3, p:"rutina", f:"Carrusel", o:"Atraer", pose:2, dest:"seguir",
+      t:"Mini reto Glow: 3 días, 3 hábitos", g:"Empieza hoy con un mini reto de 3 días.",
+      partes:[
+        ["g","Portada","Mini reto Glow: 3 días, 3 hábitos.",2],
+        ["s","Día 1","Limpia con suavidad, mañana y noche."],
+        ["s","Día 2","Hidrata tu piel y toma agua durante el día."],
+        ["s","Día 3","Protector solar de día y un ritual tranquilo de noche."],
+        ["c","Cierre","Cuéntame cómo te fue con #RetoGlow. Te leo con cariño. Y sígueme para más tips.",18]],
+      cap:"3 días, 3 hábitos, 0 presión 🌿\nCuéntame cómo te va con #RetoGlow.\nSígueme para más tips de skincare 🤍",
+      cta:"Comparte tu avance con #RetoGlow y sígueme para más tips.",
+      tags:"#Glow21 #RetoGlow #MiniReto #HabitosSaludables #CuidaTuPiel" },
+
+    { d:24, s:3, p:"comunidad", f:"Historias", o:"Conectar", pose:18, dest:"seguir",
+      t:"Caja de preguntas: ¿qué piensas al mirarte al espejo?", g:"Quiero escucharte de verdad.",
+      partes:[
+        ["g","Historia 1 · Pregunta","“¿Qué es lo primero que piensas al mirarte al espejo?” (caja de preguntas).",18],
+        ["s","Historia 2 · Respuesta","Responde 3 mensajes con empatía: “Gracias por confiar. No estás sola”."],
+        ["c","Historia 3 · Cierre","Aquí aprendemos a mirarnos distinto. Sígueme para más conversaciones como esta.",8]],
+      cap:"(Las historias no llevan caption.)",
+      cta:"Sígueme para más tips y conversaciones como esta.", nota:"No compartas mensajes de otras personas sin su permiso. Quita nombres y datos.",
+      tags:"(sin hashtags en historias)" },
+
+    { d:25, s:3, p:"educacion", f:"Reel", o:"Educar", pose:13, dest:"seguir",
       t:"Aprende a leer una etiqueta en 30 segundos", g:"Aprende a leer la etiqueta de tus productos en 30 segundos.",
-      partes:[["g","0–3 s · Gancho","Aprende a leer la etiqueta de tus productos en 30 segundos.",13],
-              ["p","3–15 s · Truco 1","Los ingredientes se enlistan de mayor a menor cantidad: los primeros son la base de la fórmula.",11],
-              ["e","15–28 s · Truco 2","Fíjate en para qué sirve cada ingrediente en tu piel, no en cuál suena a moda.",13],
-              ["c","28–38 s · Cierre","Aprender a leer ingredientes es parte del programa. Agenda tu cita para conocerlo. Link en bio.",1]],
-      cap:"Leer una etiqueta cambia cómo eliges 🔍\nSi quieres aprender más, agenda tu cita (link en bio).",
-      cta:"Agenda tu cita con un especialista: link en bio.", tags:"#Glow21 #LeerIngredientes #EducacionSkincare #CompraConsciente #CuidaTuPiel" },
+      partes:[
+        ["g","0–3 s · Gancho","Aprende a leer la etiqueta de tus productos en 30 segundos.",13],
+        ["p","3–15 s · Truco 1","Los ingredientes se enlistan de mayor a menor cantidad: los primeros son la base de la fórmula.",11],
+        ["e","15–28 s · Truco 2","Fíjate en para qué sirve cada ingrediente en tu piel, no en cuál suena a moda.",13],
+        ["c","28–38 s · Cierre","Leer ingredientes cambia cómo eliges. Guárdalo y sígueme para más trucos.",1]],
+      cap:"Leer una etiqueta cambia cómo eliges 🔍\nGuárdalo y sígueme para más trucos de skincare.",
+      cta:"Guarda este video y sígueme para más trucos.",
+      tags:"#Glow21 #LeerIngredientes #EducacionSkincare #CompraConsciente #CuidaTuPiel" },
 
-    { d:26, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:8, dest:"masterclass",
+    { d:26, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:8, dest:"seguir",
       t:"En Glow21 no prometemos perfección", g:"En Glow21 no vas a ver un antes y después milagroso.",
-      partes:[["g","0–3 s · Gancho","En Glow21 no vas a ver un antes y después milagroso.",4],
-              ["p","3–15 s · Honestidad","Y es a propósito. No prometemos eliminar arrugas ni borrar cicatrices.",8],
-              ["e","15–30 s · Lo que sí","Prometemos educación, hábitos y acompañamiento. Que entiendas tu piel antes de invertir en cualquier producto.",11],
-              ["c","30–40 s · Cierre","Si esa honestidad es lo que buscabas, aquí estamos. Masterclass gratuita, link en bio.",8]],
-      cap:"La piel más hermosa no es la más perfecta 🤍\nEs la que refleja una vida vivida con conocimiento, bienestar y amor propio.",
-      cta:"Reserva tu lugar en la masterclass gratuita: link en bio.", tags:"#Glow21 #AmorPropio #PielReal #SkincareHonesto #NuncaEsTardeParaCuidarte" },
+      partes:[
+        ["g","0–3 s · Gancho","En Glow21 no vas a ver un antes y después milagroso.",4],
+        ["p","3–15 s · Honestidad","Y es a propósito. No prometemos eliminar arrugas ni borrar cicatrices.",8],
+        ["e","15–30 s · Lo que sí","Prometemos educación, hábitos y acompañamiento. Que entiendas tu piel antes de invertir en cualquier producto.",11],
+        ["c","30–40 s · Cierre","Si esa honestidad es lo que buscabas, sígueme: aquí hay educación, no milagros.",8]],
+      cap:"La piel más hermosa no es la más perfecta 🤍\nEs la que refleja una vida vivida con conocimiento, bienestar y amor propio. Sígueme para más skincare honesto.",
+      cta:"Sígueme para más skincare honesto.",
+      tags:"#Glow21 #AmorPropio #PielReal #SkincareHonesto #NuncaEsTardeParaCuidarte" },
 
-    { d:27, s:3, p:"comunidad", f:"Carrusel", o:"Convertir", conv:true, pose:14, dest:"cita",
-      t:"Las preguntas que más nos hacen", g:"Antes de agendar, seguro te preguntas esto.",
-      partes:[["g","Portada","Las preguntas que más nos hacen sobre Glow21.",3],
-              ["s","Slide 2","¿Necesito experiencia previa? No. Glow21 parte desde cero."],
-              ["s","Slide 3","¿Cuánto tiempo necesito al día? Misiones simples y videos cortos, pensados para agendas llenas."],
-              ["s","Slide 4","¿Estoy obligada a inscribirme después de la cita? No."],
-              ["s","Slide 5","¿Es médico? No: es educativo. Ante una condición, consulta a un dermatólogo."],
-              ["c","Slide 6 · Cierre","¿Más dudas? Agenda tu cita con un especialista. Link en bio.",1]],
-      cap:"Resolvemos tus dudas antes de que decidas nada 🤍\nAgenda tu cita sin compromiso (link en bio).",
-      cta:"Agenda tu cita con un especialista: link en bio.", nota:"Confirma que la cita es sin costo y sin compromiso antes de publicar.",
-      tags:"#Glow21 #PreguntasFrecuentes #ProgramaGlow21 #CitaConEspecialista #CuidaTuPiel" },
+    { d:27, s:3, p:"comunidad", f:"Carrusel", o:"Conectar", pose:3, dest:"seguir",
+      t:"Las preguntas que más me hacen sobre skincare", g:"Las dudas que más me llegan, respondidas.",
+      partes:[
+        ["g","Portada","Las preguntas que más me hacen sobre skincare.",3],
+        ["s","Slide 2","¿Necesito experiencia previa? No. El skincare consciente se aprende desde cero."],
+        ["s","Slide 3","¿Cuántos productos necesito? Los que cumplan un propósito: limpiar, equilibrar, nutrir y proteger."],
+        ["s","Slide 4","¿En cuánto tiempo se nota un cambio? Depende de cada piel: lo que cuenta es la constancia."],
+        ["s","Slide 5","¿Es consejo médico? No: es educativo. Ante una condición, consulta a un dermatólogo."],
+        ["c","Slide 6 · Cierre","¿Tienes otra duda? Déjala en comentarios y sígueme para la parte 2.",1]],
+      cap:"Resolvemos tus dudas de skincare, sin tecnicismos 🤍\nDéjame la tuya en comentarios y sígueme para la parte 2.",
+      cta:"Deja tu duda en comentarios y sígueme para la parte 2.",
+      tags:"#Glow21 #PreguntasFrecuentes #TipsDeSkincare #SkincareConsciente #CuidaTuPiel" },
 
-    { d:28, s:3, p:"comunidad", f:"Reel", o:"Convertir", conv:true, pose:1, dest:"cita",
-      t:"Si pudieras preguntarle todo a una especialista…", g:"¿Y si pudieras preguntarle a una especialista todo lo que te da pena preguntar?",
-      partes:[["g","0–3 s · Gancho","¿Y si pudieras preguntarle a una especialista todo lo que te da pena preguntar?",3],
-              ["p","3–15 s · Las dudas","Qué usar primero, si tu rutina está bien, si este programa es para ti.",14],
-              ["e","15–30 s · La cita","Una conversación sin compromiso, a tu ritmo y sin ventas agresivas.",11],
-              ["c","30–38 s · Cierre","Agenda tu cita en el link de mi bio.",1]],
-      cap:"Sin presión, sin prisa y sin preguntas tontas 🤍\nAgenda tu cita con un especialista (link en bio).",
-      cta:"Agenda tu cita con un especialista: link en bio.", nota:"Confirma que la cita es sin costo antes de publicar.",
-      tags:"#Glow21 #CitaConEspecialista #CuidaTuPiel #SkincareConsciente #NuncaEsTardeParaCuidarte" },
+    { d:28, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:18, dest:"seguir",
+      t:"Pregúntame lo que te da pena preguntar", g:"¿Qué te da pena preguntar sobre tu piel?",
+      partes:[
+        ["g","0–3 s · Gancho","¿Qué te da pena preguntar sobre tu piel?",18],
+        ["p","3–15 s · Las dudas","Qué usar primero, si tu rutina está bien, si ese producto de moda sirve.",14],
+        ["e","15–30 s · Aquí sin pena","Esta semana las respondo aquí: sin juicios y sin preguntas tontas.",11],
+        ["c","30–38 s · Cierre","Déjalas en comentarios y sígueme para ver las respuestas.",1]],
+      cap:"Sin presión, sin prisa y sin preguntas tontas 🤍\nDéjame tu duda en comentarios y sígueme para ver la respuesta.",
+      cta:"Deja tu pregunta en comentarios y sígueme.",
+      tags:"#Glow21 #PreguntasDeSkincare #CuidaTuPiel #SkincareConsciente #NuncaEsTardeParaCuidarte" },
 
-    { d:29, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:12, dest:"interaccion",
+    { d:29, s:3, p:"comunidad", f:"Reel", o:"Conectar", pose:12, dest:"seguir",
       t:"Tu rutina de noche como ritual de gratitud", g:"Tu rutina de noche puede ser el mejor momento de tu día.",
-      partes:[["g","0–3 s · Gancho","Tu rutina de noche puede ser el mejor momento de tu día.",12],
-              ["p","3–20 s · El ritual","Apaga el celular un minuto. Limpia con calma, aplica tus productos pensando en algo que agradeces de ti.",12],
-              ["e","20–32 s · La idea","Creemos que una rutina de cuidado también puede ser un ritual de gratitud.",20],
-              ["c","32–42 s · Cierre","¿Qué agradeces hoy de ti? Cuéntamelo en comentarios.",18]],
-      cap:"Una rutina de cuidado también puede ser un ritual de gratitud 🌙\n¿Qué agradeces hoy de ti?",
-      cta:"Cuéntame qué agradeces hoy de ti.", tags:"#Glow21 #RutinaDeNoche #Autocuidado #Gratitud #AmorPropio" },
+      partes:[
+        ["g","0–3 s · Gancho","Tu rutina de noche puede ser el mejor momento de tu día.",12],
+        ["p","3–20 s · El ritual","Apaga el celular un minuto. Limpia con calma, aplica tus productos pensando en algo que agradeces de ti.",12],
+        ["e","20–32 s · La idea","Creemos que una rutina de cuidado también puede ser un ritual de gratitud.",20],
+        ["c","32–42 s · Cierre","¿Qué agradeces hoy de ti? Cuéntamelo en comentarios. Y sígueme para más tips.",18]],
+      cap:"Una rutina de cuidado también puede ser un ritual de gratitud 🌙\n¿Qué agradeces hoy de ti?\nSígueme para más tips de skincare 🤍",
+      cta:"Cuéntame qué agradeces hoy de ti y sígueme para más tips.",
+      tags:"#Glow21 #RutinaDeNoche #Autocuidado #Gratitud #AmorPropio" },
 
-    { d:30, s:3, p:"comunidad", f:"Carrusel", o:"Convertir", conv:true, pose:6, dest:"cita",
+    { d:30, s:3, p:"comunidad", f:"Carrusel", o:"Conectar", pose:6, dest:"seguir",
       t:"Creemos… (cierre del mes)", g:"Esto es lo que creemos en Glow21.",
-      partes:[["g","Portada","Esto es lo que creemos en Glow21.",6],
-              ["s","Slide 2","Creemos que la belleza comienza con el conocimiento."],
-              ["s","Slide 3","Creemos que la prevención siempre será más poderosa que la corrección."],
-              ["s","Slide 4","Creemos que la ciencia debe ser comprensible para cualquier mujer."],
-              ["s","Slide 5","Creemos que una rutina de cuidado también puede ser un ritual de gratitud."],
-              ["s","Slide 6","Y creemos que cuando una mujer aprende a cuidarse, también inspira a las mujeres que la rodean."],
-              ["c","Slide 7 · Cierre","Nunca es tarde para cuidarte. Masterclass gratuita o cita con un especialista: link en bio.",6]],
-      cap:"Gracias por estos 30 días 🤍\nNunca es tarde para cuidarte. Empieza con la masterclass gratuita o agenda tu cita (link en bio).",
-      cta:"Masterclass gratuita o cita con un especialista: link en bio.", tags:"#Glow21 #Manifiesto #NuncaEsTardeParaCuidarte #AmorPropio #CuidaTuPiel" }
+      partes:[
+        ["g","Portada","Esto es lo que creemos en Glow21.",6],
+        ["s","Slide 2","Creemos que la belleza comienza con el conocimiento."],
+        ["s","Slide 3","Creemos que la prevención siempre será más poderosa que la corrección."],
+        ["s","Slide 4","Creemos que la ciencia debe ser comprensible para cualquier mujer."],
+        ["s","Slide 5","Creemos que una rutina de cuidado también puede ser un ritual de gratitud."],
+        ["s","Slide 6","Y creemos que cuando una mujer aprende a cuidarse, también inspira a las mujeres que la rodean."],
+        ["c","Slide 7 · Cierre","Nunca es tarde para cuidarte. Sígueme: el próximo mes hay más.",6]],
+      cap:"Gracias por estos 30 días 🤍\nNunca es tarde para cuidarte. Sígueme para seguir aprendiendo juntas.",
+      cta:"Sígueme para seguir aprendiendo juntas.",
+      tags:"#Glow21 #Manifiesto #NuncaEsTardeParaCuidarte #AmorPropio #CuidaTuPiel" }
   ];
 
   /* ---------- Estado ---------- */
@@ -661,7 +785,18 @@
     { k: "listo",      t: "Listo para publicar", s: "Falta subir" },
     { k: "publicado",  t: "Publicado",           s: "Ya está en redes" }
   ];
-  var TIPO_DIA = { 4: "C", 29: "C", 5: "B", 14: "B", 20: "B", 21: "B", 25: "B" };
+  var TIPO_DIA = { 4: "C", 29: "C", 5: "B", 25: "B" };
+  var TABLA = "glow21_contenido";
+  var CAMPOS = ["t", "g", "p", "f", "o", "pose", "dest", "s", "partes", "cap", "cta", "tags", "nota", "aranza"];
+  var SB_URL = "https://yosammtxqqcwgvkaczyd.supabase.co";
+  var SB_KEY = "sb_publishable_nfll20Vql75gY-trX9LU0g_pnxgK664";
+  var sb = null;
+  try { sb = window.supabase ? window.supabase.createClient(SB_URL, SB_KEY) : null; } catch (e) {}
+
+  var mode = "local";      // "local" = versión de lectura (navegador) · "db" = Supabase
+  var user = null, dbState = "";
+  var items = [];
+
   var st = { etapas: {}, ideas: [], view: "board" };
   try {
     var raw = localStorage.getItem(KEY);
@@ -673,17 +808,50 @@
   } catch (e) {}
   st.etapas = st.etapas || {}; st.ideas = st.ideas || []; st.view = st.view || "board";
   function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
-  function etapaDe(d) { return st.etapas[d.d] || "guion"; }
-  function tipoDe(d) { return TIPO_DIA[d.d] || "A"; }
-  function pad(n) { return (n < 10 ? "0" : "") + n; }
+
+  function blank() {
+    return { n: null, idea: false, etapa: "guion", tipo: "A", t: "", g: "", p: "educacion", f: "Reel", o: "Atraer", pose: 1, dest: "seguir", s: null, partes: [], cap: "", cta: "", tags: "", nota: "" };
+  }
+  function localItems() {
+    var a = D.map(function (d) {
+      var o = Object.assign(blank(), d);
+      o.key = "d" + d.d; o.n = d.d; o.etapa = st.etapas[d.d] || "guion"; o.tipo = TIPO_DIA[d.d] || "A";
+      return o;
+    });
+    st.ideas.forEach(function (i) {
+      var o = blank();
+      o.key = i.id; o.id = i.id; o.idea = true; o.etapa = i.etapa || "idea"; o.t = i.t;
+      a.push(o);
+    });
+    return a;
+  }
+  function fromRow(r) {
+    var o = Object.assign(blank(), r.data || {});
+    o.key = r.id; o.id = r.id; o.n = r.dia; o.etapa = r.etapa || "guion"; o.tipo = r.tipo || "A";
+    o.idea = !!(r.data && r.data.idea);
+    return o;
+  }
+  function toRow(it) {
+    var data = {};
+    CAMPOS.forEach(function (c) { if (it[c] !== undefined && it[c] !== null) data[c] = it[c]; });
+    if (it.idea) data.idea = true;
+    return { dia: it.n, etapa: it.etapa, tipo: it.tipo, data: data };
+  }
+  function resort() { items.sort(function (a, b) { return (a.n == null ? 1e9 : a.n) - (b.n == null ? 1e9 : b.n); }); }
+  function byKey(k) { return items.filter(function (x) { return x.key === k; })[0]; }
+  function contenidos() { return items.filter(function (x) { return !x.idea; }); }
+
+  function pad(n) { return n == null ? "··" : (n < 10 ? "0" : "") + n; }
+  function numTxt(d) { return d.idea ? "IDEA" : d.n == null ? "NUEVO" : pad(d.n); }
   function dur(d) {
+    if (!d.partes.length) return "sin guion";
     if (d.f === "Reel") {
       var m = 0;
       d.partes.forEach(function (p) {
         var r = p[1].match(/(\d+)\s*s\b/g);
         if (r) { var n = parseInt(r[r.length - 1], 10); if (n > m) m = n; }
       });
-      return "≈" + m + " s";
+      return m ? "≈" + m + " s" : d.partes.length + " escenas";
     }
     return d.partes.length + (d.f === "Carrusel" ? " slides" : " historias");
   }
@@ -692,7 +860,8 @@
   var current = null;
 
   function $(id) { return document.getElementById(id); }
-  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("show"); }, 2200); }
 
   /* Pose de cada escena */
   function scenePose(day, p) {
@@ -703,6 +872,39 @@
     return POSE_TIPO[p[0]] || null;
   }
   function esReel(day) { return day.f === "Reel"; }
+
+  /* ---------- Guardado (navegador o Supabase) ---------- */
+  function dbFail(e) { console.error(e); toast("No se pudo guardar en la base de datos"); }
+  function persistEtapa(it) {
+    if (mode === "db") {
+      sb.from(TABLA).update({ etapa: it.etapa, tipo: it.tipo }).eq("id", it.id).then(function (r) { if (r.error) dbFail(r.error); }, dbFail);
+    } else if (it.idea) {
+      st.ideas.forEach(function (i) { if (i.id === it.id) i.etapa = it.etapa; }); save();
+    } else { st.etapas[it.n] = it.etapa; save(); }
+  }
+  function setEtapa(it, etapa) { it.etapa = etapa; persistEtapa(it); render(); }
+  function addIdea(v) {
+    if (mode === "db") {
+      var it = blank(); it.idea = true; it.etapa = "idea"; it.t = v;
+      return sb.from(TABLA).insert(toRow(it)).select().single().then(function (r) {
+        if (r.error) throw r.error;
+        items.push(fromRow(r.data)); render(); $("newIdea").focus();
+      }).catch(dbFail);
+    }
+    st.ideas.unshift({ id: "i" + Date.now(), t: v, etapa: "idea" }); save();
+    items = localItems(); render(); $("newIdea").focus();
+  }
+  function delItem(it) {
+    if (mode === "db") {
+      if (!confirm("¿Borrar “" + it.t + "” de la base de datos? No se puede deshacer.")) return Promise.resolve(false);
+      return sb.from(TABLA).delete().eq("id", it.id).select().then(function (r) {
+        if (r.error) throw r.error;
+        items = items.filter(function (x) { return x !== it; }); render(); return true;
+      }).catch(function (e) { dbFail(e); return false; });
+    }
+    st.ideas = st.ideas.filter(function (i) { return i.id !== it.id; }); save();
+    items = localItems(); render(); return Promise.resolve(true);
+  }
 
   /* ---------- Filtros ---------- */
   var ph0 = '<option value="todos">Todas las categorías</option>';
@@ -723,62 +925,55 @@
   });
 
   function matches(d) {
+    if (d.idea) return (fPilar === "todos" && !fTipo) && (!q || d.t.toLowerCase().indexOf(q) !== -1);
     if (fPilar !== "todos" && d.p !== fPilar) return false;
-    if (fTipo && tipoDe(d) !== fTipo) return false;
+    if (fTipo && d.tipo !== fTipo) return false;
     if (q) {
-      if (String(d.d) === q || pad(d.d) === q) return true;
+      if (d.n != null && (String(d.n) === q || pad(d.n) === q)) return true;
       var hay = (d.t + " " + d.g + " " + d.cap + " " + d.partes.map(function (p) { return p[2]; }).join(" ")).toLowerCase();
       if (hay.indexOf(q) === -1) return false;
     }
     return true;
   }
-  function ideaMatches(i) {
-    if (fPilar !== "todos" || fTipo) return false;
-    return !q || i.t.toLowerCase().indexOf(q) !== -1;
-  }
 
   /* ---------- Render ---------- */
   function cardHtml(d) {
-    return '<div class="kcard" draggable="true" tabindex="0" role="button" data-day="' + d.d + '" aria-label="Día ' + d.d + ': ' + esc(d.t) + '">' +
+    if (d.idea) {
+      return '<div class="kcard" draggable="true" data-key="' + d.key + '"><button class="kdel" type="button" data-del="' + d.key + '" aria-label="Borrar idea">×</button>' +
+        '<div class="knum">[IDEA]</div><div class="ktitle" style="padding-right:22px">' + esc(d.t) + "</div></div>";
+    }
+    return '<div class="kcard" draggable="true" tabindex="0" role="button" data-key="' + d.key + '" aria-label="' + esc(numTxt(d) + ": " + d.t) + '">' +
       '<img class="kface" loading="lazy" src="' + poseImg(d.pose) + '" alt="">' +
-      '<div class="knum">[' + pad(d.d) + "]</div><div class=\"ktitle\" style=\"padding-right:34px\">" + esc(d.t) + "</div>" +
-      '<div class="kmeta"><span class="tp ' + tipoDe(d) + '" title="Tipo ' + tipoDe(d) + '">' + tipoDe(d) + "</span>" +
-      '<span class="mono">' + esc(PILARES[d.p].t) + '</span><span class="mono">' + dur(d) + "</span>" +
-      (d.conv ? '<span class="mono" style="background:var(--slate);color:var(--champagne)">Convierte</span>' : "") + "</div></div>";
-  }
-  function ideaHtml(i) {
-    return '<div class="kcard" draggable="true" data-idea="' + i.id + '"><button class="kdel" type="button" data-del="' + i.id + '" aria-label="Borrar idea">×</button>' +
-      '<div class="knum">[IDEA]</div><div class="ktitle" style="padding-right:22px">' + esc(i.t) + "</div></div>";
+      '<div class="knum">[' + numTxt(d) + "]</div><div class=\"ktitle\" style=\"padding-right:34px\">" + esc(d.t) + "</div>" +
+      '<div class="kmeta"><span class="tp ' + d.tipo + '" title="Tipo ' + d.tipo + '">' + d.tipo + "</span>" +
+      '<span class="mono">' + esc((PILARES[d.p] || PILARES.educacion).t) + '</span><span class="mono">' + dur(d) + "</span></div></div>";
   }
 
   function renderBoard() {
     var h = '<div class="board">';
     ETAPAS.forEach(function (e) {
-      var days = D.filter(function (d) { return etapaDe(d) === e.k && matches(d); });
-      var ideas = st.ideas.filter(function (i) { return (i.etapa || "idea") === e.k && ideaMatches(i); });
-      h += '<section class="col" data-etapa="' + e.k + '"><div class="col-head"><h3>' + e.t + '</h3><span class="n">[' + (days.length + ideas.length) + "]</span></div>" +
+      var col = items.filter(function (d) { return d.etapa === e.k && matches(d); });
+      col = col.filter(function (d) { return d.idea; }).concat(col.filter(function (d) { return !d.idea; }));
+      h += '<section class="col" data-etapa="' + e.k + '"><div class="col-head"><h3>' + e.t + '</h3><span class="n">[' + col.length + "]</span></div>" +
         '<div class="col-sub">' + e.s + "</div>";
       if (e.k === "idea") h += '<div class="add"><input id="newIdea" type="text" placeholder="Escribe una idea y presiona Enter" aria-label="Nueva idea"><button type="button" id="addIdea" aria-label="Agregar idea">+</button></div>';
-      h += '<div class="col-body">' + ideas.map(ideaHtml).join("") + days.map(cardHtml).join("") + "</div></section>";
+      h += '<div class="col-body">' + col.map(cardHtml).join("") + "</div></section>";
     });
     $("view").innerHTML = h + "</div>";
     var inp = $("newIdea");
-    function add() {
-      var v = inp.value.trim(); if (!v) return;
-      st.ideas.unshift({ id: "i" + Date.now(), t: v, etapa: "idea" }); save(); render(); $("newIdea").focus();
-    }
+    function add() { var v = inp.value.trim(); if (v) addIdea(v); }
     inp.addEventListener("keydown", function (e) { if (e.key === "Enter") add(); });
     $("addIdea").addEventListener("click", add);
   }
 
   function renderList() {
-    var rows = D.filter(matches);
+    var rows = items.filter(function (d) { return !d.idea && matches(d); });
     var h = '<div class="list">';
     rows.forEach(function (d) {
-      var opts = ETAPAS.map(function (e) { return '<option value="' + e.k + '"' + (etapaDe(d) === e.k ? " selected" : "") + ">" + e.t + "</option>"; }).join("");
-      h += '<div class="lrow" data-day="' + d.d + '"><span class="knum">[' + pad(d.d) + ']</span><span class="lt">' + esc(d.t) + "</span>" +
-        '<span class="tp ' + tipoDe(d) + ' hide-m">' + tipoDe(d) + '</span><span class="mono hide-m">' + esc(PILARES[d.p].t) + '</span><span class="mono hide-m">' + d.f + " · " + dur(d) + "</span>" +
-        '<select class="sel" data-et="' + d.d + '" aria-label="Etapa del día ' + d.d + '">' + opts + "</select></div>";
+      var opts = ETAPAS.map(function (e) { return '<option value="' + e.k + '"' + (d.etapa === e.k ? " selected" : "") + ">" + e.t + "</option>"; }).join("");
+      h += '<div class="lrow" data-key="' + d.key + '"><span class="knum">[' + numTxt(d) + ']</span><span class="lt">' + esc(d.t) + "</span>" +
+        '<span class="tp ' + d.tipo + ' hide-m">' + d.tipo + '</span><span class="mono hide-m">' + esc((PILARES[d.p] || PILARES.educacion).t) + '</span><span class="mono hide-m">' + d.f + " · " + dur(d) + "</span>" +
+        '<select class="sel" data-et="' + d.key + '" aria-label="Etapa de ' + esc(d.t) + '">' + opts + "</select></div>";
     });
     if (!rows.length) h += '<p class="empty">No hay contenido con esos filtros.</p>';
     $("view").innerHTML = h + "</div>";
@@ -787,45 +982,46 @@
   function render() {
     document.querySelectorAll("[data-view]").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-view") === st.view ? "true" : "false"); });
     if (st.view === "list") renderList(); else renderBoard();
-    var n = D.filter(function (d) { return etapaDe(d) === "publicado"; }).length;
-    $("cntDone").textContent = n; $("cntTotal").textContent = D.length;
-    $("bar").style.width = (n / D.length * 100) + "%";
+    var all = contenidos();
+    var n = all.filter(function (d) { return d.etapa === "publicado"; }).length;
+    $("cntDone").textContent = n; $("cntTotal").textContent = all.length;
+    $("bar").style.width = (all.length ? n / all.length * 100 : 0) + "%";
+    $("btnNew").hidden = mode !== "db";
   }
 
   /* ---------- Arrastrar y soltar ---------- */
-  function moveTo(key, etapa) {
-    if (key.indexOf("d:") === 0) st.etapas[key.slice(2)] = etapa;
-    else { st.ideas.forEach(function (i) { if (i.id === key.slice(2)) i.etapa = etapa; }); }
-    save(); render();
-  }
   var view = $("view");
   view.addEventListener("dragstart", function (e) {
     var c = e.target.closest(".kcard"); if (!c) return;
-    var key = c.hasAttribute("data-day") ? "d:" + c.getAttribute("data-day") : "i:" + c.getAttribute("data-idea");
-    e.dataTransfer.setData("text/plain", key); e.dataTransfer.effectAllowed = "move"; c.classList.add("dragging");
+    e.dataTransfer.setData("text/plain", c.getAttribute("data-key")); e.dataTransfer.effectAllowed = "move"; c.classList.add("dragging");
   });
   view.addEventListener("dragend", function (e) { var c = e.target.closest(".kcard"); if (c) c.classList.remove("dragging"); document.querySelectorAll(".col.over").forEach(function (x) { x.classList.remove("over"); }); });
   view.addEventListener("dragover", function (e) { var col = e.target.closest(".col"); if (!col) return; e.preventDefault(); document.querySelectorAll(".col.over").forEach(function (x) { if (x !== col) x.classList.remove("over"); }); col.classList.add("over"); });
   view.addEventListener("drop", function (e) {
     var col = e.target.closest(".col"); if (!col) return; e.preventDefault();
-    var key = e.dataTransfer.getData("text/plain"); if (key) moveTo(key, col.getAttribute("data-etapa"));
+    var it = byKey(e.dataTransfer.getData("text/plain")); if (it) setEtapa(it, col.getAttribute("data-etapa"));
   });
 
   /* ---------- Clics en tarjetas / lista ---------- */
+  function abrirItem(k) {
+    var it = byKey(k); if (!it) return;
+    if (it.idea) { if (mode === "db") openEdit(it); return; }
+    open(k);
+  }
   view.addEventListener("click", function (e) {
     var del = e.target.closest("[data-del]");
-    if (del) { var id = del.getAttribute("data-del"); st.ideas = st.ideas.filter(function (i) { return i.id !== id; }); save(); render(); return; }
+    if (del) { var it = byKey(del.getAttribute("data-del")); if (it) delItem(it); return; }
     if (e.target.closest("select")) return;
-    var c = e.target.closest("[data-day]");
-    if (c) open(+c.getAttribute("data-day"));
+    var c = e.target.closest("[data-key]");
+    if (c) abrirItem(c.getAttribute("data-key"));
   });
   view.addEventListener("keydown", function (e) {
     if (e.key !== "Enter") return;
-    var c = e.target.closest(".kcard[data-day]"); if (c) open(+c.getAttribute("data-day"));
+    var c = e.target.closest(".kcard[data-key]"); if (c) abrirItem(c.getAttribute("data-key"));
   });
   view.addEventListener("change", function (e) {
     var s = e.target.closest("select[data-et]"); if (!s) return;
-    st.etapas[s.getAttribute("data-et")] = s.value; save(); render();
+    var it = byKey(s.getAttribute("data-et")); if (it) setEtapa(it, s.value);
   });
 
   /* ---------- Poses (guía) ---------- */
@@ -836,19 +1032,20 @@
   }
   $("poseGrid").innerHTML = pg;
 
-  /* ---------- Diálogo ---------- */
+  /* ---------- Diálogo de lectura ---------- */
   var dlg = $("dlg");
   $("dEtapa").innerHTML = ETAPAS.map(function (e) { return '<option value="' + e.k + '">' + e.t + "</option>"; }).join("");
-  function open(n) {
-    var d = D.filter(function (x) { return x.d === n; })[0];
+  function open(k) {
+    var d = byKey(k);
     if (!d) return;
     current = d;
-    var pil = PILARES[d.p];
-    $("dImg").src = poseImg(d.pose);
-    $("dImg").alt = "Aura: " + POSES[d.pose].n;
-    $("dMeta").textContent = "[" + pad(d.d) + "] · " + pil.t + " · " + d.f + " · Tipo " + tipoDe(d) + " · " + d.o;
+    var pil = PILARES[d.p] || PILARES.educacion;
+    var pn0 = POSES[d.pose] || POSES[1];
+    $("dImg").src = poseImg(POSES[d.pose] ? d.pose : 1);
+    $("dImg").alt = "Aura: " + pn0.n;
+    $("dMeta").textContent = "[" + numTxt(d) + "] · " + pil.t + " · " + d.f + " · Tipo " + d.tipo + " · " + d.o;
     $("dTitle").textContent = d.t;
-    $("dHook").textContent = "“" + d.g + "”";
+    $("dHook").textContent = d.g ? "“" + d.g + "”" : "(sin gancho)";
     $("dPartsLbl").textContent = esReel(d) ? "Guion y poses de Aura por escena" : d.f === "Carrusel" ? "Texto de cada slide" : "Secuencia de historias";
     var ph = "";
     d.partes.forEach(function (p) {
@@ -859,26 +1056,29 @@
       var pn = pi ? '<div class="pn">Aura: ' + esc(POSES[pi].n) + " · " + esc(POSES[pi].e.toLowerCase()) + "</div>" : "";
       ph += '<div class="shot">' + visual + '<div><div class="lab">' + esc(p[1]) + '</div><div class="txt">' + esc(p[2]) + "</div>" + pn + "</div></div>";
     });
-    $("dParts").innerHTML = ph;
+    $("dParts").innerHTML = ph || '<p class="empty" style="padding:10px 0">Todavía no tiene guion.</p>';
     $("dNotaBlk").hidden = !d.nota;
     $("dNota").textContent = d.nota || "";
-    $("dCaption").textContent = d.cap;
-    $("dCta").textContent = d.cta + "  →  " + DESTINOS[d.dest];
-    $("dTags").textContent = d.tags;
-    $("dEtapa").value = etapaDe(d);
-    $("prev").disabled = d.d === 1;
-    $("next").disabled = d.d === D.length;
+    $("dCaption").textContent = d.cap || "—";
+    $("dCta").textContent = (d.cta || "—") + (DESTINOS[d.dest] ? "  →  " + DESTINOS[d.dest] : "");
+    $("dTags").textContent = d.tags || "—";
+    $("dEtapa").value = d.etapa;
+    var lista = contenidos(), ix = lista.indexOf(d);
+    $("prev").disabled = ix <= 0;
+    $("next").disabled = ix < 0 || ix >= lista.length - 1;
+    $("dEdit").hidden = mode !== "db";
     if (!dlg.open) dlg.showModal();
     dlg.querySelector(".dlg-body").scrollTop = 0;
   }
+  function vecino(delta) { var lista = contenidos(), ix = lista.indexOf(current) + delta; if (lista[ix]) open(lista[ix].key); }
   $("dClose").addEventListener("click", function () { dlg.close(); });
   dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
-  $("prev").addEventListener("click", function () { open(current.d - 1); });
-  $("next").addEventListener("click", function () { open(current.d + 1); });
-  $("dEtapa").addEventListener("change", function (e) { st.etapas[current.d] = e.target.value; save(); render(); });
+  $("prev").addEventListener("click", function () { vecino(-1); });
+  $("next").addEventListener("click", function () { vecino(1); });
+  $("dEtapa").addEventListener("change", function (e) { setEtapa(current, e.target.value); });
+  $("dEdit").addEventListener("click", function () { openEdit(current); });
 
   /* ---------- Copiar / descargar ---------- */
-  function toast(msg) { var t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(t._h); t._h = setTimeout(function () { t.classList.remove("show"); }, 1800); }
   function copy(text, msg) {
     function fallback() { var a = document.createElement("textarea"); a.value = text; document.body.appendChild(a); a.select(); try { document.execCommand("copy"); toast(msg); } catch (e) { toast("No se pudo copiar"); } a.remove(); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { toast(msg); }, fallback); else fallback();
@@ -889,29 +1089,184 @@
   $("cpCaption").addEventListener("click", function () { copy(current.cap, "Caption copiado"); });
   $("cpTags").addEventListener("click", function () { copy(current.tags, "Hashtags copiados"); });
 
-  $("btnMd").addEventListener("click", function () {
-    var md = "# Banco de contenido Glow21 · 30 días\n\n";
-    SEMANAS.forEach(function (sem, si) {
-      md += "## " + sem.t + "\n\n_" + sem.d + "_\n\n";
-      D.filter(function (d) { return d.s === si; }).forEach(function (d) {
-        md += "### Día " + d.d + " · " + d.t + "\n\n- **Pilar:** " + PILARES[d.p].t + " · **Formato:** " + d.f + " · **Objetivo:** " + d.o + "\n- **Gancho:** " + d.g + "\n\n";
-        d.partes.forEach(function (p) {
-          var pi = scenePose(d, p);
-          md += "- **" + p[1] + ":** " + p[2] + (pi ? "  \n  _Aura: " + POSES[pi].n + " (" + POSES[pi].e.toLowerCase() + ")_" : "") + "\n";
-        });
-        md += "\n**Caption:**\n\n" + d.cap + "\n\n**CTA:** " + d.cta + " → " + DESTINOS[d.dest] + "\n\n**Hashtags:** " + d.tags + "\n";
-        if (d.nota) md += "\n> ⚠️ " + d.nota + "\n";
-        md += "\n---\n\n";
-      });
+  function mdDia(d) {
+    var md = "### " + (d.n != null ? "Día " + d.n + " · " : "") + d.t + "\n\n- **Pilar:** " + (PILARES[d.p] || PILARES.educacion).t + " · **Formato:** " + d.f + " · **Objetivo:** " + d.o + "\n- **Gancho:** " + d.g + "\n\n";
+    d.partes.forEach(function (p) {
+      var pi = scenePose(d, p);
+      md += "- **" + p[1] + ":** " + p[2] + (pi ? "  \n  _Aura: " + POSES[pi].n + " (" + POSES[pi].e.toLowerCase() + ")_" : "") + "\n";
     });
+    md += "\n**Caption:**\n\n" + d.cap + "\n\n**CTA:** " + d.cta + (DESTINOS[d.dest] ? " → " + DESTINOS[d.dest] : "") + "\n\n**Hashtags:** " + d.tags + "\n";
+    if (d.nota) md += "\n> ⚠️ " + d.nota + "\n";
+    return md + "\n---\n\n";
+  }
+  $("btnMd").addEventListener("click", function () {
+    var lista = contenidos();
+    var md = "# Banco de contenido Glow21\n\n";
+    SEMANAS.forEach(function (sem, si) {
+      var dias = lista.filter(function (d) { return d.s === si; });
+      if (!dias.length) return;
+      md += "## " + sem.t + "\n\n_" + sem.d + "_\n\n" + dias.map(mdDia).join("");
+    });
+    var otros = lista.filter(function (d) { return d.s == null || !SEMANAS[d.s]; });
+    if (otros.length) md += "## Contenido adicional\n\n" + otros.map(mdDia).join("");
     var a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([md], { type: "text/markdown;charset=utf-8" }));
-    a.download = "banco-de-contenido-glow21-30-dias.md";
+    a.download = "banco-de-contenido-glow21.md";
     document.body.appendChild(a); a.click(); a.remove();
     toast("Descargando el .md");
   });
 
-  render();
+  /* ---------- Editor (solo con sesión y base de datos) ---------- */
+  var dlgE = $("dlgE"), editing = null;
+  var TIPOS_ESC = [["g", "Gancho"], ["p", "Problema / idea"], ["e", "Enseñanza"], ["c", "Cierre"], ["s", "Slide / historia"]];
+  function opts(list, sel) { return list.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(sel) ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join(""); }
+  var POSE_OPTS = []; for (var pi0 = 1; pi0 <= 20; pi0++) POSE_OPTS.push([pi0, pi0 + ". " + POSES[pi0].n + " · " + POSES[pi0].e]);
+  $("ePilar").innerHTML = opts(Object.keys(PILARES).map(function (k) { return [k, PILARES[k].t]; }));
+  $("eFormato").innerHTML = opts([["Reel", "Reel"], ["Carrusel", "Carrusel"], ["Historias", "Historias"]]);
+  $("eObj").innerHTML = opts([["Atraer", "Atraer"], ["Educar", "Educar"], ["Conectar", "Conectar"], ["Convertir", "Convertir"]]);
+  $("eTipo").innerHTML = opts([["A", "A · Aura y texto"], ["B", "B · fotos o capturas"], ["C", "C · Aranza grabando"]]);
+  $("ePose").innerHTML = opts(POSE_OPTS);
+  $("eDest").innerHTML = opts(Object.keys(DESTINOS).map(function (k) { return [k, DESTINOS[k]]; }));
+  $("eEtapa").innerHTML = opts(ETAPAS.map(function (e) { return [e.k, e.t]; }));
+
+  function sceneRow(p) {
+    p = p || ["s", "", ""];
+    return '<div class="srow"><select class="sel s-tipo" aria-label="Tipo de escena">' + opts(TIPOS_ESC, p[0]) + "</select>" +
+      '<input class="s-lab" type="text" placeholder="Etiqueta (ej. 0–3 s · Gancho)" value="' + esc(p[1]) + '" aria-label="Etiqueta">' +
+      '<select class="sel s-pose" aria-label="Pose de Aura"><option value="">Pose automática</option>' + opts(POSE_OPTS, p[3] || "") + "</select>" +
+      '<textarea class="s-txt" rows="2" placeholder="Lo que se dice o se lee en esta escena" aria-label="Texto">' + esc(p[2]) + "</textarea>" +
+      '<div class="s-btns"><button type="button" data-sa="up" aria-label="Subir">↑</button><button type="button" data-sa="down" aria-label="Bajar">↓</button><button type="button" data-sa="del" aria-label="Quitar escena">×</button></div></div>';
+  }
+  function readScenes() {
+    return [].map.call($("eScenes").querySelectorAll(".srow"), function (r) {
+      var a = [r.querySelector(".s-tipo").value, r.querySelector(".s-lab").value.trim(), r.querySelector(".s-txt").value.trim()];
+      var po = r.querySelector(".s-pose").value; if (po) a.push(+po);
+      return a;
+    }).filter(function (a) { return a[1] || a[2]; });
+  }
+  $("eScenes").addEventListener("click", function (e) {
+    var b = e.target.closest("[data-sa]"); if (!b) return;
+    var row = b.closest(".srow"), a = b.getAttribute("data-sa");
+    if (a === "del") row.remove();
+    else if (a === "up" && row.previousElementSibling) row.parentNode.insertBefore(row, row.previousElementSibling);
+    else if (a === "down" && row.nextElementSibling) row.parentNode.insertBefore(row.nextElementSibling, row);
+  });
+  $("eAddScene").addEventListener("click", function () { $("eScenes").insertAdjacentHTML("beforeend", sceneRow()); });
+
+  function openEdit(it) {
+    if (mode !== "db") return;
+    var nuevo = !it;
+    if (nuevo) {
+      it = blank();
+      it.partes = [["g", "0–3 s · Gancho", ""], ["p", "3–12 s · Idea", ""], ["e", "12–28 s · Enseñanza", ""], ["c", "28–38 s · Cierre", "Sígueme para más tips de skincare."]];
+      it.cta = "Sígueme para más tips de skincare.";
+    }
+    editing = nuevo ? null : it;
+    $("eHead").textContent = nuevo ? "Nuevo contenido" : "Editar " + (it.idea ? "idea" : "[" + numTxt(it) + "]");
+    $("eNum").value = it.n == null ? "" : it.n;
+    $("eTitulo").value = it.t; $("eGancho").value = it.g;
+    $("ePilar").value = it.p; $("eFormato").value = it.f; $("eObj").value = it.o; $("eTipo").value = it.tipo;
+    $("ePose").value = it.pose; $("eDest").value = it.dest; $("eEtapa").value = it.etapa;
+    var ps = it.partes.length ? it.partes : [["g", "0–3 s · Gancho", ""]];
+    $("eScenes").innerHTML = ps.map(sceneRow).join("");
+    $("eCap").value = it.cap; $("eCta").value = it.cta; $("eTags").value = it.tags; $("eNota").value = it.nota || "";
+    $("eDel").hidden = nuevo;
+    $("eSave").disabled = false; $("eSave").textContent = "Guardar";
+    if (dlg.open) dlg.close();
+    dlgE.showModal();
+    dlgE.querySelector(".dlg-body").scrollTop = 0;
+  }
+  $("btnNew").addEventListener("click", function () { openEdit(null); });
+  $("eCancel").addEventListener("click", function () { dlgE.close(); });
+  $("eClose").addEventListener("click", function () { dlgE.close(); });
+  $("eDel").addEventListener("click", function () {
+    if (!editing) return;
+    delItem(editing).then(function (ok) { if (ok) dlgE.close(); });
+  });
+  $("fEdit").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var titulo = $("eTitulo").value.trim();
+    if (!titulo) { $("eTitulo").focus(); return; }
+    var nuevo = !editing;
+    var it = editing || blank();
+    var num = parseInt($("eNum").value, 10);
+    it.n = isNaN(num) ? null : num;
+    it.t = titulo; it.g = $("eGancho").value.trim();
+    it.p = $("ePilar").value; it.f = $("eFormato").value; it.o = $("eObj").value; it.tipo = $("eTipo").value;
+    it.pose = +$("ePose").value; it.dest = $("eDest").value; it.etapa = $("eEtapa").value;
+    it.partes = readScenes();
+    it.cap = $("eCap").value.trim(); it.cta = $("eCta").value.trim(); it.tags = $("eTags").value.trim(); it.nota = $("eNota").value.trim();
+    it.idea = false;
+    var btn = $("eSave"); btn.disabled = true; btn.textContent = "Guardando…";
+    var row = toRow(it);
+    var req = it.id ? sb.from(TABLA).update(row).eq("id", it.id) : sb.from(TABLA).insert(row);
+    req.select().single().then(function (r) {
+      if (r.error) throw r.error;
+      if (nuevo) { it.id = r.data.id; it.key = r.data.id; items.push(it); }
+      resort(); render(); dlgE.close(); toast("Guardado");
+      open(it.key);
+    }).catch(function (err) {
+      dbFail(err); btn.disabled = false; btn.textContent = "Guardar";
+    });
+  });
+
+  /* ---------- Sesión y base de datos ---------- */
+  var dlgL = $("dlgL");
+  function faltaTabla(err) { return err && (err.code === "42P01" || err.code === "PGRST205" || /does not exist|schema cache/i.test(err.message || "")); }
+  function updateBar() {
+    var h = "";
+    if (!sb) h = "Sin conexión con la base de datos: estás viendo la versión de lectura.";
+    else if (!user) h = 'Versión de lectura (los cambios de etapa solo se guardan en este navegador). <button class="btn ghost small" type="button" data-act="login">Entrar para editar</button>';
+    else if (dbState === "falta") h = 'Falta crear la tabla <b>glow21_contenido</b>. Abre Supabase → SQL Editor, pega el contenido de <b>supabase-contenido.sql</b> (está en la carpeta del proyecto), ejecútalo y recarga esta página. <button class="btn ghost small" type="button" data-act="logout">Salir</button>';
+    else if (dbState === "vacia") h = 'Conectada, pero la base de datos está vacía. <button class="btn small" type="button" data-act="seed">Cargar los 30 días</button> <button class="btn ghost small" type="button" data-act="logout">Salir</button>';
+    else if (dbState === "error") h = 'No se pudo leer la base de datos. Revisa tu conexión y recarga. <button class="btn ghost small" type="button" data-act="logout">Salir</button>';
+    else h = 'Conectada como <b>' + esc(user.email || "") + '</b>: todo lo que edites se guarda en Supabase. Toca una tarjeta y luego «Editar». <button class="btn ghost small" type="button" data-act="logout">Salir</button>';
+    $("dbBar").innerHTML = h;
+    $("dbBar").className = "dbbar" + (mode === "db" ? " ok" : "");
+  }
+  async function loadDb() {
+    var r;
+    try { r = await sb.from(TABLA).select("*").order("dia", { ascending: true, nullsFirst: false }).order("created_at", { ascending: true }); }
+    catch (e) { r = { error: e }; }
+    if (r.error) { dbState = faltaTabla(r.error) ? "falta" : "error"; if (dbState === "error") console.error(r.error); mode = "local"; items = localItems(); }
+    else if (!r.data.length) { dbState = "vacia"; mode = "local"; items = localItems(); }
+    else { dbState = "ok"; mode = "db"; items = r.data.map(fromRow); }
+    render(); updateBar();
+  }
+  async function seed() {
+    var rows = D.map(function (d) {
+      var it = Object.assign(blank(), d); it.n = d.d; it.etapa = st.etapas[d.d] || "guion"; it.tipo = TIPO_DIA[d.d] || "A";
+      return toRow(it);
+    });
+    var r = await sb.from(TABLA).insert(rows);
+    if (r.error) { dbFail(r.error); return; }
+    toast("Listo: 30 días cargados"); await loadDb();
+  }
+  $("dbBar").addEventListener("click", async function (e) {
+    var b = e.target.closest("[data-act]"); if (!b) return;
+    var a = b.getAttribute("data-act");
+    if (a === "login") { $("lErr").hidden = true; dlgL.showModal(); $("lMail").focus(); }
+    else if (a === "seed") { b.disabled = true; seed(); }
+    else if (a === "logout") { await sb.auth.signOut(); user = null; mode = "local"; dbState = ""; items = localItems(); render(); updateBar(); }
+  });
+  $("lCancel").addEventListener("click", function () { dlgL.close(); });
+  $("fLogin").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    var btn = $("lGo"); btn.disabled = true; btn.textContent = "Entrando…"; $("lErr").hidden = true;
+    var r = await sb.auth.signInWithPassword({ email: $("lMail").value.trim(), password: $("lPass").value });
+    btn.disabled = false; btn.textContent = "Entrar";
+    if (r.error) { $("lErr").textContent = "Correo o contraseña incorrectos."; $("lErr").hidden = false; return; }
+    user = r.data.user; $("lPass").value = ""; dlgL.close(); await loadDb();
+  });
+  $("btnNew").hidden = true;
+
+  items = localItems();
+  render(); updateBar();
+  if (sb) {
+    sb.auth.getSession().then(function (r) {
+      if (r.data && r.data.session) { user = r.data.session.user; return loadDb(); }
+    }).catch(function () {});
+  }
 })();
 </script>
 </body>
