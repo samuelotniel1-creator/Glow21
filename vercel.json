@@ -7,6 +7,8 @@
     { "source": "/crm/", "destination": "/crm/index.html" },
     { "source": "/preregistro", "destination": "/preregistro.html" },
     { "source": "/preregistro/", "destination": "/preregistro.html" },
+    { "source": "/programa", "destination": "/programa.html" },
+    { "source": "/programa/", "destination": "/programa.html" },
     { "source": "/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/favicon.png", "destination": "/favicon.png" }
   ]

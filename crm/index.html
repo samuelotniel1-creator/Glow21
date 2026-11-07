@@ -830,7 +830,7 @@
       );
       const yaPago = correosPagados.has((row.correo || '').trim().toLowerCase());
       campos.push({ label: 'Pagó premium', valor: yaPago ? 'Sí' : 'No', badge: yaPago ? 'paid' : 'pending' });
-      campos.push({ label: 'Origen', valor: row.origen === 'preregistro' ? 'Preregistro (pauta)' : 'Masterclass' });
+      campos.push({ label: 'Origen', valor: row.origen === 'preregistro' ? 'Preregistro (pauta)' : row.origen === 'cita' ? 'Cita con especialista' : 'Masterclass' });
       if (row.tipo_piel) campos.push({ label: 'Tipo de piel', valor: row.tipo_piel });
     }
 

@@ -84,6 +84,37 @@ module.exports = async (req, res) => {
     return;
   }
 
+  if (body.action === 'cita') {
+    const nombre = (body.nombre || '').trim();
+    const correo = (body.correo || '').trim();
+    const telefono = (body.telefono || '').trim();
+    const horario = (body.horario || '').trim().slice(0, 60);
+
+    if (!nombre || !correo || !telefono) {
+      res.status(400).json({ error: 'Faltan datos' });
+      return;
+    }
+
+    const { error } = await supabase
+      .from('glow21_profiles')
+      .insert({
+        nombre,
+        correo,
+        telefono,
+        origen: 'cita',
+        nota: horario ? `Pidió cita con especialista. Horario preferido: ${horario}` : 'Pidió cita con especialista'
+      });
+
+    if (error) {
+      console.error('Glow21 registro: error guardando solicitud de cita', error);
+      res.status(500).json({ error: 'No se pudo guardar' });
+      return;
+    }
+
+    res.status(200).json({ ok: true });
+    return;
+  }
+
   if (body.action === 'diagnostico') {
     const id = body.id;
     const tipoPiel = (body.tipo_piel || '').trim();

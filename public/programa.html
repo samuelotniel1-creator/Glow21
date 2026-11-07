@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programa Glow21 · Agenda tu cita con un especialista</title>
+<meta name="description" content="Glow21 es un programa de 21 días de educación, ciencia y comunidad para transformar tu piel y tu relación con el espejo. Agenda una cita con un especialista y conoce si es para ti.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,500&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window,document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '1416585077128417');
+fbq('track', 'PageView');
+</script>
+<style>
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --pearl:      #FDFBF7;
+    --slate:      #2C3539;
+    --champagne:  #E5C4A3;
+    --quartz:     #F4DCD6;
+    --copper:     #B9835F;
+
+    --slate-70:   rgba(44, 53, 57, 0.74);
+    --slate-55:   rgba(44, 53, 57, 0.58);
+    --slate-12:   rgba(44, 53, 57, 0.12);
+    --slate-08:   rgba(44, 53, 57, 0.08);
+    --pearl-80:   rgba(253, 251, 247, 0.84);
+
+    --gradient-bruma: linear-gradient(135deg, #F4DCD6 0%, #E5C4A3 100%);
+
+    --serif: 'Playfair Display', Cambria, Georgia, serif;
+    --sans: 'Montserrat', Calibri, 'Segoe UI', sans-serif;
+
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --shadow-card: 0 24px 60px -24px rgba(44, 53, 57, 0.28);
+    --shadow-soft: 0 12px 32px -14px rgba(44, 53, 57, 0.22);
+    --radius: 3px;
+  }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 76px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--pearl);
+    color: var(--slate);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    padding-bottom: 76px; /* espacio para la barra fija en móvil */
+  }
+
+  img { max-width: 100%; display: block; }
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; letter-spacing: -0.01em; line-height: 1.18; }
+  h1 em, h2 em { font-style: italic; font-weight: 400; color: var(--copper); }
+  a { color: inherit; text-decoration: none; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 2px solid var(--slate); outline-offset: 3px; }
+
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 84px 0; }
+
+  .eyebrow {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--copper); margin-bottom: 16px;
+  }
+  .section-title { font-size: clamp(30px, 4.4vw, 44px); margin-bottom: 18px; }
+  .section-lead { color: var(--slate-70); max-width: 60ch; font-size: 17px; }
+  .center { text-align: center; }
+  .center .section-lead { margin-left: auto; margin-right: auto; }
+
+  /* ---------- Botones ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 17px 34px; border-radius: var(--radius); border: 1px solid transparent; cursor: pointer;
+    transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), background 0.3s;
+  }
+  .btn-primary { background: var(--slate); color: var(--pearl); }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+  .btn-primary:disabled { opacity: 0.5; cursor: wait; transform: none; box-shadow: none; }
+  .btn-whatsapp { background: #25D366; color: #0b3d1e; }
+  .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+  .btn-block { width: 100%; }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--pearl-80); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--slate-08);
+  }
+  .nav-inner { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .nav img { height: 34px; width: auto; }
+  .nav .btn { padding: 11px 22px; font-size: 12px; }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    padding: 56px 0 72px;
+    background: radial-gradient(900px 500px at 85% 0%, rgba(244,220,214,0.75), transparent 70%), var(--pearl);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; }
+  .hero h1 { font-size: clamp(36px, 5.6vw, 62px); margin-bottom: 22px; }
+  .hero-sub { font-size: 18px; color: var(--slate-70); max-width: 52ch; margin-bottom: 32px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; margin-bottom: 30px; }
+  .hero-note { font-size: 13px; color: var(--slate-55); }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    font-size: 12.5px; font-weight: 500; padding: 8px 14px; border-radius: 999px;
+    background: #fff; border: 1px solid var(--slate-12); color: var(--slate-70);
+  }
+  .chip::before { content: "✓"; color: var(--copper); margin-right: 7px; font-weight: 700; }
+  .hero-photo {
+    position: relative; border-radius: 200px 200px 6px 6px; overflow: hidden;
+    box-shadow: var(--shadow-card); aspect-ratio: 4/5; background: var(--gradient-bruma);
+  }
+  .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .hero-badge {
+    position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%);
+    background: rgba(253,251,247,0.94); border-radius: 999px; padding: 10px 20px;
+    font-size: 12.5px; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap; box-shadow: var(--shadow-soft);
+  }
+
+  /* ---------- Empatía ---------- */
+  .empathy { background: var(--slate); color: var(--pearl); }
+  .empathy .eyebrow { color: var(--champagne); }
+  .empathy .section-title em { color: var(--champagne); }
+  .empathy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: start; }
+  .empathy p { color: rgba(253,251,247,0.78); font-size: 17px; margin-bottom: 18px; }
+  .empathy-quote {
+    font-family: var(--serif); font-style: italic; font-size: clamp(22px, 2.8vw, 30px);
+    line-height: 1.35; color: var(--champagne); border-left: 2px solid var(--champagne); padding-left: 24px;
+  }
+
+  /* ---------- Programa / pilares ---------- */
+  .pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-top: 48px; }
+  .pillar {
+    background: #fff; border: 1px solid var(--slate-08); border-radius: var(--radius);
+    padding: 26px 18px; text-align: center; box-shadow: var(--shadow-soft);
+  }
+  .pillar-num { font-family: var(--serif); font-style: italic; font-size: 30px; color: var(--copper); }
+  .pillar h3 { font-size: 17px; margin: 8px 0 6px; }
+  .pillar p { font-size: 13.5px; color: var(--slate-70); line-height: 1.55; }
+
+  /* ---------- Beneficios ---------- */
+  .benefits { background: var(--gradient-bruma); }
+  .benefit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; margin-top: 48px; }
+  .benefit {
+    background: rgba(253,251,247,0.82); border-radius: var(--radius); padding: 30px 26px;
+    border: 1px solid rgba(255,255,255,0.7);
+  }
+  .benefit-icon { font-size: 26px; margin-bottom: 14px; }
+  .benefit h3 { font-size: 20px; margin-bottom: 8px; }
+  .benefit p { font-size: 14.5px; color: var(--slate-70); }
+
+  /* ---------- Qué incluye ---------- */
+  .includes-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: start; margin-top: 8px; }
+  .include-list { list-style: none; display: grid; gap: 14px; }
+  .include-list li {
+    display: grid; grid-template-columns: 38px 1fr; gap: 14px; align-items: start;
+    background: #fff; border: 1px solid var(--slate-08); border-radius: var(--radius); padding: 16px 18px;
+  }
+  .include-list .tick {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--quartz); color: var(--copper);
+    display: grid; place-items: center; font-weight: 700; font-size: 14px;
+  }
+  .include-list strong { display: block; font-size: 15px; }
+  .include-list span { font-size: 13.5px; color: var(--slate-70); }
+
+  /* ---------- Cómo funciona la cita ---------- */
+  .steps { background: #fff; border-top: 1px solid var(--slate-08); border-bottom: 1px solid var(--slate-08); }
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; margin-top: 48px; }
+  .step { text-align: center; padding: 0 12px; }
+  .step-num {
+    width: 54px; height: 54px; border-radius: 50%; margin: 0 auto 18px;
+    background: var(--gradient-bruma); display: grid; place-items: center;
+    font-family: var(--serif); font-size: 24px; font-style: italic;
+  }
+  .step h3 { font-size: 20px; margin-bottom: 8px; }
+  .step p { font-size: 14.5px; color: var(--slate-70); }
+
+  /* ---------- Aranza ---------- */
+  .founder-grid { display: grid; grid-template-columns: 0.55fr 1fr; gap: 56px; align-items: center; }
+  .founder-photo { border-radius: 50%; overflow: hidden; aspect-ratio: 1; box-shadow: var(--shadow-card); max-width: 360px; margin: 0 auto; }
+  .founder-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .founder p { color: var(--slate-70); font-size: 17px; margin-bottom: 16px; }
+  .founder-sign { font-family: var(--serif); font-style: italic; font-size: 22px; color: var(--copper); }
+
+  /* ---------- FAQ ---------- */
+  .faq { background: #fff; border-top: 1px solid var(--slate-08); }
+  .faq-list { max-width: 760px; margin: 40px auto 0; display: grid; gap: 12px; }
+  details {
+    border: 1px solid var(--slate-12); border-radius: var(--radius); background: var(--pearl); padding: 0 22px;
+  }
+  summary {
+    cursor: pointer; list-style: none; padding: 20px 0; font-weight: 600; font-size: 16px;
+    display: flex; justify-content: space-between; gap: 16px; align-items: center;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; font-size: 24px; color: var(--copper); font-weight: 400; transition: transform 0.3s var(--ease); }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 0 20px; color: var(--slate-70); font-size: 15px; }
+
+  /* ---------- Formulario / cierre ---------- */
+  .cta-section {
+    background: var(--slate); color: var(--pearl);
+    background-image: radial-gradient(700px 420px at 12% 0%, rgba(229,196,163,0.18), transparent 70%);
+  }
+  .cta-grid { display: grid; grid-template-columns: 1fr 0.95fr; gap: 56px; align-items: center; }
+  .cta-section .eyebrow { color: var(--champagne); }
+  .cta-section .section-title em { color: var(--champagne); }
+  .cta-section p.lead { color: rgba(253,251,247,0.78); font-size: 17px; margin-bottom: 22px; }
+  .cta-points { list-style: none; display: grid; gap: 10px; }
+  .cta-points li { font-size: 15px; color: rgba(253,251,247,0.9); }
+  .cta-points li::before { content: "✓"; color: var(--champagne); font-weight: 700; margin-right: 10px; }
+
+  .form-card {
+    background: var(--pearl); color: var(--slate); border-radius: 6px; padding: 34px 30px; box-shadow: var(--shadow-card);
+  }
+  .form-card h3 { font-size: 24px; margin-bottom: 6px; }
+  .form-card .form-sub { font-size: 14px; color: var(--slate-70); margin-bottom: 22px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--slate-70); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; font-family: var(--sans); font-size: 16px; color: var(--slate);
+    padding: 14px 14px; border: 1px solid var(--slate-12); border-radius: var(--radius); background: #fff;
+  }
+  .field input:focus, .field select:focus { border-color: var(--copper); outline: none; box-shadow: 0 0 0 3px rgba(185,131,95,0.18); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .form-error { color: #a33a3a; font-size: 14px; margin: 4px 0 12px; min-height: 0; }
+  .form-legal { font-size: 12px; color: var(--slate-55); margin-top: 12px; text-align: center; }
+
+  .success { text-align: center; padding: 10px 0; }
+  .success .big { font-size: 42px; margin-bottom: 8px; }
+  .success h3 { margin-bottom: 10px; }
+  .success p { color: var(--slate-70); font-size: 15px; margin-bottom: 20px; }
+
+  /* ---------- Footer ---------- */
+  footer { padding: 36px 0 48px; text-align: center; font-size: 13px; color: var(--slate-55); }
+  footer a { text-decoration: underline; }
+
+  /* ---------- Barra fija móvil ---------- */
+  .sticky-cta {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60; padding: 12px 16px;
+    background: var(--pearl-80); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid var(--slate-12);
+    transform: translateY(110%); transition: transform 0.4s var(--ease);
+  }
+  .sticky-cta.show { transform: translateY(0); }
+  .sticky-cta .btn { width: 100%; padding: 15px; }
+
+  /* ---------- Reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.8s var(--ease), transform 0.8s var(--ease); }
+  .reveal.is-visible { opacity: 1; transform: none; }
+
+  /* ---------- Responsivo ---------- */
+  @media (max-width: 960px) {
+    section { padding: 64px 0; }
+    .hero-grid, .empathy-grid, .includes-grid, .founder-grid, .cta-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-photo { max-width: 380px; margin: 0 auto; width: 100%; }
+    .pillars { grid-template-columns: repeat(2, 1fr); }
+    .benefit-grid, .steps-grid { grid-template-columns: 1fr; }
+    .nav .btn { display: none; }
+  }
+  @media (min-width: 961px) {
+    body { padding-bottom: 0; }
+    .sticky-cta { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="/" aria-label="Glow21"><img src="assets/logos/logo-principal-transparente.png" alt="Glow21"></a>
+    <a href="#cita" class="btn btn-primary" data-cta="nav">Agendar mi cita</a>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div>
+        <p class="eyebrow">Programa Glow21 · 21 días</p>
+        <h1>Tu piel no necesita más productos. Necesita <em>un método</em>.</h1>
+        <p class="hero-sub">Glow21 es el programa que combina educación, ciencia y comunidad para que cuides tu piel con conocimiento — y vuelvas a reconocerte frente al espejo. Conversa con un especialista y descubre si es para ti.</p>
+        <div class="hero-actions">
+          <a href="#cita" class="btn btn-primary" data-cta="hero">Agendar mi cita con un especialista</a>
+        </div>
+        <p class="hero-note" style="margin-bottom:18px;">Una conversación sin compromiso, a tu ritmo.</p>
+        <div class="chips">
+          <span class="chip">Sin compromiso</span>
+          <span class="chip">Atención personalizada</span>
+          <span class="chip">Método basado en ciencia</span>
+        </div>
+      </div>
+      <div class="hero-photo">
+        <picture>
+          <source srcset="assets/hero/mujer-hero.webp" type="image/webp">
+          <img src="assets/hero/mujer-hero.png" alt="Mujer con piel luminosa y expresión serena" fetchpriority="high">
+        </picture>
+        <span class="hero-badge">Nunca es tarde para cuidarte</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMPATÍA -->
+  <section class="empathy">
+    <div class="container empathy-grid">
+      <div class="reveal">
+        <p class="eyebrow">Te entendemos</p>
+        <h2 class="section-title">Entre el trabajo, la familia y todos los demás, <em>dejaste de priorizarte</em>.</h2>
+      </div>
+      <div class="reveal">
+        <p>Probaste cremas, seguiste consejos de redes, compraste lo que prometía resultados… y aun así sientes que nadie te enseñó cómo funciona realmente tu piel.</p>
+        <p>La preocupación casi nunca es "una arruga". Es una mujer que ya no se reconoce en el espejo.</p>
+        <p class="empathy-quote">"La piel más hermosa no es la más perfecta; es la que refleja una vida vivida con conocimiento, bienestar y amor propio."</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUÉ ES EL PROGRAMA -->
+  <section id="programa">
+    <div class="container center">
+      <p class="eyebrow">El programa</p>
+      <h2 class="section-title reveal">21 días para entender tu piel y <em>crear hábitos que sí duran</em></h2>
+      <p class="section-lead reveal">Glow21 no es un reto de belleza ni una colección de productos. Es un método de acompañamiento guiado por Aranza Malagón, construido sobre cinco pilares.</p>
+
+      <div class="pillars">
+        <div class="pillar reveal"><div class="pillar-num">01</div><h3>Educación</h3><p>Aprende cómo funciona tu piel, en lenguaje claro y sin tecnicismos.</p></div>
+        <div class="pillar reveal"><div class="pillar-num">02</div><h3>Rutina inteligente</h3><p>Un sistema de pasos simple, inspirado en la cosmética coreana.</p></div>
+        <div class="pillar reveal"><div class="pillar-num">03</div><h3>Nutricosmética</h3><p>Cuida tu piel también desde adentro, con hábitos y alimentación.</p></div>
+        <div class="pillar reveal"><div class="pillar-num">04</div><h3>Ciencia celular</h3><p>Conoce la comunicación celular y la glicociencia detrás de una piel sana.</p></div>
+        <div class="pillar reveal"><div class="pillar-num">05</div><h3>Comunidad</h3><p>Avanza acompañada por mujeres que están en el mismo camino.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section class="benefits">
+    <div class="container">
+      <div class="center">
+        <p class="eyebrow">Beneficios</p>
+        <h2 class="section-title reveal">Lo que te llevas <em>al terminar</em></h2>
+        <p class="section-lead reveal">No prometemos perfección. Prometemos claridad, constancia y una nueva relación con tu imagen.</p>
+      </div>
+      <div class="benefit-grid">
+        <div class="benefit reveal"><div class="benefit-icon">✨</div><h3>Una rutina que entiendes</h3><p>Sabrás qué usa tu piel, en qué orden y por qué, para dejar de adivinar.</p></div>
+        <div class="benefit reveal"><div class="benefit-icon">🔬</div><h3>Decisiones con criterio</h3><p>Aprenderás a leer ingredientes y a distinguir lo que funciona de lo que solo suena bien.</p></div>
+        <div class="benefit reveal"><div class="benefit-icon">🌿</div><h3>Hábitos de piel sana</h3><p>Constancia diaria con misiones simples durante 21 días, sin presión ni comparación.</p></div>
+        <div class="benefit reveal"><div class="benefit-icon">🤍</div><h3>Acompañamiento real</h3><p>Dudas resueltas por especialistas y una comunidad que te sostiene en el proceso.</p></div>
+        <div class="benefit reveal"><div class="benefit-icon">🪞</div><h3>Confianza frente al espejo</h3><p>Más seguridad en cómo te ves y en cómo te cuidas, desde el conocimiento.</p></div>
+        <div class="benefit reveal"><div class="benefit-icon">🎯</div><h3>Un plan para tu tipo de piel</h3><p>Orientación personalizada según lo que tu piel realmente necesita.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUÉ INCLUYE -->
+  <section>
+    <div class="container includes-grid">
+      <div class="reveal">
+        <p class="eyebrow">Qué incluye</p>
+        <h2 class="section-title">Un programa completo, <em>no un producto suelto</em></h2>
+        <p class="section-lead">Todo lo que necesitas para aprender, practicar y avanzar acompañada. En tu cita, un especialista te explica cada parte y te ayuda a ver cómo encaja con tu piel y tu momento.</p>
+      </div>
+      <ul class="include-list reveal">
+        <li><span class="tick">✓</span><div><strong>Kit Luminovation</strong><span>Rutina de 4 pasos con filosofía de cosmética coreana y tecnología Mannatech.</span></div></li>
+        <li><span class="tick">✓</span><div><strong>Reto Glow 21</strong><span>21 días de misiones diarias, videos cortos y recordatorios.</span></div></li>
+        <li><span class="tick">✓</span><div><strong>Comunidad privada Glow Club</strong><span>90 días con especialistas invitados, dudas y casos reales.</span></div></li>
+        <li><span class="tick">✓</span><div><strong>Mentoría grupal</strong><span>30 días con una sesión semanal por Zoom.</span></div></li>
+        <li><span class="tick">✓</span><div><strong>eBook y guías</strong><span>"La Ciencia de una Piel Radiante" y guía de nutricosmética inteligente.</span></div></li>
+        <li><span class="tick">✓</span><div><strong>MasterClass de ingredientes</strong><span>Aprende a leer las etiquetas de tus cosméticos.</span></div></li>
+        <li><span class="tick">✓</span><div><strong>Calendario Glow</strong><span>Seguimiento diario para mantener tu constancia.</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CÓMO FUNCIONA LA CITA -->
+  <section class="steps">
+    <div class="container center">
+      <p class="eyebrow">Cómo funciona</p>
+      <h2 class="section-title reveal">Tu cita, en <em>tres pasos</em></h2>
+      <div class="steps-grid">
+        <div class="step reveal"><div class="step-num">1</div><h3>Déjanos tus datos</h3><p>Llena el formulario en menos de un minuto y dinos qué horario te acomoda.</p></div>
+        <div class="step reveal"><div class="step-num">2</div><h3>Te contactamos</h3><p>Un especialista de Glow21 te escribe para confirmar tu cita.</p></div>
+        <div class="step reveal"><div class="step-num">3</div><h3>Conoce tu camino</h3><p>Platicamos sobre tu piel, resolvemos tus dudas y ves si el programa es para ti.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARANZA -->
+  <section class="founder">
+    <div class="container founder-grid">
+      <div class="founder-photo reveal">
+        <picture>
+          <source srcset="assets/foto/aranza-circulo.webp" type="image/webp">
+          <img src="assets/foto/aranza-circulo.png" alt="Aranza Malagón, fundadora de Glow21" loading="lazy">
+        </picture>
+      </div>
+      <div class="reveal">
+        <p class="eyebrow">Quién está detrás</p>
+        <h2 class="section-title">Creado por <em>Aranza Malagón</em></h2>
+        <p>Mentora de Reinvención Femenina. Glow21 nace de una convicción: cuidar tu piel es una forma de volver a cuidarte a ti, y se hace mejor con conocimiento que con promesas.</p>
+        <p>Por eso el programa une ciencia, hábitos y comunidad — y por eso cada mujer merece hablar primero con una persona que la escuche.</p>
+        <p class="founder-sign">Nunca es tarde para cuidarte.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq">
+    <div class="container">
+      <div class="center">
+        <p class="eyebrow">Preguntas frecuentes</p>
+        <h2 class="section-title reveal">Antes de agendar</h2>
+      </div>
+      <div class="faq-list">
+        <details><summary>¿Qué pasa en la cita con el especialista?</summary><p>Es una conversación para conocer tu piel, tus hábitos y lo que buscas. Te explicamos cómo funciona el programa y resolvemos tus dudas. No es una consulta médica.</p></details>
+        <details><summary>¿Tiene algún costo la cita?</summary><p>No. La cita es para que conozcas el programa; la decisión de unirte es siempre tuya y sin presión.</p></details>
+        <details><summary>¿Estoy obligada a inscribirme después?</summary><p>Para nada. Si el programa no es para ti, te lo diremos con honestidad.</p></details>
+        <details><summary>¿Necesito experiencia previa en skincare?</summary><p>No. Glow21 parte desde cero: te enseñamos cómo funciona tu piel y cómo armar una rutina que puedas sostener.</p></details>
+        <details><summary>¿Cuánto tiempo necesito al día?</summary><p>Las misiones diarias del Reto Glow 21 están pensadas para mujeres con agendas llenas: pasos simples y videos cortos.</p></details>
+        <details><summary>¿Cómo me contactan?</summary><p>Por WhatsApp o por teléfono, en el horario que elijas al agendar.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORMULARIO -->
+  <section class="cta-section" id="cita">
+    <div class="container cta-grid">
+      <div class="reveal">
+        <p class="eyebrow">Da el primer paso</p>
+        <h2 class="section-title">Conversa con un especialista y <em>descubre tu camino</em></h2>
+        <p class="lead">Cuéntanos cómo localizarte y te escribimos para confirmar tu cita.</p>
+        <ul class="cta-points">
+          <li>Sin compromiso de inscripción</li>
+          <li>Orientación personalizada para tu tipo de piel</li>
+          <li>Respuesta de un especialista Glow21</li>
+        </ul>
+      </div>
+
+      <div class="form-card reveal">
+        <form id="citaForm" novalidate>
+          <h3>Agenda tu cita</h3>
+          <p class="form-sub">Te toma menos de un minuto.</p>
+          <div class="field"><label for="nombre">Nombre</label><input id="nombre" name="nombre" type="text" autocomplete="name" required></div>
+          <div class="field"><label for="correo">Correo</label><input id="correo" name="correo" type="email" autocomplete="email" inputmode="email" required></div>
+          <div class="field"><label for="telefono">WhatsApp / teléfono</label><input id="telefono" name="telefono" type="tel" autocomplete="tel" inputmode="tel" required></div>
+          <div class="field">
+            <label for="horario">Horario preferido</label>
+            <select id="horario" name="horario">
+              <option value="Mañana (9 a 13 h)">Mañana (9 a 13 h)</option>
+              <option value="Tarde (13 a 18 h)" selected>Tarde (13 a 18 h)</option>
+              <option value="Noche (18 a 21 h)">Noche (18 a 21 h)</option>
+            </select>
+          </div>
+          <div class="hp" aria-hidden="true"><label>No llenar<input type="text" name="web" tabindex="-1" autocomplete="off"></label></div>
+          <p class="form-error" id="formError" role="alert"></p>
+          <button class="btn btn-primary btn-block" id="submitBtn" type="submit">Quiero mi cita</button>
+          <p class="form-legal">Tus datos son confidenciales y solo se usan para contactarte.</p>
+        </form>
+
+        <div class="success" id="success" hidden>
+          <div class="big">🤍</div>
+          <h3>¡Listo, <span id="okName"></span>!</h3>
+          <p>Recibimos tu solicitud. Un especialista de Glow21 te contactará pronto para confirmar tu cita. Si prefieres no esperar, escríbenos ahora.</p>
+          <a class="btn btn-whatsapp" id="waBtn" href="#" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="container">
+    <p>© Glow21 · Programa educativo de Aranza Malagón</p>
+    <p style="margin-top:6px;"><a href="https://wa.me/5213329712823" target="_blank" rel="noopener">¿Dudas? WhatsApp: 33 2971 2823</a></p>
+  </div>
+</footer>
+
+<div class="sticky-cta" id="stickyCta"><a href="#cita" class="btn btn-primary" data-cta="sticky">Agendar mi cita</a></div>
+
+<script>
+  (function () {
+    var WA_NUMBER = '5213329712823';
+
+    // Reveal al hacer scroll
+    var els = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('is-visible'); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function (el) { io.observe(el); });
+    } else { els.forEach(function (el) { el.classList.add('is-visible'); }); }
+
+    // Barra fija móvil: aparece tras el hero y se oculta cuando el formulario está a la vista
+    var sticky = document.getElementById('stickyCta');
+    var hero = document.querySelector('.hero');
+    var cita = document.getElementById('cita');
+    var heroOut = false, citaIn = false;
+    function toggleSticky() { sticky.classList.toggle('show', heroOut && !citaIn); }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (en) { heroOut = !en[0].isIntersecting; toggleSticky(); }).observe(hero);
+      new IntersectionObserver(function (en) { citaIn = en[0].isIntersecting; toggleSticky(); }, { threshold: 0.15 }).observe(cita);
+    }
+
+    // Clic en cualquier CTA
+    document.querySelectorAll('[data-cta]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        if (typeof fbq === 'function') fbq('trackCustom', 'ClicCita', { origen: a.getAttribute('data-cta') });
+      });
+    });
+
+    // Formulario
+    var form = document.getElementById('citaForm');
+    var errorEl = document.getElementById('formError');
+    var btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      errorEl.textContent = '';
+      var f = form.elements;
+      if (f.web.value) return; // honeypot
+      var nombre = f.nombre.value.trim();
+      var correo = f.correo.value.trim();
+      var telefono = f.telefono.value.trim();
+      var horario = f.horario.value;
+
+      if (!nombre) { errorEl.textContent = 'Escribe tu nombre.'; f.nombre.focus(); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) { errorEl.textContent = 'Revisa tu correo, parece incompleto.'; f.correo.focus(); return; }
+      if (telefono.replace(/\D/g, '').length < 10) { errorEl.textContent = 'Escribe tu teléfono a 10 dígitos.'; f.telefono.focus(); return; }
+
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+
+      fetch('/api/registro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'cita', nombre: nombre, correo: correo, telefono: telefono, horario: horario })
+      }).then(function (r) {
+        if (!r.ok) throw new Error('http ' + r.status);
+        if (typeof fbq === 'function') fbq('track', 'Lead');
+        var msg = 'Hola, soy ' + nombre + '. Acabo de pedir mi cita con un especialista de Glow21 (horario: ' + horario + ') y quiero conocer el programa.';
+        document.getElementById('okName').textContent = nombre.split(' ')[0];
+        document.getElementById('waBtn').href = 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(msg);
+        form.hidden = true;
+        document.getElementById('success').hidden = false;
+      }).catch(function () {
+        errorEl.textContent = 'No pudimos guardar tu solicitud. Intenta de nuevo o escríbenos por WhatsApp.';
+        btn.disabled = false;
+        btn.textContent = 'Quiero mi cita';
+      });
+    });
+  })();
+</script>
+</body>
+</html>
