@@ -9,6 +9,8 @@
     { "source": "/preregistro/", "destination": "/preregistro.html" },
     { "source": "/programa", "destination": "/programa.html" },
     { "source": "/programa/", "destination": "/programa.html" },
+    { "source": "/contenido", "destination": "/contenido.html" },
+    { "source": "/contenido/", "destination": "/contenido.html" },
     { "source": "/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/favicon.png", "destination": "/favicon.png" }
   ]
