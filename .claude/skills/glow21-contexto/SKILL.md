@@ -15,7 +15,7 @@ producto, o copy sobre este proyecto, carga y sigue el contenido de
 - Las 4 superficies del embudo (landing, preregistro, admin, CRM) y qué hace cada una
 - Arquitectura técnica (Vercel + Supabase) a nivel de panorama
 - Cómo funcionan los pagos (Stripe) y por qué llenar el formulario no significa que alguien pagó
-- Cómo funciona el envío de correos hoy (manual vía Claude + Gmail, sin dominio propio) y sus limitaciones
+- Cómo funciona el envío de correos hoy (manual vía Claude + Gmail, dominio glow21.com.mx aún sin verificar para envío) y sus limitaciones
 - Las dos comunidades (Skool vs. WhatsApp) y dónde se enlaza cada una
 - Decisiones de negocio recientes a respetar (ej. el colágeno de regalo no está aprobado todavía)
 

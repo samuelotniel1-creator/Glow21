@@ -10,7 +10,7 @@ cómo está conectado, y los pendientes.
 
 ## Estructura
 
-- `public/index.html` — landing pública completa, marca Glow21 (`glow21.vercel.app`)
+- `public/index.html` — landing pública completa, marca Glow21 (`www.glow21.com.mx`)
 - `public/preregistro.html` — landing corta de preregistro para la pauta paga (`/preregistro`) — **no menciona "Glow21"** en el copy visible (ver `GLOW21-CONTEXTO.md`)
 - `admin/` — panel de control (`/admin`), requiere login
 - `crm/` — CRM de leads (`/crm`), requiere login

@@ -33,7 +33,7 @@ por la columna `origen` ('preregistro' vs 'masterclass').
 
 ## El embudo — 4 superficies
 
-1. **`public/index.html`** (`glow21.vercel.app`) — landing con marca completa.
+1. **`public/index.html`** (`www.glow21.com.mx`) — landing con marca completa.
    Cuenta regresiva a la fecha de la clase, gate de registro antes de entrar
    al Zoom embebido (una vez registrado, ya no vuelve a pedir datos), y una
    oferta de compra ("Paquete Glow21", 4 productos físicos — **el colágeno de
@@ -85,7 +85,7 @@ resumen:
 
 - Sitio estático (HTML/CSS/JS sin build, sin framework) + una función
   serverless (`api/stripe-webhook.js`), todo hosteado en **Vercel**
-  (`glow21.vercel.app`, deploy automático al hacer push a `main` en GitHub).
+  (`www.glow21.com.mx`, deploy automático al hacer push a `main` en GitHub).
 - **Supabase** (proyecto `yosammtxqqcwgvkaczyd`) como backend: tablas
   `glow21_settings` (config, fila única), `glow21_profiles` (leads de
   masterclass/preregistro), `glow21_premium_leads` (leads de compra + estado
@@ -121,9 +121,9 @@ webhook cuando Stripe confirma el cobro de verdad.
 ## Correos
 
 No hay un servicio de envío transaccional real (Resend, SendGrid, etc.)
-conectado todavía — se necesitaría un dominio propio verificado para que
-funcione bien (Glow21 no tiene dominio propio hoy, solo el subdominio de
-Vercel). Mientras tanto, el envío es semi-manual:
+conectado todavía. El dominio propio ya existe (`glow21.com.mx`, comprado en
+GoDaddy, apuntado a Vercel; los MX siguen en GoDaddy), pero falta verificarlo
+en un servicio de envío (SPF/DKIM/DMARC). Mientras tanto, el envío es semi-manual:
 
 1. En `/crm` → pestaña **Correos**, se seleccionan destinatarios (de
    Interesados, Registrados, o subiendo un CSV externo), se escribe una
@@ -134,7 +134,7 @@ Vercel). Mientras tanto, el envío es semi-manual:
    el chat: manda cada correo (convirtiendo los links en botones HTML reales)
    y marca la fila como `enviado`.
 
-Limitaciones conocidas de este approach: sin dominio propio, los correos
+Limitaciones conocidas de este approach: al enviar desde Gmail y no desde el dominio, los correos
 pueden caer en spam o mostrar un aviso de "redirección sospechosa" en los
 links (reputación de remitente nueva) — no es un bug de código, es
 reputación. Tampoco hay manera de saber quién abrió el correo o le dio clic
